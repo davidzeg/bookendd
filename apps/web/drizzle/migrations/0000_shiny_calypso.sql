@@ -8,7 +8,7 @@ CREATE TABLE "activities" (
 	"activity_type" varchar(50) NOT NULL,
 	"subject_type" varchar(50) NOT NULL,
 	"subject_id" uuid NOT NULL,
-	"metadata" text,
+	"metadata" jsonb,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
@@ -176,6 +176,20 @@ CREATE TABLE "lists" (
 	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
+CREATE TABLE "reading_checkins" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"user_id" uuid NOT NULL,
+	"user_library_id" uuid NOT NULL,
+	"work_id" uuid NOT NULL,
+	"progress_percent" integer,
+	"progress_page" integer,
+	"pages_total" integer,
+	"content" text,
+	"quote" text,
+	"likes_count" integer DEFAULT 0 NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
 CREATE TABLE "reading_logs" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"user_id" uuid NOT NULL,
@@ -193,6 +207,13 @@ CREATE TABLE "reading_logs" (
 	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
+CREATE TABLE "user_blocks" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"blocker_id" uuid NOT NULL,
+	"blocked_id" uuid NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
 CREATE TABLE "user_library" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"user_id" uuid NOT NULL,
@@ -205,6 +226,13 @@ CREATE TABLE "user_library" (
 	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
+CREATE TABLE "user_mutes" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"muter_id" uuid NOT NULL,
+	"muted_id" uuid NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
 CREATE TABLE "users" (
 	"id" uuid PRIMARY KEY NOT NULL,
 	"username" varchar(50) NOT NULL,
@@ -215,6 +243,7 @@ CREATE TABLE "users" (
 	"books_read_count" integer DEFAULT 0 NOT NULL,
 	"to_read_count" integer DEFAULT 0 NOT NULL,
 	"currently_reading_count" integer DEFAULT 0 NOT NULL,
+	"dnf_count" integer DEFAULT 0 NOT NULL,
 	"followers_count" integer DEFAULT 0 NOT NULL,
 	"following_count" integer DEFAULT 0 NOT NULL,
 	"average_rating" numeric(3, 2),
@@ -279,16 +308,24 @@ ALTER TABLE "list_items" ADD CONSTRAINT "list_items_list_id_lists_id_fk" FOREIGN
 ALTER TABLE "list_items" ADD CONSTRAINT "list_items_work_id_works_id_fk" FOREIGN KEY ("work_id") REFERENCES "public"."works"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "list_items" ADD CONSTRAINT "list_items_edition_id_editions_id_fk" FOREIGN KEY ("edition_id") REFERENCES "public"."editions"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "lists" ADD CONSTRAINT "lists_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "reading_checkins" ADD CONSTRAINT "reading_checkins_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "reading_checkins" ADD CONSTRAINT "reading_checkins_user_library_id_user_library_id_fk" FOREIGN KEY ("user_library_id") REFERENCES "public"."user_library"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "reading_checkins" ADD CONSTRAINT "reading_checkins_work_id_works_id_fk" FOREIGN KEY ("work_id") REFERENCES "public"."works"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "reading_logs" ADD CONSTRAINT "reading_logs_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "reading_logs" ADD CONSTRAINT "reading_logs_work_id_works_id_fk" FOREIGN KEY ("work_id") REFERENCES "public"."works"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "reading_logs" ADD CONSTRAINT "reading_logs_edition_id_editions_id_fk" FOREIGN KEY ("edition_id") REFERENCES "public"."editions"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "user_blocks" ADD CONSTRAINT "user_blocks_blocker_id_users_id_fk" FOREIGN KEY ("blocker_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "user_blocks" ADD CONSTRAINT "user_blocks_blocked_id_users_id_fk" FOREIGN KEY ("blocked_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "user_library" ADD CONSTRAINT "user_library_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "user_library" ADD CONSTRAINT "user_library_work_id_works_id_fk" FOREIGN KEY ("work_id") REFERENCES "public"."works"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "user_library" ADD CONSTRAINT "user_library_edition_id_editions_id_fk" FOREIGN KEY ("edition_id") REFERENCES "public"."editions"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "user_mutes" ADD CONSTRAINT "user_mutes_muter_id_users_id_fk" FOREIGN KEY ("muter_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "user_mutes" ADD CONSTRAINT "user_mutes_muted_id_users_id_fk" FOREIGN KEY ("muted_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "work_authors" ADD CONSTRAINT "work_authors_work_id_works_id_fk" FOREIGN KEY ("work_id") REFERENCES "public"."works"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "work_authors" ADD CONSTRAINT "work_authors_author_id_authors_id_fk" FOREIGN KEY ("author_id") REFERENCES "public"."authors"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 CREATE INDEX "activities_actor_idx" ON "activities" USING btree ("actor_id");--> statement-breakpoint
 CREATE INDEX "activities_feed_idx" ON "activities" USING btree ("actor_id","created_at" DESC NULLS LAST);--> statement-breakpoint
+CREATE INDEX "activities_cursor_idx" ON "activities" USING btree ("created_at" DESC NULLS LAST,"id");--> statement-breakpoint
 CREATE INDEX "authors_name_idx" ON "authors" USING btree ("name");--> statement-breakpoint
 CREATE INDEX "book_club_book_ratings_book_idx" ON "book_club_book_ratings" USING btree ("book_club_book_id");--> statement-breakpoint
 CREATE INDEX "book_club_book_ratings_user_idx" ON "book_club_book_ratings" USING btree ("user_id");--> statement-breakpoint
@@ -312,6 +349,7 @@ CREATE INDEX "book_club_posts_club_idx" ON "book_club_posts" USING btree ("club_
 CREATE INDEX "book_club_posts_user_idx" ON "book_club_posts" USING btree ("user_id");--> statement-breakpoint
 CREATE INDEX "book_club_posts_book_idx" ON "book_club_posts" USING btree ("book_club_book_id");--> statement-breakpoint
 CREATE INDEX "book_club_posts_feed_idx" ON "book_club_posts" USING btree ("club_id","created_at" DESC NULLS LAST);--> statement-breakpoint
+CREATE INDEX "book_club_posts_cursor_idx" ON "book_club_posts" USING btree ("created_at" DESC NULLS LAST,"id");--> statement-breakpoint
 CREATE INDEX "book_club_votes_book_idx" ON "book_club_votes" USING btree ("book_club_book_id");--> statement-breakpoint
 CREATE UNIQUE INDEX "book_club_votes_unique_idx" ON "book_club_votes" USING btree ("book_club_book_id","user_id");--> statement-breakpoint
 CREATE INDEX "book_clubs_owner_idx" ON "book_clubs" USING btree ("owner_id");--> statement-breakpoint
@@ -327,13 +365,25 @@ CREATE INDEX "list_items_list_idx" ON "list_items" USING btree ("list_id");--> s
 CREATE UNIQUE INDEX "list_items_unique_idx" ON "list_items" USING btree ("list_id","work_id");--> statement-breakpoint
 CREATE INDEX "lists_user_idx" ON "lists" USING btree ("user_id");--> statement-breakpoint
 CREATE UNIQUE INDEX "lists_user_slug_idx" ON "lists" USING btree ("user_id","slug");--> statement-breakpoint
+CREATE INDEX "reading_checkins_user_idx" ON "reading_checkins" USING btree ("user_id");--> statement-breakpoint
+CREATE INDEX "reading_checkins_library_idx" ON "reading_checkins" USING btree ("user_library_id");--> statement-breakpoint
+CREATE INDEX "reading_checkins_work_idx" ON "reading_checkins" USING btree ("work_id");--> statement-breakpoint
+CREATE INDEX "reading_checkins_user_created_idx" ON "reading_checkins" USING btree ("user_id","created_at" DESC NULLS LAST);--> statement-breakpoint
+CREATE INDEX "reading_checkins_cursor_idx" ON "reading_checkins" USING btree ("created_at" DESC NULLS LAST,"id");--> statement-breakpoint
 CREATE INDEX "reading_logs_user_idx" ON "reading_logs" USING btree ("user_id");--> statement-breakpoint
 CREATE INDEX "reading_logs_work_idx" ON "reading_logs" USING btree ("work_id");--> statement-breakpoint
 CREATE INDEX "reading_logs_user_created_idx" ON "reading_logs" USING btree ("user_id","created_at" DESC NULLS LAST);--> statement-breakpoint
 CREATE INDEX "reading_logs_user_work_idx" ON "reading_logs" USING btree ("user_id","work_id");--> statement-breakpoint
+CREATE INDEX "reading_logs_cursor_idx" ON "reading_logs" USING btree ("created_at" DESC NULLS LAST,"id");--> statement-breakpoint
+CREATE INDEX "user_blocks_blocker_idx" ON "user_blocks" USING btree ("blocker_id");--> statement-breakpoint
+CREATE INDEX "user_blocks_blocked_idx" ON "user_blocks" USING btree ("blocked_id");--> statement-breakpoint
+CREATE UNIQUE INDEX "user_blocks_unique_idx" ON "user_blocks" USING btree ("blocker_id","blocked_id");--> statement-breakpoint
 CREATE INDEX "user_library_user_idx" ON "user_library" USING btree ("user_id");--> statement-breakpoint
 CREATE INDEX "user_library_status_idx" ON "user_library" USING btree ("user_id","status");--> statement-breakpoint
 CREATE UNIQUE INDEX "user_library_user_work_idx" ON "user_library" USING btree ("user_id","work_id");--> statement-breakpoint
+CREATE INDEX "user_mutes_muter_idx" ON "user_mutes" USING btree ("muter_id");--> statement-breakpoint
+CREATE INDEX "user_mutes_muted_idx" ON "user_mutes" USING btree ("muted_id");--> statement-breakpoint
+CREATE UNIQUE INDEX "user_mutes_unique_idx" ON "user_mutes" USING btree ("muter_id","muted_id");--> statement-breakpoint
 CREATE INDEX "users_username_idx" ON "users" USING btree ("username");--> statement-breakpoint
 CREATE INDEX "works_title_idx" ON "works" USING btree ("title");--> statement-breakpoint
 CREATE INDEX "works_ol_key_idx" ON "works" USING btree ("open_library_key");

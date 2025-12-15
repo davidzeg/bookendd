@@ -4,6 +4,7 @@ import {
   decimal,
   index,
   integer,
+  jsonb,
   pgEnum,
   pgTable,
   primaryKey,
@@ -69,6 +70,8 @@ export const users = pgTable(
     currentlyReadingCount: integer("currently_reading_count")
       .default(0)
       .notNull(),
+    // DNF is a valid reading outcome, not a failure - track it equally
+    dnfCount: integer("dnf_count").default(0).notNull(),
     followersCount: integer("followers_count").default(0).notNull(),
     followingCount: integer("following_count").default(0).notNull(),
     averageRating: decimal("average_rating", { precision: 3, scale: 2 }),
@@ -313,6 +316,61 @@ export const readingLogs = pgTable(
     ),
     // For finding logs of a specific work by a user
     index("reading_logs_user_work_idx").on(table.userId, table.workId),
+    // Stable cursor pagination: (createdAt, id) prevents duplicates/missing items
+    index("reading_logs_cursor_idx").on(table.createdAt.desc(), table.id),
+  ]
+);
+
+// Reading check-ins: ritual/progress updates while reading a book
+// Allows users to post updates, track progress, save memorable passages
+export const readingCheckins = pgTable(
+  "reading_checkins",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+
+    // Reference to the user_library entry (must be currently_reading)
+    userLibraryId: uuid("user_library_id")
+      .notNull()
+      .references(() => userLibrary.id, { onDelete: "cascade" }),
+
+    // Also store workId for easier querying
+    workId: uuid("work_id")
+      .notNull()
+      .references(() => works.id, { onDelete: "cascade" }),
+
+    // Progress tracking (optional) - either percentage or page-based
+    progressPercent: integer("progress_percent"), // 0-100
+    progressPage: integer("progress_page"), // current page
+    pagesTotal: integer("pages_total"), // for page-based progress
+
+    // Unstructured update content
+    content: text("content"),
+
+    // A passage/quote that stuck with the reader during this session
+    quote: text("quote"),
+
+    // Engagement
+    likesCount: integer("likes_count").default(0).notNull(),
+
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    index("reading_checkins_user_idx").on(table.userId),
+    index("reading_checkins_library_idx").on(table.userLibraryId),
+    index("reading_checkins_work_idx").on(table.workId),
+    // Feed queries: user's check-ins sorted by date
+    index("reading_checkins_user_created_idx").on(
+      table.userId,
+      table.createdAt.desc()
+    ),
+    // Stable cursor pagination
+    index("reading_checkins_cursor_idx").on(table.createdAt.desc(), table.id),
   ]
 );
 
@@ -337,6 +395,56 @@ export const follows = pgTable(
     index("follows_follower_idx").on(table.followerId),
     index("follows_following_idx").on(table.followingId),
     uniqueIndex("follows_unique_idx").on(table.followerId, table.followingId),
+  ]
+);
+
+// User blocks: blocker cannot see blocked's content, blocked cannot interact with blocker
+export const userBlocks = pgTable(
+  "user_blocks",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+
+    blockerId: uuid("blocker_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+
+    blockedId: uuid("blocked_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    index("user_blocks_blocker_idx").on(table.blockerId),
+    index("user_blocks_blocked_idx").on(table.blockedId),
+    uniqueIndex("user_blocks_unique_idx").on(table.blockerId, table.blockedId),
+  ]
+);
+
+// User mutes: muter doesn't see muted's content in feed, but muted can still interact
+export const userMutes = pgTable(
+  "user_mutes",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+
+    muterId: uuid("muter_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+
+    mutedId: uuid("muted_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    index("user_mutes_muter_idx").on(table.muterId),
+    index("user_mutes_muted_idx").on(table.mutedId),
+    uniqueIndex("user_mutes_unique_idx").on(table.muterId, table.mutedId),
   ]
 );
 
@@ -428,8 +536,8 @@ export const activities = pgTable(
 
     subjectId: uuid("subject_id").notNull(),
 
-    // additional context (JSON stored as text)
-    metadata: text("metadata"),
+    // additional context - use jsonb for safety, indexability, no parse costs
+    metadata: jsonb("metadata"),
 
     createdAt: timestamp("created_at", { withTimezone: true })
       .defaultNow()
@@ -439,6 +547,8 @@ export const activities = pgTable(
     index("activities_actor_idx").on(table.actorId),
     // building the feed
     index("activities_feed_idx").on(table.actorId, table.createdAt.desc()),
+    // Stable cursor pagination: (createdAt, id) prevents duplicates/missing items
+    index("activities_cursor_idx").on(table.createdAt.desc(), table.id),
   ]
 );
 
@@ -651,6 +761,8 @@ export const bookClubPosts = pgTable(
     index("book_club_posts_book_idx").on(table.bookClubBookId),
     // feed within a club
     index("book_club_posts_feed_idx").on(table.clubId, table.createdAt.desc()),
+    // Stable cursor pagination
+    index("book_club_posts_cursor_idx").on(table.createdAt.desc(), table.id),
   ]
 );
 
