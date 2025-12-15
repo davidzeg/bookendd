@@ -626,7 +626,9 @@ export const bookClubPosts = pgTable(
     // optional: tie post to a specific book discussion
     bookClubBookId: uuid("book_club_book_id").references(
       () => bookClubBooks.id,
-      { onDelete: "set null" }
+      {
+        onDelete: "set null",
+      }
     ),
 
     content: text("content").notNull(),
