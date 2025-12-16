@@ -1,31 +1,33 @@
-import type { Metadata } from 'next'
-import { redirect } from 'next/navigation'
-import { Suspense } from 'react'
-import { createClient } from '@/lib/supabase/server'
-import { db } from '@/db'
-import { OnboardingForm } from './onboarding-form'
+import type { Metadata } from "next";
+import { redirect } from "next/navigation";
+import { Suspense } from "react";
+import { db } from "@/db";
+import { createClient } from "@/lib/supabase/server";
+import { OnboardingForm } from "./onboarding-form";
 
 export const metadata: Metadata = {
-  title: 'Complete Your Profile | Bookendd',
-  description: 'Set up your Bookendd profile',
-}
+  title: "Complete Your Profile | Bookendd",
+  description: "Set up your Bookendd profile",
+};
 
 export default async function OnboardingPage() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   // If not authenticated, redirect to login
   if (!user) {
-    redirect('/login')
+    redirect("/login");
   }
 
   // If already has a profile, redirect to library
   const profile = await db.query.users.findFirst({
     where: (users, { eq }) => eq(users.id, user.id),
-  })
+  });
 
   if (profile) {
-    redirect('/library')
+    redirect("/library");
   }
 
   return (
@@ -43,5 +45,5 @@ export default async function OnboardingPage() {
         </Suspense>
       </div>
     </div>
-  )
+  );
 }

@@ -1,16 +1,19 @@
 import { Book, BookMarked, BookOpen, Plus } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { UserHydrator } from "@/components/providers/user-provider";
 import { SignOutButton } from "@/components/sign-out-button";
 import { Button } from "@/components/ui/button";
-import { createClient } from "@/lib/supabase/server";
 import { db } from "@/db";
+import { userProfileFromDrizzle } from "@/lib/models/user";
+import { createClient } from "@/lib/supabase/server";
 
 export default async function LibraryPage() {
   const supabase = await createClient();
-  const { data: { user: authUser } } = await supabase.auth.getUser();
+  const {
+    data: { user: authUser },
+  } = await supabase.auth.getUser();
 
-  // Middleware should handle this, but as a fallback
   if (!authUser) {
     redirect("/login");
   }
@@ -24,8 +27,11 @@ export default async function LibraryPage() {
     redirect("/onboarding");
   }
 
+  const userProfile = userProfileFromDrizzle(user);
+
   return (
     <div className="min-h-screen bg-background">
+      <UserHydrator user={userProfile} />
       {/* Header */}
       <header className="border-b">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">

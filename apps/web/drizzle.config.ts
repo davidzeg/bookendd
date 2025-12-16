@@ -3,6 +3,14 @@ import { defineConfig } from "drizzle-kit";
 
 config({ path: ".env.local" });
 
+const databaseUrl = process.env.DATABASE_URL;
+
+if (!databaseUrl) {
+  throw new Error(
+    "DATABASE_URL is not set. Please define it to connect to Postgres."
+  );
+}
+
 export default defineConfig({
   schema: "./src/db/schema.ts",
 
@@ -11,7 +19,7 @@ export default defineConfig({
   dialect: "postgresql",
 
   dbCredentials: {
-    url: process.env.DATABASE_URL!,
+    url: databaseUrl,
   },
 
   schemaFilter: ["public"],

@@ -1,12 +1,12 @@
-import type { Metadata } from 'next'
-import Link from 'next/link'
-import { Suspense } from 'react'
-import { SignupForm } from './signup-form'
+import type { Metadata } from "next";
+import Link from "next/link";
+import { Suspense } from "react";
+import { SignupForm } from "./signup-form";
 
 export const metadata: Metadata = {
-  title: 'Sign Up | Bookendd',
-  description: 'Create your Bookendd account',
-}
+  title: "Sign Up | Bookendd",
+  description: "Create your Bookendd account",
+};
 
 export default function SignupPage() {
   return (
@@ -24,12 +24,12 @@ export default function SignupPage() {
         </Suspense>
 
         <p className="text-center text-sm text-muted-foreground">
-          Already have an account?{' '}
+          Already have an account?{" "}
           <Link href="/login" className="text-primary hover:underline">
             Sign in
           </Link>
         </p>
       </div>
     </div>
-  )
+  );
 }

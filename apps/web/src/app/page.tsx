@@ -1,5 +1,6 @@
 import { ArrowRight, BarChart3, Book, Users } from "lucide-react";
 import Link from "next/link";
+import { UserHydrator } from "@/components/providers/user-provider";
 import { Button } from "@/components/ui/button";
 import { getCurrentUser } from "@/lib/auth";
 
@@ -8,6 +9,7 @@ export default async function Home() {
 
   return (
     <div className="min-h-screen bg-background">
+      <UserHydrator user={user} />
       {/* Navigation */}
       <header className="border-b">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">

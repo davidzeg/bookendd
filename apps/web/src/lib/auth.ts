@@ -1,16 +1,23 @@
-import { cache } from 'react'
-import { createClient } from './supabase/server'
+import { type UserProfile, userProfileFromSupabase } from "./models/user";
+import { createClient } from "./supabase/server";
 
-export const getCurrentUser = cache(async () => {
-  const supabase = await createClient()
+export async function getCurrentUser(): Promise<UserProfile | null> {
+  const supabase = await createClient();
 
   const {
     data: { user },
-  } = await supabase.auth.getUser()
+    error: userError,
+  } = await supabase.auth.getUser();
 
-  if (!user) return null
+  if (userError || !user) return null;
 
-  const { data: profile } = await supabase.from('users').select('*').eq('id', user.id).single()
+  const { data: profile, error: profileError } = await supabase
+    .from("users")
+    .select("*")
+    .eq("id", user.id)
+    .single();
 
-  return profile
-})
+  if (profileError || !profile) return null;
+
+  return userProfileFromSupabase(profile);
+}
