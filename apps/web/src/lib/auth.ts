@@ -1,23 +1,23 @@
-import { type UserProfile, userProfileFromSupabase } from "./models/user";
-import { createClient } from "./supabase/server";
+import { type UserProfile, userProfileFromSupabase } from './models/user'
+import { createClient } from './supabase/server'
 
 export async function getCurrentUser(): Promise<UserProfile | null> {
-  const supabase = await createClient();
+  const supabase = await createClient()
 
   const {
     data: { user },
     error: userError,
-  } = await supabase.auth.getUser();
+  } = await supabase.auth.getUser()
 
-  if (userError || !user) return null;
+  if (userError || !user) return null
 
   const { data: profile, error: profileError } = await supabase
-    .from("users")
-    .select("*")
-    .eq("id", user.id)
-    .single();
+    .from('users')
+    .select('*')
+    .eq('id', user.id)
+    .single()
 
-  if (profileError || !profile) return null;
+  if (profileError || !profile) return null
 
-  return userProfileFromSupabase(profile);
+  return userProfileFromSupabase(profile)
 }

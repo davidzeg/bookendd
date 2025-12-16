@@ -1,24 +1,24 @@
-"use client";
+'use client'
 
-import { useSearchParams } from "next/navigation";
-import { useActionState } from "react";
-import { SubmitButton } from "@/components/submit-button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { type LoginState, loginWithEmail } from "./actions";
+import { useSearchParams } from 'next/navigation'
+import { useActionState } from 'react'
+import { SubmitButton } from '@/components/submit-button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { type LoginState, loginWithEmail } from './actions'
 
 export function LoginForm() {
-  const searchParams = useSearchParams();
-  const redirectTo = searchParams.get("redirect") || "/library";
-  const errorFromRedirect = searchParams.get("error");
+  const searchParams = useSearchParams()
+  const redirectTo = searchParams.get('redirect') || '/library'
+  const errorFromRedirect = searchParams.get('error')
 
   const [state, formAction] = useActionState<LoginState, FormData>(
     async (previousState, formData) => {
-      formData.append("redirectTo", redirectTo);
-      return loginWithEmail(previousState, formData);
+      formData.append('redirectTo', redirectTo)
+      return loginWithEmail(previousState, formData)
     },
-    { error: null, success: false }
-  );
+    { error: null, success: false },
+  )
 
   return (
     <div className="space-y-4">
@@ -57,5 +57,5 @@ export function LoginForm() {
         <SubmitButton className="w-full">Sign in</SubmitButton>
       </form>
     </div>
-  );
+  )
 }

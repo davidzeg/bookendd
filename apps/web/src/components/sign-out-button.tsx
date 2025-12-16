@@ -1,6 +1,6 @@
-import { LogOut } from "lucide-react";
-import { signOut } from "@/app/(auth)/actions";
-import { Button } from "./ui/button";
+import { LogOut } from 'lucide-react'
+import { signOut } from '@/app/(auth)/actions'
+import { Button } from './ui/button'
 
 export function SignOutButton() {
   return (
@@ -10,5 +10,5 @@ export function SignOutButton() {
         Sign Out
       </Button>
     </form>
-  );
+  )
 }

@@ -1,29 +1,29 @@
-import type { Database } from "@/lib/supabase/database";
+import type { Database } from '@/lib/supabase/database'
 
 export type UserProfile = {
-  id: string;
-  username: string;
-  displayName: string | null;
-  avatarUrl: string | null;
-  bio: string | null;
-  isPrivate: boolean;
-  booksReadCount: number;
-  toReadCount: number;
-  currentlyReadingCount: number;
-  dnfCount: number;
-  followersCount: number;
-  followingCount: number;
-  averageRating: string | null;
-  ratingDistribution: string | null;
-  createdAt: string;
-  updatedAt: string;
-};
+  id: string
+  username: string
+  displayName: string | null
+  avatarUrl: string | null
+  bio: string | null
+  isPrivate: boolean
+  booksReadCount: number
+  toReadCount: number
+  currentlyReadingCount: number
+  dnfCount: number
+  followersCount: number
+  followingCount: number
+  averageRating: string | null
+  ratingDistribution: string | null
+  createdAt: string
+  updatedAt: string
+}
 
-export type SupabaseUserRow = Database["public"]["Tables"]["users"]["Row"];
-export type DrizzleUserRow = typeof import("@/db/schema").users.$inferSelect;
+export type SupabaseUserRow = Database['public']['Tables']['users']['Row']
+export type DrizzleUserRow = typeof import('@/db/schema').users.$inferSelect
 
 function toIsoString(value: string | Date): string {
-  return value instanceof Date ? value.toISOString() : value;
+  return value instanceof Date ? value.toISOString() : value
 }
 
 export function userProfileFromSupabase(row: SupabaseUserRow): UserProfile {
@@ -44,7 +44,7 @@ export function userProfileFromSupabase(row: SupabaseUserRow): UserProfile {
     ratingDistribution: row.rating_distribution,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
-  };
+  }
 }
 
 export function userProfileFromDrizzle(row: DrizzleUserRow): UserProfile {
@@ -65,5 +65,5 @@ export function userProfileFromDrizzle(row: DrizzleUserRow): UserProfile {
     ratingDistribution: row.ratingDistribution ?? null,
     createdAt: toIsoString(row.createdAt),
     updatedAt: toIsoString(row.updatedAt),
-  };
+  }
 }

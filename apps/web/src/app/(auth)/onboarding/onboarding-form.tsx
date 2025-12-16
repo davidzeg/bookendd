@@ -1,28 +1,28 @@
-"use client";
+'use client'
 
-import { useSearchParams } from "next/navigation";
-import { useActionState } from "react";
-import { SubmitButton } from "@/components/submit-button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { completeOnboarding } from "./actions";
+import { useSearchParams } from 'next/navigation'
+import { useActionState } from 'react'
+import { SubmitButton } from '@/components/submit-button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { completeOnboarding } from './actions'
 
 type OnboardingState = {
-  error: string | null;
-  success: boolean;
-};
+  error: string | null
+  success: boolean
+}
 
 export function OnboardingForm() {
-  const searchParams = useSearchParams();
-  const redirectTo = searchParams.get("next") || "/library";
+  const searchParams = useSearchParams()
+  const redirectTo = searchParams.get('next') || '/library'
 
   const [state, formAction] = useActionState<OnboardingState, FormData>(
     async (previousState, formData) => {
-      formData.append("redirectTo", redirectTo);
-      return completeOnboarding(previousState, formData);
+      formData.append('redirectTo', redirectTo)
+      return completeOnboarding(previousState, formData)
     },
-    { error: null, success: false }
-  );
+    { error: null, success: false },
+  )
 
   return (
     <form action={formAction} className="space-y-4">
@@ -63,5 +63,5 @@ export function OnboardingForm() {
 
       <SubmitButton className="w-full">Complete Setup</SubmitButton>
     </form>
-  );
+  )
 }

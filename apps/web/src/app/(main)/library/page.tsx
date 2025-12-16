@@ -1,33 +1,33 @@
-import { Book, BookMarked, BookOpen, Plus } from "lucide-react";
-import Link from "next/link";
-import { redirect } from "next/navigation";
-import { UserHydrator } from "@/components/providers/user-provider";
-import { SignOutButton } from "@/components/sign-out-button";
-import { Button } from "@/components/ui/button";
-import { db } from "@/db";
-import { userProfileFromDrizzle } from "@/lib/models/user";
-import { createClient } from "@/lib/supabase/server";
+import { Book, BookMarked, BookOpen, Plus } from 'lucide-react'
+import Link from 'next/link'
+import { redirect } from 'next/navigation'
+import { UserHydrator } from '@/components/providers/user-provider'
+import { SignOutButton } from '@/components/sign-out-button'
+import { Button } from '@/components/ui/button'
+import { db } from '@/db'
+import { userProfileFromDrizzle } from '@/lib/models/user'
+import { createClient } from '@/lib/supabase/server'
 
 export default async function LibraryPage() {
-  const supabase = await createClient();
+  const supabase = await createClient()
   const {
     data: { user: authUser },
-  } = await supabase.auth.getUser();
+  } = await supabase.auth.getUser()
 
   if (!authUser) {
-    redirect("/login");
+    redirect('/login')
   }
 
   // Check if user has completed onboarding (has a profile)
   const user = await db.query.users.findFirst({
     where: (users, { eq }) => eq(users.id, authUser.id),
-  });
+  })
 
   if (!user) {
-    redirect("/onboarding");
+    redirect('/onboarding')
   }
 
-  const userProfile = userProfileFromDrizzle(user);
+  const userProfile = userProfileFromDrizzle(user)
 
   return (
     <div className="min-h-screen bg-background">
@@ -39,9 +39,7 @@ export default async function LibraryPage() {
             Bookendd
           </Link>
           <div className="flex items-center gap-4">
-            <span className="text-sm text-muted-foreground hidden sm:inline">
-              @{user.username}
-            </span>
+            <span className="text-sm text-muted-foreground hidden sm:inline">@{user.username}</span>
             <SignOutButton />
           </div>
         </div>
@@ -52,9 +50,7 @@ export default async function LibraryPage() {
         <div className="flex justify-between items-center mb-8">
           <div>
             <h1 className="text-2xl font-bold">Your Library</h1>
-            <p className="text-muted-foreground">
-              Track and organize your reading journey
-            </p>
+            <p className="text-muted-foreground">Track and organize your reading journey</p>
           </div>
           <Button>
             <Plus className="h-4 w-4 mr-2" />
@@ -64,21 +60,9 @@ export default async function LibraryPage() {
 
         {/* Quick Stats */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-          <StatCard
-            icon={<BookOpen className="h-5 w-5" />}
-            label="Currently Reading"
-            value={0}
-          />
-          <StatCard
-            icon={<BookMarked className="h-5 w-5" />}
-            label="Want to Read"
-            value={0}
-          />
-          <StatCard
-            icon={<Book className="h-5 w-5" />}
-            label="Finished"
-            value={0}
-          />
+          <StatCard icon={<BookOpen className="h-5 w-5" />} label="Currently Reading" value={0} />
+          <StatCard icon={<BookMarked className="h-5 w-5" />} label="Want to Read" value={0} />
+          <StatCard icon={<Book className="h-5 w-5" />} label="Finished" value={0} />
         </div>
 
         {/* Empty State */}
@@ -86,9 +70,8 @@ export default async function LibraryPage() {
           <Book className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
           <h2 className="text-xl font-semibold mb-2">Your library is empty</h2>
           <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-            Start building your library by adding your first book. Track what
-            you&apos;re reading, rate books, and keep a record of your reading
-            journey.
+            Start building your library by adding your first book. Track what you&apos;re reading,
+            rate books, and keep a record of your reading journey.
           </p>
           <Button>
             <Plus className="h-4 w-4 mr-2" />
@@ -97,18 +80,10 @@ export default async function LibraryPage() {
         </div>
       </main>
     </div>
-  );
+  )
 }
 
-function StatCard({
-  icon,
-  label,
-  value,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  value: number;
-}) {
+function StatCard({ icon, label, value }: { icon: React.ReactNode; label: string; value: number }) {
   return (
     <div className="p-4 border rounded-lg bg-card">
       <div className="flex items-center gap-3">
@@ -119,5 +94,5 @@ function StatCard({
         </div>
       </div>
     </div>
-  );
+  )
 }

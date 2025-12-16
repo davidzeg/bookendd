@@ -1,29 +1,29 @@
-"use client";
+'use client'
 
-import { useSearchParams } from "next/navigation";
-import { useActionState } from "react";
-import { SubmitButton } from "@/components/submit-button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { signupWithEmail } from "./actions";
+import { useSearchParams } from 'next/navigation'
+import { useActionState } from 'react'
+import { SubmitButton } from '@/components/submit-button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { signupWithEmail } from './actions'
 
 type SignupState = {
-  error: string | null;
-  success: boolean;
-  message?: string;
-};
+  error: string | null
+  success: boolean
+  message?: string
+}
 
 export function SignupForm() {
-  const searchParams = useSearchParams();
-  const redirectTo = searchParams.get("redirect") || "/library";
+  const searchParams = useSearchParams()
+  const redirectTo = searchParams.get('redirect') || '/library'
 
   const [state, formAction] = useActionState<SignupState, FormData>(
     async (previousState, formData) => {
-      formData.append("redirectTo", redirectTo);
-      return signupWithEmail(previousState, formData);
+      formData.append('redirectTo', redirectTo)
+      return signupWithEmail(previousState, formData)
     },
-    { error: null, success: false }
-  );
+    { error: null, success: false },
+  )
 
   return (
     <div className="space-y-4">
@@ -52,8 +52,7 @@ export function SignupForm() {
             minLength={8}
           />
           <p className="text-xs text-muted-foreground">
-            Must be at least 8 characters with uppercase, lowercase, and a
-            number
+            Must be at least 8 characters with uppercase, lowercase, and a number
           </p>
         </div>
 
@@ -83,5 +82,5 @@ export function SignupForm() {
         <SubmitButton className="w-full">Create account</SubmitButton>
       </form>
     </div>
-  );
+  )
 }

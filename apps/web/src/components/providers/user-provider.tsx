@@ -1,12 +1,12 @@
-"use client";
+'use client'
 
-import { useLayoutEffect } from "react";
-import type { UserProfile } from "@/lib/models/user";
-import { useUserStore } from "@/lib/stores/user-store";
+import { useLayoutEffect } from 'react'
+import type { UserProfile } from '@/lib/models/user'
+import { useUserStore } from '@/lib/stores/user-store'
 
 type UserProviderProps = {
-  user: UserProfile | null;
-};
+  user: UserProfile | null
+}
 
 /**
  * Hydrates the client-side user store with server-fetched user data.
@@ -14,21 +14,15 @@ type UserProviderProps = {
  * to avoid refetching that data on the client.
  */
 export function UserHydrator({ user }: UserProviderProps) {
-  const setUser = useUserStore((state) => state.setUser);
+  const setUser = useUserStore((state) => state.setUser)
 
   useLayoutEffect(() => {
-    const current = useUserStore.getState().user;
-    if (!current && !user) return;
-    if (
-      current &&
-      user &&
-      current.id === user.id &&
-      current.updatedAt === user.updatedAt
-    )
-      return;
+    const current = useUserStore.getState().user
+    if (!current && !user) return
+    if (current && user && current.id === user.id && current.updatedAt === user.updatedAt) return
 
-    setUser(user);
-  }, [user, setUser]);
+    setUser(user)
+  }, [user, setUser])
 
-  return null;
+  return null
 }
