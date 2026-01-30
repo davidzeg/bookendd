@@ -11,7 +11,7 @@ export async function createContext({ req }: CreateExpressContextOptions) {
 
   try {
     const payload = await verifyToken(token, {
-      secretKey: process.env.CLERK_SECRET_KEY!,
+      jwtKey: process.env.CLERK_JWT_KEY!,
     });
 
     return { user: { clerkId: payload.sub } };
