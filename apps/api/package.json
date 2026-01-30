@@ -1,5 +1,7 @@
 {
   "name": "@bookendd/api",
+  "main": "./dist/main.js",
+  "types": "./src/index.ts",
   "version": "0.0.1",
   "description": "",
   "author": "",

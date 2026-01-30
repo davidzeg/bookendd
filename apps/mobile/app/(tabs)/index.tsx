@@ -1,6 +1,11 @@
 import { YStack, Text } from "tamagui";
+import { trpc } from "../../lib/trpc";
+import { useAuth } from "@clerk/clerk-expo";
 
 export default function TabOneScreen() {
+  const healthQuery = trpc.health.check.useQuery();
+  const { isSignedIn } = useAuth();
+  console.log("User is signed in:", isSignedIn);
   return (
     <YStack flex={1} alignItems="center" justifyContent="center" gap="$4">
       <Text fontSize="$6" fontWeight="bold">
@@ -8,7 +13,20 @@ export default function TabOneScreen() {
       </Text>
 
       <YStack padding="$4" backgroundColor="$blue5" borderRadius="$4">
-        <Text color="$blue11">Tamagui is working!</Text>
+        {healthQuery.isLoading && <Text color="$blue11">Checking API...</Text>}
+
+        {healthQuery.error && (
+          <Text color="$red11">Error: {healthQuery.error.message}</Text>
+        )}
+
+        {healthQuery.data && (
+          <YStack gap="$2">
+            <Text color="$green11">Status: {healthQuery.data.status}</Text>
+            <Text color="$blue11" fontSize="$3">
+              Timestamp: {healthQuery.data.timestamp}
+            </Text>
+          </YStack>
+        )}
       </YStack>
     </YStack>
   );
