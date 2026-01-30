@@ -5,7 +5,7 @@ import {
   ThemeProvider,
 } from "@react-navigation/native";
 import { useFonts } from "expo-font";
-import { Stack } from "expo-router";
+import { Stack, useRouter, useSegments } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
 import "react-native-reanimated";
@@ -13,6 +13,9 @@ import "react-native-reanimated";
 import { useColorScheme } from "@/components/useColorScheme";
 import { TamaguiProvider } from "tamagui";
 import { tamaguiConfig } from "../tamagui.config";
+import { TRPCProvider } from "@/lib/trpc-provider";
+import { ClerkProvider, useAuth } from "@clerk/clerk-expo";
+import { tokenCache } from "@/lib/clerk";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -28,6 +31,7 @@ export const unstable_settings = {
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
+  const colorScheme = useColorScheme();
   const [loaded, error] = useFonts({
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
     ...FontAwesome.font,
@@ -48,23 +52,49 @@ export default function RootLayout() {
     return null;
   }
 
-  return <RootLayoutNav />;
-}
-
-function RootLayoutNav() {
-  const colorScheme = useColorScheme();
-
   return (
     <TamaguiProvider
       config={tamaguiConfig}
       defaultTheme={colorScheme ?? "light"}
     >
-      <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-        <Stack>
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="modal" options={{ presentation: "modal" }} />
-        </Stack>
-      </ThemeProvider>
+      <ClerkProvider
+        tokenCache={tokenCache}
+        publishableKey={process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY!}
+      >
+        <TRPCProvider>
+          <ThemeProvider
+            value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
+          >
+            <AuthGate />
+          </ThemeProvider>
+        </TRPCProvider>
+      </ClerkProvider>
     </TamaguiProvider>
+  );
+}
+
+function AuthGate() {
+  const { isSignedIn, isLoaded } = useAuth();
+  const router = useRouter();
+  const segments = useSegments();
+
+  useEffect(() => {
+    if (!isLoaded) return;
+
+    const inAuthGroup = segments[0] === "(auth)";
+
+    if (!isSignedIn && !inAuthGroup) {
+      router.replace("/(auth)/sign-in");
+    } else if (isSignedIn && inAuthGroup) {
+      router.replace("/(tabs)");
+    }
+  }, [isSignedIn, isLoaded, segments]);
+
+  return (
+    <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="(auth)" />
+      <Stack.Screen name="(tabs)" />
+      <Stack.Screen name="modal" options={{ presentation: "modal" }} />
+    </Stack>
   );
 }
