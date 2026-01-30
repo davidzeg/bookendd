@@ -1,7 +1,7 @@
 import { Text, YStack } from "tamagui";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-export default function HomeScreen() {
+export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
 
   return (
@@ -12,11 +12,11 @@ export default function HomeScreen() {
       paddingTop={insets.top}
       backgroundColor="$background"
     >
-      <Text fontSize="$7" fontWeight="bold" textAlign="center">
-        What have you been reading?
+      <Text fontSize="$6" fontWeight="bold">
+        Profile
       </Text>
-      <Text color="$gray10" marginTop="$3" textAlign="center">
-        Tap the search button to log a book
+      <Text color="$gray10" marginTop="$2">
+        Coming soon
       </Text>
     </YStack>
   );
