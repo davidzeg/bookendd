@@ -1,6 +1,5 @@
 import { YStack, Text } from "tamagui";
 import { trpc } from "../../lib/trpc";
-import { useAuth } from "@clerk/clerk-expo";
 
 export default function TabOneScreen() {
   const healthQuery = trpc.health.check.useQuery();

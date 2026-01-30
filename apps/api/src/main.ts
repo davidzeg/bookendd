@@ -1,17 +1,23 @@
-import 'dotenv/config';
+import { env } from './env';
 
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { trpcMiddleware } from './trpc/trpc.middleware';
+import { TrpcService } from './trpc/trpc.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  app.use('/trpc', trpcMiddleware);
+  app.enableCors({
+    origin: [/localhost:\d+$/],
+    credentials: true,
+  });
 
-  await app.listen(process.env.PORT ?? 3001);
+  const trpcService = app.get(TrpcService);
+  app.use('/trpc', trpcService.middleware);
 
-  console.log('API running on http://localhost:3001');
-  console.log('tRPC available at http://localhost:3001/trpc');
+  await app.listen(env.PORT);
+
+  console.log(`API running on http://localhost:${env.PORT}`);
+  console.log(`tRPC available at http://localhost:${env.PORT}/trpc`);
 }
-bootstrap();
+void bootstrap();

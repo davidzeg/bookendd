@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pnpm --filter @bookendd/shared typecheck:*)",
+      "Bash(pnpm --filter @bookendd/mobile typecheck:*)",
+      "Bash(pnpm --filter @bookendd/api lint:*)"
+    ]
+  }
+}
