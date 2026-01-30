@@ -1,12 +1,16 @@
-// apps/mobile/components/ui/Button.tsx
 import { forwardRef } from "react";
-import { Button as TamaguiButton, type GetProps } from "tamagui";
+import {
+  Button as TamaguiButton,
+  type GetProps,
+  type TamaguiElement,
+} from "tamagui";
 
 export type ButtonProps = GetProps<typeof TamaguiButton>;
 
-export const Button = forwardRef<typeof TamaguiButton, ButtonProps>((props) => {
+export const Button = forwardRef<TamaguiElement, ButtonProps>((props, ref) => {
   return (
     <TamaguiButton
+      ref={ref}
       {...props}
       pressStyle={{
         scale: 0.98,

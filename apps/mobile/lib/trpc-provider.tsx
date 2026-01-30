@@ -5,8 +5,7 @@ import { httpBatchLink } from "@trpc/client";
 import { useAuth } from "@clerk/clerk-expo";
 
 const getBaseUrl = () => {
-  // TODO: add production url
-  return "http://192.168.100.72:3001";
+  return process.env.EXPO_PUBLIC_API_URL ?? "http://localhost:3001";
 };
 
 export function TRPCProvider({ children }: { children: React.ReactNode }) {
