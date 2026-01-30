@@ -1,0 +1,74 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id        String   @id @default(cuid())
+  clerkId   String   @unique
+  username  String   @unique
+  name      String?
+  avatarUrl String?
+  bio       String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  logs     Log[]
+  topBooks UserTopBook[]
+}
+
+model Book {
+  id              String   @id @default(cuid())
+  openLibraryId   String   @unique  // Work ID (e.g., "OL123W")
+  title           String
+  author          String              // "Author1, Author2" for multiple
+  coverUrl        String?
+  createdAt       DateTime @default(now())
+
+  logs     Log[]
+  topBooks UserTopBook[]
+}
+
+model Log {
+  id          String    @id @default(cuid())
+  userId      String
+  bookId      String
+  status      LogStatus
+  rating      Int?      // 1-6, null if not rated
+  word        String?   // single-word descriptor, validated in app
+  readNumber  Int       @default(1)  // 1 = first read, 2 = re-read, etc.
+  finishedAt  DateTime? // when they finished (user-provided, optional)
+  dnfReason   String?
+  dnfProgress String?   // e.g., "page 50", "25%", "chapter 3"
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  book Book @relation(fields: [bookId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, bookId, readNumber])  // one log per read
+  @@index([userId])
+  @@index([bookId])
+}
+
+model UserTopBook {
+  id       String @id @default(cuid())
+  userId   String
+  bookId   String
+  position Int    // 1-4
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  book Book @relation(fields: [bookId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, position])  // one book per position
+  @@unique([userId, bookId])    // each book only once in top 4
+  @@index([userId])
+}
+
+enum LogStatus {
+  FINISHED
+  DNF
+}
