@@ -4,7 +4,8 @@ import { useAuth } from "@clerk/clerk-expo";
 
 export default function TabOneScreen() {
   const healthQuery = trpc.health.check.useQuery();
-  const { isSignedIn } = useAuth();
+  const authTest = trpc.health.authTest.useQuery();
+
   return (
     <YStack flex={1} alignItems="center" justifyContent="center" gap="$4">
       <Text fontSize="$6" fontWeight="bold">
