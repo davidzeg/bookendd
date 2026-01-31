@@ -1,8 +1,8 @@
-import { useState } from "react";
-import { FlatList, StyleSheet } from "react-native";
-import { Input, Text, XStack, YStack } from "tamagui";
+import { useCallback, useRef, useState } from "react";
+import { FlatList, StyleSheet, TextInput } from "react-native";
+import { Input, TamaguiElement, Text, XStack, YStack } from "tamagui";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useRouter } from "expo-router";
+import { useFocusEffect, useRouter } from "expo-router";
 import { ArrowLeft, X } from "@tamagui/lucide-icons";
 import { trpc } from "@/lib/trpc";
 import { useDebounce } from "@/lib/use-debounce";
@@ -16,6 +16,17 @@ export default function SearchScreen() {
   const debouncedQuery = useDebounce(query.trim(), 300);
   const insets = useSafeAreaInsets();
   const router = useRouter();
+  const inputRef = useRef<TamaguiElement>(null);
+
+  useFocusEffect(
+    useCallback(() => {
+      const timer = setTimeout(() => {
+        inputRef.current?.focus();
+      }, 100);
+
+      return () => clearTimeout(timer);
+    }, []),
+  );
 
   const searchQuery = trpc.book.search.useQuery(
     { query: debouncedQuery, limit: 15 },
@@ -45,6 +56,7 @@ export default function SearchScreen() {
           </Button>
 
           <Input
+            ref={inputRef}
             flex={1}
             value={query}
             onChangeText={setQuery}
@@ -53,7 +65,6 @@ export default function SearchScreen() {
             backgroundColor="$gray3"
             borderWidth={0}
             size="$4"
-            autoFocus
             autoCapitalize="none"
             returnKeyType="search"
           />
