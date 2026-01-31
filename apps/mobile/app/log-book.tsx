@@ -1,7 +1,12 @@
-import { X } from "@tamagui/lucide-icons";
+import { useState } from "react";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Button, Image, Text, XStack, YStack } from "tamagui";
+import { Image, Text, XStack, YStack, Input, ScrollView } from "tamagui";
+import { Star, X } from "@tamagui/lucide-icons";
+import { Button } from "@/components/ui/Button";
+import { KeyboardAvoidingView, Platform } from "react-native";
+
+type LogStatus = "FINISHED" | "DNF" | null;
 
 export default function LogBookModal() {
   const router = useRouter();
@@ -14,54 +19,213 @@ export default function LogBookModal() {
     year: string;
   }>();
 
+  const [status, setStatus] = useState<LogStatus>(null);
+  const [rating, setRating] = useState<number | null>(null);
+  const [word, setWord] = useState("");
+
+  const canSave = status !== null;
+
+  const handleSave = () => {
+    console.log("Saving log:", {
+      openLibraryId: params.openLibraryId,
+      status,
+      rating,
+      word: word.trim() || null,
+    });
+    // TODO: tRPC mutation
+    router.back();
+  };
+
   return (
-    <YStack flex={1} backgroundColor="$background" paddingTop={insets.top}>
-      <XStack
-        justifyContent="space-between"
-        alignItems="center"
-        paddingHorizontal="$4"
-        paddingVertical="$3"
-      >
-        <Text fontSize="$6" fontWeight="700">
-          Log Book
-        </Text>
-        <Button size="$3" circular chromeless onPress={() => router.back()}>
-          <X size={24} color="$gray12" />
-        </Button>
-      </XStack>
-
-      <XStack padding="$4" gap="$4">
-        <Image
-          src={
-            params.coverUrl ||
-            "https://placehold.co/80x120/1a1a2e/666666?text=No+Cover"
-          }
-          width={80}
-          height={120}
-          borderRadius="$3"
-          backgroundColor="$gray5"
-        />
-        <YStack flex={1} justifyContent="center" gap="$1">
-          <Text fontSize="$6" fontWeight="600" numberOfLines={2}>
-            {params.title}
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={{ flex: 1 }}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 80 : 0}
+    >
+      <YStack flex={1} backgroundColor="$background" paddingTop={insets.top}>
+        <XStack
+          justifyContent="space-between"
+          alignItems="center"
+          paddingHorizontal="$4"
+          paddingVertical="$3"
+        >
+          <Button size="$3" circular chromeless onPress={() => router.back()}>
+            <X size={24} color="$gray12" />
+          </Button>
+          <Text fontSize="$5" fontWeight="600">
+            Log Book
           </Text>
-          {params.author && (
-            <Text fontSize="$4" color="$gray11">
-              {params.author}
-            </Text>
-          )}
-          {params.year && (
-            <Text fontSize="$3" color="$gray10">
-              {params.year}
-            </Text>
-          )}
-        </YStack>
-      </XStack>
+          <YStack width={40} />
+        </XStack>
 
-      {/* TODO: Log form will go here  */}
-      <YStack flex={1} padding="$4">
-        <Text color="$gray10">Form coming next</Text>
+        <ScrollView
+          contentContainerStyle={{ flexGrow: 1 }}
+          keyboardShouldPersistTaps="handled"
+        >
+          <XStack
+            padding="$4"
+            gap="$4"
+            borderBottomWidth={1}
+            borderColor="$gray4"
+          >
+            <Image
+              src={
+                params.coverUrl ||
+                "https://placehold.co/80x120/1a1a2e/666666?text=No+Cover"
+              }
+              width={80}
+              height={120}
+              borderRadius="$3"
+              backgroundColor="$gray5"
+            />
+            <YStack flex={1} justifyContent="center" gap="$1">
+              <Text fontSize="$5" fontWeight="600" numberOfLines={2}>
+                {params.title}
+              </Text>
+              {params.author && (
+                <Text fontSize="$3" color="$gray11">
+                  {params.author}
+                </Text>
+              )}
+              {params.year && (
+                <Text fontSize="$2" color="$gray10">
+                  {params.year}
+                </Text>
+              )}
+            </YStack>
+          </XStack>
+
+          <YStack padding="$4" gap="$3">
+            <Text fontSize="$3" fontWeight="600" color="$gray11">
+              STATUS
+            </Text>
+            <XStack gap="$3">
+              <StatusButton
+                label="Finished"
+                selected={status === "FINISHED"}
+                onPress={() => setStatus("FINISHED")}
+              />
+              <StatusButton
+                label="DNF"
+                selected={status === "DNF"}
+                onPress={() => setStatus("DNF")}
+              />
+            </XStack>
+          </YStack>
+
+          {status === "FINISHED" && (
+            <YStack padding="$4" gap="$3">
+              <Text fontSize="$3" fontWeight="600" color="$gray11">
+                RATING
+              </Text>
+              <StarRating rating={rating} onRate={setRating} />
+            </YStack>
+          )}
+
+          {status !== null && (
+            <YStack padding="$4" gap="$3">
+              <Text fontSize="$3" fontWeight="600" color="$gray11">
+                DESCRIBE IN ONE WORD
+              </Text>
+              <Input
+                value={word}
+                onChangeText={(text) => setWord(text.replace(/\s/g, ""))}
+                placeholder="sexy, spooky, nasty"
+                placeholderTextColor="$gray9"
+                backgroundColor="$gray3"
+                borderWidth={0}
+                size="$4"
+                maxLength={30}
+                autoCapitalize="none"
+              />
+              <Text fontSize="$2" color="$gray9">
+                This word will appear in your profile's word cloud
+              </Text>
+            </YStack>
+          )}
+
+          <YStack flex={1} minHeight={24} />
+
+          <YStack padding="$4" paddingBottom={insets.bottom + 16}>
+            <Button
+              size="$5"
+              backgroundColor={canSave ? "$blue10" : "$gray5"}
+              onPress={handleSave}
+              disabled={!canSave}
+            >
+              <Text
+                color={canSave ? "white" : "$gray9"}
+                fontWeight="700"
+                fontSize="$5"
+              >
+                Log Book
+              </Text>
+            </Button>
+          </YStack>
+        </ScrollView>
       </YStack>
-    </YStack>
+    </KeyboardAvoidingView>
+  );
+}
+
+function StatusButton({
+  label,
+  selected,
+  onPress,
+}: {
+  label: string;
+  selected: boolean;
+  onPress: () => void;
+}) {
+  return (
+    <Button
+      flex={1}
+      size="$5"
+      backgroundColor={selected ? "$blue5" : "$gray3"}
+      borderWidth={2}
+      borderColor={selected ? "$blue10" : "$gray3"}
+      pressStyle={{ opacity: 0.8 }}
+      onPress={onPress}
+    >
+      <Text
+        color={selected ? "$blue10" : "$gray11"}
+        fontWeight={selected ? "700" : "500"}
+        fontSize="$4"
+      >
+        {label}
+      </Text>
+    </Button>
+  );
+}
+
+function StarRating({
+  rating,
+  onRate,
+}: {
+  rating: number | null;
+  onRate: (rating: number | null) => void;
+}) {
+  return (
+    <XStack gap="$2" justifyContent="center">
+      {[1, 2, 3, 4, 5, 6].map((star) => {
+        const isActive = rating !== null && star <= rating;
+        return (
+          <Button
+            key={star}
+            size="$5"
+            circular
+            backgroundColor={isActive ? "$yellow5" : "$gray3"}
+            pressStyle={{ opacity: 0.8, scale: 0.95 }}
+            onPress={() => onRate(rating === star ? null : star)}
+          >
+            <Star
+              size={28}
+              fill={isActive ? "#eab308" : "transparent"}
+              color={isActive ? "#eab308" : "$gray8"}
+            />
+          </Button>
+        );
+      })}
+    </XStack>
   );
 }
