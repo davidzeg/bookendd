@@ -143,8 +143,16 @@ export default function SearchScreen() {
               coverUrl={item.coverUrl}
               year={item.firstPublishYear}
               onPress={() => {
-                // TODO: Navigate to log screen
-                console.log("Selected:", item.openLibraryId);
+                router.push({
+                  pathname: "/log-book",
+                  params: {
+                    openLibraryId: item.openLibraryId,
+                    title: item.title,
+                    author: item.author ?? "",
+                    coverUrl: item.coverUrl ?? "",
+                    year: item.firstPublishYear?.toString() ?? "",
+                  },
+                });
               }}
             />
           )}
