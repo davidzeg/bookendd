@@ -4,12 +4,12 @@ import { Input, Text, XStack, YStack } from "tamagui";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { ArrowLeft, X } from "@tamagui/lucide-icons";
-import { trpc } from "../lib/trpc";
-import { useDebounce } from "../lib/use-debounce";
-import { BookCard } from "../components/BookCard";
-import { BookCardSkeleton } from "../components/BookCardSkeleton";
-import { Button } from "../components/ui/Button";
-import { GlassContainer } from "../components/ui/GlassContainer";
+import { trpc } from "@/lib/trpc";
+import { useDebounce } from "@/lib/use-debounce";
+import { BookCard } from "@/components/BookCard";
+import { BookCardSkeleton } from "@/components/BookCardSkeleton";
+import { Button } from "@/components/ui/Button";
+import { GlassContainer } from "@/components/ui/GlassContainer";
 
 export default function SearchScreen() {
   const [query, setQuery] = useState("");
@@ -30,7 +30,6 @@ export default function SearchScreen() {
 
   return (
     <YStack flex={1} backgroundColor="$background">
-      {/* Header with search input */}
       <GlassContainer
         style={[styles.header, { paddingTop: insets.top + 8 }]}
         borderRadius={0}
@@ -67,7 +66,6 @@ export default function SearchScreen() {
         </XStack>
       </GlassContainer>
 
-      {/* Initial State */}
       {showInitial && (
         <YStack
           flex={1}
@@ -81,7 +79,6 @@ export default function SearchScreen() {
         </YStack>
       )}
 
-      {/* Loading State */}
       {showLoading && (
         <YStack padding="$4" gap="$3">
           {[1, 2, 3, 4, 5].map((i) => (
@@ -90,7 +87,6 @@ export default function SearchScreen() {
         </YStack>
       )}
 
-      {/* Error State */}
       {showError && (
         <YStack
           flex={1}
@@ -107,7 +103,6 @@ export default function SearchScreen() {
         </YStack>
       )}
 
-      {/* Empty State */}
       {showEmpty && (
         <YStack
           flex={1}
@@ -124,7 +119,6 @@ export default function SearchScreen() {
         </YStack>
       )}
 
-      {/* Results */}
       {showResults && (
         <FlatList
           data={searchQuery.data}

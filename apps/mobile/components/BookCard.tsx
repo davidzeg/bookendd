@@ -1,4 +1,5 @@
 import { Image, Text, XStack, YStack } from "tamagui";
+import { Image as RNImage } from "react-native";
 
 interface BookCardProps {
   title: string;
@@ -9,7 +10,7 @@ interface BookCardProps {
 }
 
 const PLACEHOLDER_COVER =
-  "https://via.placeholder.com/60x90/e8e8e8/999999?text=No+Cover";
+  "https://placehold.co/60x90/1a1a2e/666666?text=No+Cover";
 
 export function BookCard({
   title,
@@ -30,7 +31,7 @@ export function BookCard({
       borderColor="$borderColor"
     >
       <Image
-        source={{ uri: coverUrl ?? PLACEHOLDER_COVER }}
+        src={coverUrl ?? PLACEHOLDER_COVER}
         width={60}
         height={90}
         borderRadius="$2"
