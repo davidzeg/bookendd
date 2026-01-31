@@ -17,7 +17,7 @@ export function GlassContainer({
   intensity = 80,
   borderRadius = 20,
 }: GlassContainerProps) {
-  const isIOS = (Platform.OS = "ios");
+  const isIOS = Platform.OS === "ios";
   const hasLiquidGlass = isIOS && isLiquidGlassAvailable();
 
   if (hasLiquidGlass) {
