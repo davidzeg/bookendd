@@ -14,6 +14,7 @@ const envSchema = z.object({
     .optional()
     .transform((val) => (val ? val.split(',') : undefined)),
   PORT: z.coerce.number().default(3001),
+  CLERK_WEBHOOK_SECRET: z.string().min(1),
 });
 
 export const env = envSchema.parse(process.env);

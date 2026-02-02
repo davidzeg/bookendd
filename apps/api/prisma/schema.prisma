@@ -24,7 +24,7 @@ model Book {
   id              String   @id @default(cuid())
   openLibraryId   String   @unique  // Work ID (e.g., "OL123W")
   title           String
-  author          String              // "Author1, Author2" for multiple
+  author          String?              // "Author1, Author2" for multiple
   coverUrl        String?
   createdAt       DateTime @default(now())
 
