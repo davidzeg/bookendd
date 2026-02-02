@@ -16,6 +16,7 @@ import { tamaguiConfig } from "../tamagui.config";
 import { TRPCProvider } from "@/lib/trpc-provider";
 import { ClerkProvider, useAuth } from "@clerk/clerk-expo";
 import { tokenCache } from "@/lib/clerk";
+import { env } from "@/lib/env";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -59,7 +60,7 @@ export default function RootLayout() {
     >
       <ClerkProvider
         tokenCache={tokenCache}
-        publishableKey={process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY!}
+        publishableKey={env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY!}
       >
         <TRPCProvider>
           <ThemeProvider

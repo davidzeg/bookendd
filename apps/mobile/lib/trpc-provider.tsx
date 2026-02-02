@@ -3,9 +3,10 @@ import { trpc } from "./trpc";
 import { useState } from "react";
 import { httpBatchLink } from "@trpc/client";
 import { useAuth } from "@clerk/clerk-expo";
+import { env } from "./env";
 
 const getBaseUrl = () => {
-  return process.env.EXPO_PUBLIC_API_URL ?? "http://localhost:3001";
+  return env.EXPO_PUBLIC_API_URL ?? "http://localhost:3001";
 };
 
 export function TRPCProvider({ children }: { children: React.ReactNode }) {
