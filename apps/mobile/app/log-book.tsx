@@ -4,7 +4,8 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Image, Text, XStack, YStack, Input, ScrollView } from "tamagui";
 import { Star, X } from "@tamagui/lucide-icons";
 import { Button } from "@/components/ui/Button";
-import { KeyboardAvoidingView, Platform } from "react-native";
+import { Alert, KeyboardAvoidingView, Platform } from "react-native";
+import { trpc } from "@/lib/trpc";
 
 type LogStatus = "FINISHED" | "DNF" | null;
 
@@ -23,17 +24,44 @@ export default function LogBookModal() {
   const [rating, setRating] = useState<number | null>(null);
   const [word, setWord] = useState("");
 
-  const canSave = status !== null;
+  console.log("Book params:", params);
+
+  const canSave =
+    status === "DNF" || (status === "FINISHED" && rating !== null);
+
+  const createLog = trpc.log.create.useMutation({
+    onSuccess: () => {
+      router.back();
+    },
+    onError: (error) => {
+      Alert.alert("Error", error.message || "Failed to save log");
+    },
+  });
 
   const handleSave = () => {
-    console.log("Saving log:", {
+    if (status === null) return;
+
+    const baseData = {
       openLibraryId: params.openLibraryId,
-      status,
-      rating,
-      word: word.trim() || null,
-    });
-    // TODO: tRPC mutation
-    router.back();
+      title: params.title,
+      author: params.author || null,
+      coverUrl: params.coverUrl || null,
+    };
+
+    if (status === "FINISHED") {
+      createLog.mutate({
+        ...baseData,
+        status: "FINISHED",
+        rating: rating ?? 1,
+        word: word.trim() || null,
+      });
+    } else {
+      createLog.mutate({
+        ...baseData,
+        status: "DNF",
+        word: word.trim() || null,
+      });
+    }
   };
 
   return (
@@ -151,14 +179,15 @@ export default function LogBookModal() {
               size="$5"
               backgroundColor={canSave ? "$blue10" : "$gray5"}
               onPress={handleSave}
-              disabled={!canSave}
+              disabled={!canSave || createLog.isPending}
+              opacity={createLog.isPending ? 0.7 : 1}
             >
               <Text
                 color={canSave ? "white" : "$gray9"}
                 fontWeight="700"
                 fontSize="$5"
               >
-                Log Book
+                {createLog.isPending ? "Saving..." : "Log Book"}
               </Text>
             </Button>
           </YStack>

@@ -37,13 +37,10 @@ function getCoverUrl(
   return `${COVERS_BASE}/${coverId}-${size}.jpg`;
 }
 
-function parseOpenLibraryId(key: string): string {
-  return key.replace('/works/', '');
-}
-
 function transformDoc(doc: OpenLibraryDoc): BookSearchResult {
+  console.log('doc key', doc.key);
   return {
-    openLibraryId: parseOpenLibraryId(doc.key),
+    openLibraryId: doc.key,
     title: doc.title,
     author: doc.author_name?.[0] ?? null,
     coverUrl: getCoverUrl(doc.cover_i),
