@@ -1,24 +1,28 @@
-import { forwardRef } from "react";
-import {
-  Button as TamaguiButton,
-  type GetProps,
-  type TamaguiElement,
-} from "tamagui";
+import { Button as TamaguiButton, type GetProps } from "tamagui";
 
 export type ButtonProps = GetProps<typeof TamaguiButton>;
 
-export const Button = forwardRef<TamaguiElement, ButtonProps>((props, ref) => {
+const ButtonFrame = TamaguiButton.styleable((props: ButtonProps, ref) => {
+  const { pressStyle, ...rest } = props;
+
   return (
     <TamaguiButton
       ref={ref}
-      {...props}
+      {...rest}
       pressStyle={{
         scale: 0.98,
         opacity: 0.9,
-        ...props.pressStyle,
+        ...pressStyle,
       }}
     />
   );
+});
+
+export const Button = Object.assign(ButtonFrame, {
+  Apply: TamaguiButton.Apply,
+  Frame: TamaguiButton.Frame,
+  Text: TamaguiButton.Text,
+  Icon: TamaguiButton.Icon,
 });
 
 Button.displayName = "Button";

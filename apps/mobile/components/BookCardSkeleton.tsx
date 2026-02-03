@@ -14,26 +14,26 @@ export function BookCardSkeleton() {
         width={60}
         height={90}
         borderRadius="$2"
-        backgroundColor="$gray5"
+        backgroundColor="$color3"
       />
       <YStack flex={1} justifyContent="center" gap="$2">
         <YStack
           height={20}
           width="80%"
           borderRadius="$2"
-          backgroundColor="$gray5"
+          backgroundColor="$color3"
         />
         <YStack
           height={14}
           width="50%"
           borderRadius="$2"
-          backgroundColor="$gray4"
+          backgroundColor="$color4"
         />
         <YStack
           height={12}
           width="20%"
           borderRadius="$2"
-          backgroundColor="$gray4"
+          backgroundColor="$color4"
         />
       </YStack>
     </XStack>

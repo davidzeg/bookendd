@@ -76,7 +76,7 @@ export default function LogBookModal() {
           paddingVertical="$3"
         >
           <Button size="$3" circular chromeless onPress={() => router.back()}>
-            <X size={24} color="$gray12" />
+            <X size={24} color="$color12" />
           </Button>
           <Text fontSize="$5" fontWeight="600">
             Log Book
@@ -87,12 +87,13 @@ export default function LogBookModal() {
         <ScrollView
           contentContainerStyle={{ flexGrow: 1 }}
           keyboardShouldPersistTaps="handled"
+          backgroundColor="$background"
         >
           <XStack
             padding="$4"
             gap="$4"
             borderBottomWidth={1}
-            borderColor="$gray4"
+            borderColor="$borderColor"
           >
             <Image
               src={
@@ -102,19 +103,19 @@ export default function LogBookModal() {
               width={80}
               height={120}
               borderRadius="$3"
-              backgroundColor="$gray5"
+              backgroundColor="$color2"
             />
             <YStack flex={1} justifyContent="center" gap="$1">
               <Text fontSize="$5" fontWeight="600" numberOfLines={2}>
                 {params.title}
               </Text>
               {params.author && (
-                <Text fontSize="$3" color="$gray11">
+                <Text fontSize="$3" color="$color11">
                   {params.author}
                 </Text>
               )}
               {params.year && (
-                <Text fontSize="$2" color="$gray10">
+                <Text fontSize="$2" color="$color10">
                   {params.year}
                 </Text>
               )}
@@ -122,18 +123,20 @@ export default function LogBookModal() {
           </XStack>
 
           <YStack padding="$4" gap="$3">
-            <Text fontSize="$3" fontWeight="600" color="$gray11">
+            <Text fontSize="$3" fontWeight="600" color="$color11">
               STATUS
             </Text>
             <XStack gap="$3">
               <StatusButton
                 label="Finished"
                 selected={status === "FINISHED"}
+                themeName="success"
                 onPress={() => setStatus("FINISHED")}
               />
               <StatusButton
                 label="DNF"
                 selected={status === "DNF"}
+                themeName="error"
                 onPress={() => setStatus("DNF")}
               />
             </XStack>
@@ -141,7 +144,7 @@ export default function LogBookModal() {
 
           {status === "FINISHED" && (
             <YStack padding="$4" gap="$3">
-              <Text fontSize="$3" fontWeight="600" color="$gray11">
+              <Text fontSize="$3" fontWeight="600" color="$color11">
                 RATING
               </Text>
               <StarRating rating={rating} onRate={setRating} />
@@ -150,21 +153,18 @@ export default function LogBookModal() {
 
           {status !== null && (
             <YStack padding="$4" gap="$3">
-              <Text fontSize="$3" fontWeight="600" color="$gray11">
+              <Text fontSize="$3" fontWeight="600" color="$color11">
                 DESCRIBE IN ONE WORD
               </Text>
               <Input
                 value={word}
                 onChangeText={(text) => setWord(text.replace(/\s/g, ""))}
                 placeholder="sexy, spooky, nasty"
-                placeholderTextColor="$gray9"
-                backgroundColor="$gray3"
-                borderWidth={0}
                 size="$4"
                 maxLength={30}
                 autoCapitalize="none"
               />
-              <Text fontSize="$2" color="$gray9">
+              <Text fontSize="$2" color="$color10">
                 This word will appear in your profile's word cloud
               </Text>
             </YStack>
@@ -175,18 +175,15 @@ export default function LogBookModal() {
           <YStack padding="$4" paddingBottom={insets.bottom + 16}>
             <Button
               size="$5"
-              backgroundColor={canSave ? "$blue10" : "$gray5"}
+              theme={canSave ? "accent" : undefined}
+              variant={canSave ? undefined : "outlined"}
               onPress={handleSave}
               disabled={!canSave || createLog.isPending}
-              opacity={createLog.isPending ? 0.7 : 1}
+              opacity={!canSave || createLog.isPending ? 0.6 : 1}
             >
-              <Text
-                color={canSave ? "white" : "$gray9"}
-                fontWeight="700"
-                fontSize="$5"
-              >
+              <Button.Text fontWeight="700" fontSize="$5">
                 {createLog.isPending ? "Saving..." : "Log Book"}
-              </Text>
+              </Button.Text>
             </Button>
           </YStack>
         </ScrollView>
@@ -199,28 +196,25 @@ function StatusButton({
   label,
   selected,
   onPress,
+  themeName,
 }: {
   label: string;
   selected: boolean;
   onPress: () => void;
+  themeName: "success" | "error";
 }) {
   return (
     <Button
       flex={1}
       size="$5"
-      backgroundColor={selected ? "$blue5" : "$gray3"}
-      borderWidth={2}
-      borderColor={selected ? "$blue10" : "$gray3"}
+      theme={selected ? themeName : undefined}
+      variant={selected ? undefined : "outlined"}
       pressStyle={{ opacity: 0.8 }}
       onPress={onPress}
     >
-      <Text
-        color={selected ? "$blue10" : "$gray11"}
-        fontWeight={selected ? "700" : "500"}
-        fontSize="$4"
-      >
+      <Button.Text fontWeight={selected ? "700" : "500"} fontSize="$4">
         {label}
-      </Text>
+      </Button.Text>
     </Button>
   );
 }
@@ -241,14 +235,16 @@ function StarRating({
             key={star}
             size="$5"
             circular
-            backgroundColor={isActive ? "$yellow5" : "$gray3"}
+            theme={isActive ? "star" : undefined}
+            backgroundColor={isActive ? "$color3" : "$background"}
+            borderColor={isActive ? "$color7" : "$borderColor"}
+            borderWidth={1}
             pressStyle={{ opacity: 0.8, scale: 0.95 }}
             onPress={() => onRate(rating === star ? null : star)}
           >
             <Star
               size={28}
-              fill={isActive ? "#eab308" : "transparent"}
-              color={isActive ? "#eab308" : "$gray8"}
+              color={isActive ? "$color11" : "$color10"}
             />
           </Button>
         );

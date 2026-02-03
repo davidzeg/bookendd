@@ -1,21 +1,19 @@
 import { Text, YStack } from "tamagui";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function HomeScreen() {
-  const insets = useSafeAreaInsets();
-
   return (
     <YStack
       flex={1}
       justifyContent="center"
       alignItems="center"
-      paddingTop={insets.top}
+      padding="$6"
+      gap="$3"
       backgroundColor="$background"
     >
       <Text fontSize="$7" fontWeight="bold" textAlign="center">
         What have you been reading?
       </Text>
-      <Text color="$gray10" marginTop="$3" textAlign="center">
+      <Text color="$color11" textAlign="center">
         Tap the search button to log a book
       </Text>
     </YStack>

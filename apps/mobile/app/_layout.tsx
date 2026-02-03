@@ -56,7 +56,7 @@ export default function RootLayout() {
   return (
     <TamaguiProvider
       config={tamaguiConfig}
-      defaultTheme={colorScheme ?? "light"}
+      defaultTheme={colorScheme ?? "dark"}
     >
       <ClerkProvider
         tokenCache={tokenCache}

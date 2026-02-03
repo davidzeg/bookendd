@@ -161,6 +161,7 @@ export default function SignInScreen() {
       style={{ flex: 1 }}
     >
       <ScrollView
+        backgroundColor="$background"
         contentContainerStyle={{ flexGrow: 1 }}
         keyboardShouldPersistTaps="handled"
       >
@@ -170,6 +171,7 @@ export default function SignInScreen() {
           alignItems="center"
           padding="$6"
           gap="$4"
+          backgroundColor="$background"
         >
           <YStack width="100%" maxWidth={340} gap="$4">
             <Text
@@ -182,9 +184,17 @@ export default function SignInScreen() {
             </Text>
 
             {error && (
-              <YStack backgroundColor="$red3" padding="$3" borderRadius="$2">
-                <Text color="$red11">{error}</Text>
-              </YStack>
+              <Theme name="error">
+                <YStack
+                  backgroundColor="$background"
+                  borderColor="$borderColor"
+                  borderWidth={1}
+                  padding="$3"
+                  borderRadius="$2"
+                >
+                  <Text color="$color">{error}</Text>
+                </YStack>
+              </Theme>
             )}
 
             {!isAwaitingCode ? (
@@ -201,6 +211,7 @@ export default function SignInScreen() {
                 />
 
                 <Button
+                  theme="accent"
                   size="$5"
                   width="100%"
                   onPress={handleEmailSubmit}
@@ -212,7 +223,7 @@ export default function SignInScreen() {
 
                 <XStack alignItems="center" gap="$3" marginVertical="$1">
                   <YStack flex={1} height={1} backgroundColor="$borderColor" />
-                  <Text color="$gray10" fontSize="$2">
+                  <Text color="$color11" fontSize="$2">
                     or
                   </Text>
                   <YStack flex={1} height={1} backgroundColor="$borderColor" />
@@ -239,12 +250,12 @@ export default function SignInScreen() {
               </>
             ) : (
               <>
-                <Text textAlign="center" color="$gray11" marginBottom="$2">
+                <Text textAlign="center" color="$color11" marginBottom="$2">
                   We sent a code to {email}
                 </Text>
 
                 <Input
-                  placeholder="00000"
+                  placeholder="000000"
                   value={code}
                   onChangeText={setCode}
                   keyboardType="number-pad"
@@ -258,6 +269,7 @@ export default function SignInScreen() {
                 />
 
                 <Button
+                  theme="accent"
                   size="$5"
                   onPress={handleCodeSubmit}
                   disabled={code.length !== 6 || isLoading}

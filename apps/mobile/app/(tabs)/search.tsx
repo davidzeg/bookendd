@@ -1,6 +1,6 @@
 import { useCallback, useRef, useState } from "react";
-import { FlatList, StyleSheet, TextInput } from "react-native";
-import { Input, TamaguiElement, Text, XStack, YStack } from "tamagui";
+import { FlatList, StyleSheet } from "react-native";
+import { Input, TamaguiElement, Text, Theme, XStack, YStack } from "tamagui";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useFocusEffect, useRouter } from "expo-router";
 import { ArrowLeft, X } from "@tamagui/lucide-icons";
@@ -9,7 +9,6 @@ import { useDebounce } from "@/lib/use-debounce";
 import { BookCard } from "@/components/BookCard";
 import { BookCardSkeleton } from "@/components/BookCardSkeleton";
 import { Button } from "@/components/ui/Button";
-import { GlassContainer } from "@/components/ui/GlassContainer";
 
 export default function SearchScreen() {
   const [query, setQuery] = useState("");
@@ -41,18 +40,14 @@ export default function SearchScreen() {
 
   return (
     <YStack flex={1} backgroundColor="$background">
-      <GlassContainer
-        style={[styles.header, { paddingTop: insets.top + 8 }]}
-        borderRadius={0}
+      <YStack
+        paddingTop={insets.top + 8}
+        paddingHorizontal="$4"
+        paddingBottom="$3"
       >
-        <XStack
-          alignItems="center"
-          gap="$3"
-          paddingHorizontal="$4"
-          paddingBottom="$3"
-        >
+        <XStack alignItems="center" gap="$3" paddingVertical="$2">
           <Button size="$3" circular chromeless onPress={() => router.back()}>
-            <ArrowLeft size={24} color="$gray12" />
+            <ArrowLeft size={24} color="$color12" />
           </Button>
 
           <Input
@@ -61,21 +56,21 @@ export default function SearchScreen() {
             value={query}
             onChangeText={setQuery}
             placeholder="Search for a book..."
-            placeholderTextColor="$gray10"
-            backgroundColor="$gray3"
-            borderWidth={0}
             size="$4"
             autoCapitalize="none"
             returnKeyType="search"
+            backgroundColor="$background"
+            borderColor="$borderColor"
+            borderWidth={1}
           />
 
           {query.length > 0 && (
             <Button size="$3" circular chromeless onPress={() => setQuery("")}>
-              <X size={20} color="$gray11" />
+              <X size={20} color="$color11" />
             </Button>
           )}
         </XStack>
-      </GlassContainer>
+      </YStack>
 
       {showInitial && (
         <YStack
@@ -84,7 +79,7 @@ export default function SearchScreen() {
           alignItems="center"
           padding="$6"
         >
-          <Text fontSize="$5" color="$gray10" textAlign="center">
+          <Text fontSize="$5" color="$color11" textAlign="center">
             Search by title, author, or ISBN
           </Text>
         </YStack>
@@ -105,10 +100,12 @@ export default function SearchScreen() {
           alignItems="center"
           padding="$6"
         >
-          <Text fontSize="$5" color="$red10" textAlign="center">
-            Something went wrong
-          </Text>
-          <Text fontSize="$3" color="$gray10" textAlign="center" marginTop="$2">
+          <Theme name="error">
+            <Text fontSize="$5" color="$color" textAlign="center">
+              Something went wrong
+            </Text>
+          </Theme>
+          <Text fontSize="$3" color="$color11" textAlign="center" marginTop="$2">
             {searchQuery.error?.message ?? "Please try again"}
           </Text>
         </YStack>
@@ -121,10 +118,10 @@ export default function SearchScreen() {
           alignItems="center"
           padding="$6"
         >
-          <Text fontSize="$5" color="$gray10" textAlign="center">
+          <Text fontSize="$5" color="$color11" textAlign="center">
             No books found
           </Text>
-          <Text fontSize="$3" color="$gray9" textAlign="center" marginTop="$2">
+          <Text fontSize="$3" color="$color10" textAlign="center" marginTop="$2">
             Try a different search term
           </Text>
         </YStack>
@@ -163,9 +160,6 @@ export default function SearchScreen() {
 }
 
 const styles = StyleSheet.create({
-  header: {
-    borderBottomWidth: 0,
-  },
   listContent: {
     padding: 16,
   },

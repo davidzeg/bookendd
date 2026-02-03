@@ -8,3 +8,9 @@ ignoredBuiltDependencies:
 onlyBuiltDependencies:
   - '@clerk/shared'
   - '@nestjs/core'
+  - '@prisma/engines'
+  - browser-tabs-lock
+  - bufferutil
+  - core-js
+  - prisma
+  - utf-8-validate

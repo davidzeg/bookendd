@@ -1,5 +1,4 @@
 import { Image, Text, XStack, YStack } from "tamagui";
-import { Image as RNImage } from "react-native";
 
 interface BookCardProps {
   title: string;
@@ -35,19 +34,19 @@ export function BookCard({
         width={60}
         height={90}
         borderRadius="$2"
-        backgroundColor="$gray5"
+        backgroundColor="$color2"
       />
       <YStack flex={1} justifyContent="center" gap="$1">
         <Text fontSize="$5" fontWeight="600" numberOfLines={2}>
           {title}
         </Text>
         {author && (
-          <Text fontSize="$3" color="$gray11" numberOfLines={1}>
+          <Text fontSize="$3" color="$color11" numberOfLines={1}>
             {author}
           </Text>
         )}
         {year && (
-          <Text fontSize="$2" color="$gray10">
+          <Text fontSize="$2" color="$color10">
             {year}
           </Text>
         )}
