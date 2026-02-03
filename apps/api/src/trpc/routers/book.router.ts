@@ -1,4 +1,3 @@
-// apps/api/src/trpc/routers/book.router.ts
 import { z } from 'zod';
 import { publicProcedure, router } from '../trpc';
 import { TRPCError } from '@trpc/server';

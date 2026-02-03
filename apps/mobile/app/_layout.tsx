@@ -11,12 +11,14 @@ import { useEffect } from "react";
 import "react-native-reanimated";
 
 import { useColorScheme } from "react-native";
-import { TamaguiProvider } from "tamagui";
+import { Spinner, TamaguiProvider, YStack, Text } from "tamagui";
 import { tamaguiConfig } from "../tamagui.config";
 import { TRPCProvider } from "@/lib/trpc-provider";
 import { ClerkProvider, useAuth } from "@clerk/clerk-expo";
 import { tokenCache } from "@/lib/clerk";
 import { env } from "@/lib/env";
+import { trpc } from "@/lib/trpc";
+import { Button } from "@/components/ui/Button";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -79,17 +81,78 @@ function AuthGate() {
   const router = useRouter();
   const segments = useSegments();
 
+  const userQuery = trpc.user.me.useQuery(undefined, {
+    enabled: isSignedIn === true,
+    retry: 5,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000),
+  });
+
   useEffect(() => {
     if (!isLoaded) return;
 
     const inAuthGroup = segments[0] === "(auth)";
 
-    if (!isSignedIn && !inAuthGroup) {
-      router.replace("/(auth)/sign-in");
-    } else if (isSignedIn && inAuthGroup) {
-      router.replace("/(tabs)");
+    if (!isSignedIn) {
+      if (!inAuthGroup) {
+        router.replace("/(auth)/sign-in");
+      }
+      return;
     }
-  }, [isSignedIn, isLoaded, segments]);
+
+    if (userQuery.isLoading) return;
+
+    if (userQuery.data) {
+      if (inAuthGroup) {
+        router.replace("/(tabs)");
+      }
+    }
+  }, [isSignedIn, isLoaded, segments, userQuery.isLoading, userQuery.data]);
+
+  if (!isLoaded) {
+    return null;
+  }
+
+  if (isSignedIn && userQuery.isLoading) {
+    return (
+      <YStack
+        flex={1}
+        justifyContent="center"
+        alignItems="center"
+        backgroundColor="$background"
+      >
+        <Spinner size="large" color="$accent10" />
+      </YStack>
+    );
+  }
+
+  if (isSignedIn && !userQuery.data) {
+    return (
+      <YStack
+        flex={1}
+        justifyContent="center"
+        alignItems="center"
+        backgroundColor="$background"
+        padding="$6"
+        gap="$3"
+      >
+        <Spinner size="large" color="$accent10" />
+        <Text color="$color11" textAlign="center">
+          Setting up your account...
+        </Text>
+        <Text fontSize="$2" color="$color10" textAlign="center">
+          This may take a moment
+        </Text>
+        <Button
+          marginTop="$2"
+          size="$3"
+          variant="outlined"
+          onPress={() => userQuery.refetch()}
+        >
+          <Button.Text>Retry</Button.Text>
+        </Button>
+      </YStack>
+    );
+  }
 
   return (
     <Stack screenOptions={{ headerShown: false }}>
