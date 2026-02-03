@@ -33,14 +33,6 @@ export default function SearchScreen() {
     { enabled: debouncedQuery.length > 0 },
   );
 
-  console.log("Search state:", {
-    query: debouncedQuery,
-    isLoading: searchQuery.isLoading,
-    isError: searchQuery.isError,
-    error: searchQuery.error?.message,
-    dataLength: searchQuery.data?.length,
-  });
-
   const showInitial = !debouncedQuery;
   const showLoading = searchQuery.isLoading && !searchQuery.data;
   const showEmpty = searchQuery.data?.length === 0;

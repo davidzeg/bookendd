@@ -1,5 +1,7 @@
 import { z } from 'zod';
 import { router, protectedProcedure } from '../trpc';
+import { moderateText } from 'src/lib/moderation';
+import { TRPCError } from '@trpc/server';
 
 const bookDataSchema = z.object({
   openLibraryId: z
@@ -28,7 +30,7 @@ const finishedLogSchema = z.object({
 
 const dnfLogSchema = z.object({
   status: z.literal('DNF'),
-  rating: z.null().optional(), // Explicitly forbidden
+  rating: z.null().optional(),
   word: wordSchema.nullable(),
 });
 
@@ -43,6 +45,16 @@ export const logRouter = router({
   create: protectedProcedure
     .input(createLogInputSchema)
     .mutation(async ({ ctx, input }) => {
+      if (input.word) {
+        const moderation = await moderateText(input.word);
+        if (moderation.flagged) {
+          throw new TRPCError({
+            code: 'BAD_REQUEST',
+            message: 'Please choose a different word',
+          });
+        }
+      }
+
       const clerkId = ctx.user.clerkId;
 
       const log = await ctx.prisma.$transaction(async (tx) => {

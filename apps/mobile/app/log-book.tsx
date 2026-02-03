@@ -24,8 +24,6 @@ export default function LogBookModal() {
   const [rating, setRating] = useState<number | null>(null);
   const [word, setWord] = useState("");
 
-  console.log("Book params:", params);
-
   const canSave =
     status === "DNF" || (status === "FINISHED" && rating !== null);
 

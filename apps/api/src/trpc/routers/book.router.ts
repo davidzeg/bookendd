@@ -38,7 +38,6 @@ function getCoverUrl(
 }
 
 function transformDoc(doc: OpenLibraryDoc): BookSearchResult {
-  console.log('doc key', doc.key);
   return {
     openLibraryId: doc.key,
     title: doc.title,
