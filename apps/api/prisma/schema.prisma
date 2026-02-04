@@ -43,6 +43,7 @@ model Log {
   finishedAt  DateTime? // when they finished (user-provided, optional)
   dnfReason   String?
   dnfProgress String?   // e.g., "page 50", "25%", "chapter 3"
+  isQuickAdd Boolean @default(false)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 

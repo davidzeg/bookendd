@@ -64,7 +64,7 @@ const accentDark = {
   accent7: "hsla(262, 80%, 50%, 1)",
   accent8: "hsla(262, 85%, 58%, 1)",
   accent9: "hsla(262, 88%, 66%, 1)",
-  accent10: "hsla(262, 91%, 76%, 1)", // #a78bfa 
+  accent10: "hsla(262, 91%, 76%, 1)", // #a78bfa
   accent11: "hsla(262, 80%, 85%, 1)",
   accent12: "hsla(262, 70%, 93%, 1)",
 };
@@ -94,7 +94,7 @@ const starDark = {
   accent7: "hsla(292, 80%, 60%, 1)",
   accent8: "hsla(292, 85%, 68%, 1)",
   accent9: "hsla(292, 88%, 76%, 1)",
-  accent10: "hsla(292, 91%, 83%, 1)", // #f0abfc 
+  accent10: "hsla(292, 91%, 83%, 1)", // #f0abfc
   accent11: "hsla(292, 80%, 90%, 1)",
   accent12: "hsla(292, 70%, 95%, 1)",
 };
@@ -129,6 +129,9 @@ const builtThemes = createV5Theme({
     },
   },
 });
+
+builtThemes.light.background = lightPalette[0];
+builtThemes.dark.background = darkPalette[0];
 
 export type Themes = typeof builtThemes;
 

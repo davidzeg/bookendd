@@ -21,7 +21,7 @@ export default function ProfileScreen() {
     userQuery.isError || topBooksQuery.isError || logsQuery.isError;
 
   const user = userQuery.data;
-  const topBooks = topBooksQuery.data ?? [];
+  const topBooks = topBooksQuery.data?.books ?? [];
   const logs = logsQuery.data ?? [];
 
   const stats = useMemo(() => {
@@ -73,7 +73,8 @@ export default function ProfileScreen() {
 
   return (
     <ScrollView
-      style={{ flex: 1, backgroundColor: "transparent" }}
+      flex={1}
+      backgroundColor="$background"
       contentContainerStyle={{
         paddingTop: insets.top + 16,
         paddingBottom: insets.bottom + 24,

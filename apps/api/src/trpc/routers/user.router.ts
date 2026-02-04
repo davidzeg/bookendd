@@ -1,5 +1,68 @@
 import { z } from 'zod';
 import { protectedProcedure, publicProcedure, router } from '../trpc';
+import { PrismaClient } from '@prisma/client';
+
+const bookSelect = {
+  id: true,
+  title: true,
+  author: true,
+  coverUrl: true,
+} as const;
+
+type BookShape = {
+  id: string;
+  title: string;
+  author: string | null;
+  coverUrl: string | null;
+};
+
+async function getTopBooksForUser(prisma: PrismaClient, userId: string) {
+  // Check for explicit top books first
+  const explicitTopBooks = await prisma.userTopBook.findMany({
+    where: { userId },
+    select: {
+      id: true,
+      position: true,
+      book: { select: bookSelect },
+    },
+    orderBy: { position: 'asc' },
+  });
+
+  if (explicitTopBooks.length > 0) {
+    return {
+      books: explicitTopBooks as {
+        id: string;
+        position: number;
+        book: BookShape;
+      }[],
+      isExplicit: true,
+    };
+  }
+
+  // Derive from highest-rated logs
+  const highRatedLogs = await prisma.log.findMany({
+    where: {
+      userId,
+      rating: { gte: 5 },
+      isQuickAdd: false,
+    },
+    select: {
+      id: true,
+      book: { select: bookSelect },
+    },
+    orderBy: [{ rating: 'desc' }, { createdAt: 'desc' }],
+    take: 6,
+  });
+
+  return {
+    books: highRatedLogs.map((log, index) => ({
+      id: log.id,
+      position: index + 1,
+      book: log.book as BookShape,
+    })),
+    isExplicit: false,
+  };
+}
 
 export const userRouter = router({
   me: protectedProcedure.query(async ({ ctx }) => {
@@ -19,13 +82,7 @@ export const userRouter = router({
   }),
 
   topBooksMine: protectedProcedure.query(async ({ ctx }) => {
-    const topBooks = await ctx.prisma.userTopBook.findMany({
-      where: { userId: ctx.user.id },
-      include: { book: true },
-      orderBy: { position: 'asc' },
-    });
-
-    return topBooks;
+    return getTopBooksForUser(ctx.prisma, ctx.user.id);
   }),
 
   byUsername: publicProcedure
@@ -49,11 +106,7 @@ export const userRouter = router({
 
       if (!user) return null;
 
-      const topBooks = await ctx.prisma.userTopBook.findMany({
-        where: { userId: user.id },
-        include: { book: true },
-        orderBy: { position: 'asc' },
-      });
+      const topBooksResult = await getTopBooksForUser(ctx.prisma, user.id);
 
       const recentLogs = await ctx.prisma.log.findMany({
         where: { userId: user.id },
@@ -80,7 +133,7 @@ export const userRouter = router({
 
       return {
         user,
-        topBooks,
+        topBooks: topBooksResult.books,
         recentLogs,
         words,
       };
