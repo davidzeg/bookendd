@@ -87,7 +87,7 @@ export const logRouter = router({
 
   listMine: protectedProcedure.query(async ({ ctx }) => {
     const logs = await ctx.prisma.log.findMany({
-      where: { userId: ctx.user.id },
+      where: { userId: ctx.user.id, isQuickAdd: false },
       include: { book: true },
       orderBy: { createdAt: 'desc' },
       take: 20,
@@ -95,6 +95,45 @@ export const logRouter = router({
 
     return logs;
   }),
+
+  quickAdd: protectedProcedure
+    .input(bookDataSchema)
+    .mutation(async ({ ctx, input }) => {
+      const result = await ctx.prisma.$transaction(async (tx) => {
+        const book = await tx.book.upsert({
+          where: { openLibraryId: input.openLibraryId },
+          create: {
+            openLibraryId: input.openLibraryId,
+            title: input.title,
+            author: input.author,
+            coverUrl: input.coverUrl,
+          },
+          update: {},
+        });
+
+        const existingLog = await tx.log.findFirst({
+          where: {
+            userId: ctx.user.id,
+            bookId: book.id,
+          },
+        });
+
+        if (!existingLog) {
+          await tx.log.create({
+            data: {
+              userId: ctx.user.id,
+              bookId: book.id,
+              status: 'FINISHED',
+              isQuickAdd: true,
+            },
+          });
+        }
+
+        return book;
+      });
+
+      return result;
+    }),
 });
 
 export type CreateLogInput = z.infer<typeof createLogInputSchema>;
