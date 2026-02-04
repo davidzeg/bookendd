@@ -241,6 +241,9 @@ importers:
 
   apps/web:
     dependencies:
+      '@bookendd/api':
+        specifier: workspace:*
+        version: link:../api
       '@tamagui/colors':
         specifier: 2.0.0-rc.0
         version: 2.0.0-rc.0
@@ -253,6 +256,12 @@ importers:
       '@tamagui/themes':
         specifier: 2.0.0-rc.0
         version: 2.0.0-rc.0(react-dom@19.2.3(react@19.2.3))(react-native-safe-area-context@5.6.2(react-native@0.81.5(@babel/core@7.28.6)(@types/react@19.1.17)(bufferutil@4.1.0)(react@19.2.3)(utf-8-validate@5.0.10))(react@19.2.3))(react-native@0.81.5(@babel/core@7.28.6)(@types/react@19.1.17)(bufferutil@4.1.0)(react@19.2.3)(utf-8-validate@5.0.10))(react@19.2.3)
+      '@trpc/client':
+        specifier: ^11.9.0
+        version: 11.9.0(@trpc/server@11.9.0(typescript@5.9.3))(typescript@5.9.3)
+      '@trpc/server':
+        specifier: ^11.9.0
+        version: 11.9.0(typescript@5.9.3)
       next:
         specifier: 16.1.6
         version: 16.1.6(@babel/core@7.28.6)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
