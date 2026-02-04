@@ -10,11 +10,20 @@ export const userRouter = router({
         name: true,
         avatarUrl: true,
         bio: true,
-        topBooks: true,
         createdAt: true,
       },
     });
 
     return user;
+  }),
+
+  topBooksMine: protectedProcedure.query(async ({ ctx }) => {
+    const topBooks = await ctx.prisma.userTopBook.findMany({
+      where: { userId: ctx.user.id },
+      include: { book: true },
+      orderBy: { position: 'asc' },
+    });
+
+    return topBooks;
   }),
 });
