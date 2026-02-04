@@ -1,5 +1,6 @@
 import { Avatar, Text, XStack, YStack } from "tamagui";
 import { StatPill } from "./ui/StatPill";
+import { Button } from "./ui/Button";
 
 interface ProfileHeaderProps {
   name: string | null;
@@ -10,6 +11,7 @@ interface ProfileHeaderProps {
     booksRead: number;
     avgRating: number | null;
   };
+  onEditPress?: () => void;
 }
 
 export function ProfileHeader({
@@ -18,6 +20,7 @@ export function ProfileHeader({
   bio,
   avatarUrl,
   stats,
+  onEditPress,
 }: ProfileHeaderProps) {
   const displayName = name || username || "Profile";
   const initial = displayName.charAt(0).toUpperCase();
@@ -70,6 +73,19 @@ export function ProfileHeader({
           <StatPill value={stats.avgRating.toFixed(1)} label="avg rating" />
         )}
       </XStack>
+
+      {onEditPress && (
+        <Button
+          size="$3"
+          variant="outlined"
+          borderColor="$color6"
+          onPress={onEditPress}
+        >
+          <Text color="$color11" fontWeight="500">
+            Edit Profile
+          </Text>
+        </Button>
+      )}
     </YStack>
   );
 }

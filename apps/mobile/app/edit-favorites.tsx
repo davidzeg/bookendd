@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/Button";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { trpc } from "@/lib/trpc";
 import { useRouter } from "expo-router";
@@ -184,6 +185,19 @@ export default function EditFavoritesScreen() {
     );
   }
 
+  const initialFavorites = topBooksQuery.data?.books ?? [];
+
+  const hasChanges = useMemo(() => {
+    if (favorites.length !== initialFavorites.length) return true;
+    return favorites.some(
+      (f, i) =>
+        f.book.id !== initialFavorites[i]?.book.id ||
+        f.position !== initialFavorites[i]?.position,
+    );
+  }, [favorites, initialFavorites]);
+
+  const canSave = hasChanges && !setFavoritesMutation.isPending;
+
   return (
     <KeyboardAvoidingView
       style={{ flex: 1 }}
@@ -201,27 +215,30 @@ export default function EditFavoritesScreen() {
           marginBottom="$6"
           paddingHorizontal={16}
         >
-          <Text
-            fontSize="$3"
-            color="$accent10"
-            fontWeight="500"
+          <Button
+            chromeless
             onPress={() => router.back()}
-            pressStyle={{ opacity: 0.7 }}
+            disabled={setFavoritesMutation.isPending}
           >
-            Cancel
-          </Text>
-          <Text fontSize="$5" fontWeight="600" color="$color12">
+            <Text color="$accent10">Cancel</Text>
+          </Button>
+          <Text fontSize="$6" fontWeight="700" color="$color12">
             Edit Favorites
           </Text>
-          <Text
-            fontSize="$3"
-            color={setFavoritesMutation.isPending ? "$color9" : "$accent10"}
-            fontWeight="500"
+          <Button
+            chromeless
             onPress={handleSave}
-            pressStyle={{ opacity: 0.7 }}
+            disabled={!canSave}
+            width={80}
           >
-            {setFavoritesMutation.isPending ? "Saving..." : "Save"}
-          </Text>
+            {setFavoritesMutation.isPending ? (
+              <Spinner size="small" color="$accent10" />
+            ) : (
+              <Text color={canSave ? "$accent10" : "$color8"} fontWeight="600">
+                Save
+              </Text>
+            )}
+          </Button>
         </XStack>
 
         <ScrollView

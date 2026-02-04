@@ -196,4 +196,32 @@ export const userRouter = router({
 
       return getTopBooksForUser(ctx.prisma, ctx.user.id);
     }),
+
+  updateProfile: protectedProcedure
+    .input(
+      z.object({
+        name: z.string().min(1).max(100).optional(),
+        bio: z.string().max(500).optional(),
+        avatarUrl: z.url().optional(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const user = await ctx.prisma.user.update({
+        where: { id: ctx.user.id },
+        data: {
+          ...(input.name !== undefined && { name: input.name }),
+          ...(input.bio !== undefined && { bio: input.bio }),
+          ...(input.avatarUrl !== undefined && { avatarUrl: input.avatarUrl }),
+        },
+        select: {
+          id: true,
+          username: true,
+          name: true,
+          avatarUrl: true,
+          bio: true,
+        },
+      });
+
+      return user;
+    }),
 });

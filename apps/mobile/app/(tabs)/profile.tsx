@@ -90,6 +90,7 @@ export default function ProfileScreen() {
           bio={user?.bio ?? null}
           avatarUrl={user?.avatarUrl ?? null}
           stats={stats}
+          onEditPress={() => router.push("/edit-profile")}
         />
 
         <YStack gap="$4">
