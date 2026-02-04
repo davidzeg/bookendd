@@ -12,10 +12,6 @@ interface ProfileHeaderProps {
   };
 }
 
-/**
- * Profile header with avatar, name, username, bio, and stats row
- * Per DESIGN_SYSTEM.md: Avatar size 96, border, display name $8/700
- */
 export function ProfileHeader({
   name,
   username,
@@ -28,7 +24,6 @@ export function ProfileHeader({
 
   return (
     <YStack gap="$4">
-      {/* Avatar and Name Row */}
       <XStack gap="$4" alignItems="center">
         <Avatar circular size={96} borderWidth={3} borderColor="$accent6">
           {avatarUrl ? (
@@ -63,14 +58,12 @@ export function ProfileHeader({
         </YStack>
       </XStack>
 
-      {/* Bio */}
       {bio && (
         <Text fontSize="$4" color="$color11" lineHeight="$5">
           {bio}
         </Text>
       )}
 
-      {/* Stats Row */}
       <XStack gap="$3" flexWrap="wrap">
         <StatPill value={stats.booksRead} label="books" />
         {stats.avgRating !== null && (

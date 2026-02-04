@@ -6,10 +6,6 @@ interface EmptyStateProps {
   minHeight?: number;
 }
 
-/**
- * Standardized empty state with dashed border
- * Per DESIGN_SYSTEM.md: dashed border, $color4, centered content
- */
 export function EmptyState({
   title,
   description,

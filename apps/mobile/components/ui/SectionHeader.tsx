@@ -4,10 +4,6 @@ interface SectionHeaderProps {
   title: string;
 }
 
-/**
- * Section header with accent indicator bar
- * Per DESIGN_SYSTEM.md: accent8 vertical bar, fontSize $5, fontWeight 600
- */
 export function SectionHeader({ title }: SectionHeaderProps) {
   return (
     <XStack alignItems="center" gap="$3">

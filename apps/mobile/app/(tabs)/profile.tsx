@@ -24,7 +24,6 @@ export default function ProfileScreen() {
   const topBooks = topBooksQuery.data ?? [];
   const logs = logsQuery.data ?? [];
 
-  // Calculate stats from logs
   const stats = useMemo(() => {
     const finishedLogs = logs.filter((log) => log.status === "FINISHED");
     const booksRead = finishedLogs.length;

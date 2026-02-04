@@ -64,7 +64,7 @@ const accentDark = {
   accent7: "hsla(262, 80%, 50%, 1)",
   accent8: "hsla(262, 85%, 58%, 1)",
   accent9: "hsla(262, 88%, 66%, 1)",
-  accent10: "hsla(262, 91%, 76%, 1)", // #a78bfa - your main accent
+  accent10: "hsla(262, 91%, 76%, 1)", // #a78bfa 
   accent11: "hsla(262, 80%, 85%, 1)",
   accent12: "hsla(262, 70%, 93%, 1)",
 };
@@ -94,7 +94,7 @@ const starDark = {
   accent7: "hsla(292, 80%, 60%, 1)",
   accent8: "hsla(292, 85%, 68%, 1)",
   accent9: "hsla(292, 88%, 76%, 1)",
-  accent10: "hsla(292, 91%, 83%, 1)", // #f0abfc - your star color
+  accent10: "hsla(292, 91%, 83%, 1)", // #f0abfc 
   accent11: "hsla(292, 80%, 90%, 1)",
   accent12: "hsla(292, 70%, 95%, 1)",
 };
@@ -104,16 +104,13 @@ const builtThemes = createV5Theme({
   lightPalette,
   componentThemes: v5ComponentThemes,
   childrenThemes: {
-    // Include default color themes (blue, red, green, yellow, etc.)
     ...defaultChildrenThemes,
 
-    // Your custom accent color
     accent: {
       light: accentLight,
       dark: accentDark,
     },
 
-    // Semantic color themes for warnings, errors, and success states
     warning: {
       light: yellow,
       dark: yellowDark,

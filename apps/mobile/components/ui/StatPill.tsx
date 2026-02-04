@@ -5,10 +5,6 @@ interface StatPillProps {
   label: string;
 }
 
-/**
- * Small stat display pill for profile stats row
- * Shows a value with a label (e.g., "47 books", "4.2 avg")
- */
 export function StatPill({ value, label }: StatPillProps) {
   return (
     <XStack

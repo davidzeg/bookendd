@@ -66,7 +66,6 @@ export function WordCloud({ words, minWords = 5 }: WordCloudProps) {
     return "400";
   }
 
-  // Per DESIGN_SYSTEM.md: opacity ranges 0.55-1.0 based on frequency
   function getOpacity(count: number): number {
     if (maxCount === minCount) return 0.8;
     const ratio = (count - minCount) / (maxCount - minCount);
