@@ -24,11 +24,14 @@ export default function LogBookModal() {
   const [rating, setRating] = useState<number | null>(null);
   const [word, setWord] = useState("");
 
+  const utils = trpc.useUtils();
+
   const canSave =
     status === "DNF" || (status === "FINISHED" && rating !== null);
 
   const createLog = trpc.log.create.useMutation({
     onSuccess: () => {
+      utils.log.listMine.invalidate();
       router.back();
     },
     onError: (error) => {
@@ -242,10 +245,7 @@ function StarRating({
             pressStyle={{ opacity: 0.8, scale: 0.95 }}
             onPress={() => onRate(rating === star ? null : star)}
           >
-            <Star
-              size={28}
-              color={isActive ? "$color11" : "$color10"}
-            />
+            <Star size={28} color={isActive ? "$color11" : "$color10"} />
           </Button>
         );
       })}

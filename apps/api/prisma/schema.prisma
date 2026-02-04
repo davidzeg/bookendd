@@ -58,7 +58,7 @@ model UserTopBook {
   id       String @id @default(cuid())
   userId   String
   bookId   String
-  position Int    // 1-4
+  position Int    
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   book Book @relation(fields: [bookId], references: [id], onDelete: Cascade)
