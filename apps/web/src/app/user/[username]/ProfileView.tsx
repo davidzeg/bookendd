@@ -456,16 +456,28 @@ export function ProfileView({ data }: { data: ProfileData }) {
             borderWidth={3}
             borderColor="$accent6"
           >
-            <Avatar.Image src={user.avatarUrl || undefined} />
-            <Avatar.Fallback
-              backgroundColor="$accent5"
-              justifyContent="center"
-              alignItems="center"
-            >
-              <Text color="$accent12" fontSize="$8" fontWeight="700">
-                {displayName.charAt(0).toUpperCase()}
-              </Text>
-            </Avatar.Fallback>
+            {user.avatarUrl ? (
+              <Image
+                src={user.avatarUrl}
+                alt={displayName}
+                width={AVATAR_SIZE}
+                height={AVATAR_SIZE}
+                style={{
+                  borderRadius: "50%",
+                  objectFit: "cover",
+                }}
+              />
+            ) : (
+              <Avatar.Fallback
+                backgroundColor="$accent5"
+                justifyContent="center"
+                alignItems="center"
+              >
+                <Text color="$accent12" fontSize="$8" fontWeight="700">
+                  {displayName.charAt(0).toUpperCase()}
+                </Text>
+              </Avatar.Fallback>
+            )}
           </Avatar>
           <YStack flex={1} gap="$1">
             <Text
