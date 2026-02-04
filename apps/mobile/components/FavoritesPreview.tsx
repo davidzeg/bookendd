@@ -1,6 +1,6 @@
-import { Image, Text, XStack } from "tamagui";
-import { YStack } from "tamagui";
+import { Image, Text, XStack, YStack } from "tamagui";
 import { Button } from "./ui/Button";
+import { EmptyState } from "./ui/EmptyState";
 
 const PLACEHOLDER_COVER =
   "https://placehold.co/120x180/1a1a2e/666666?text=No+Cover";
@@ -50,17 +50,10 @@ export function FavoritesPreview({
 }: FavoritesPreviewProps) {
   if (favorites.length === 0) {
     return (
-      <YStack
-        padding="$4"
-        backgroundColor="$color2"
-        borderRadius="$4"
-        alignItems="center"
-      >
-        <Text color="$color11">No favorites yet</Text>
-        <Text fontSize="$2" color="$color10" marginTop="$1">
-          Add books from your logs
-        </Text>
-      </YStack>
+      <EmptyState
+        title="No favorites yet"
+        description="Rate books 5 or 6 stars and they'll appear here"
+      />
     );
   }
 

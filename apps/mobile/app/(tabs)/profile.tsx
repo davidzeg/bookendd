@@ -1,6 +1,9 @@
+import { useMemo } from "react";
 import { FavoritesPreview } from "@/components/FavoritesPreview";
+import { ProfileHeader } from "@/components/ProfileHeader";
 import { RecentActivity } from "@/components/RecentActivity";
 import { WordCloud } from "@/components/WordCloud";
+import { SectionHeader } from "@/components/ui/SectionHeader";
 import { trpc } from "@/lib/trpc";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ScrollView, Spinner, Text, Theme, YStack } from "tamagui";
@@ -16,6 +19,24 @@ export default function ProfileScreen() {
     userQuery.isLoading || topBooksQuery.isLoading || logsQuery.isLoading;
   const isError =
     userQuery.isError || topBooksQuery.isError || logsQuery.isError;
+
+  const user = userQuery.data;
+  const topBooks = topBooksQuery.data ?? [];
+  const logs = logsQuery.data ?? [];
+
+  // Calculate stats from logs
+  const stats = useMemo(() => {
+    const finishedLogs = logs.filter((log) => log.status === "FINISHED");
+    const booksRead = finishedLogs.length;
+    const ratingsSum = finishedLogs.reduce(
+      (sum, log) => sum + (log.rating ?? 0),
+      0,
+    );
+    const avgRating =
+      booksRead > 0 ? Math.round((ratingsSum / booksRead) * 10) / 10 : null;
+
+    return { booksRead, avgRating };
+  }, [logs]);
 
   if (isLoading) {
     return (
@@ -51,10 +72,6 @@ export default function ProfileScreen() {
     );
   }
 
-  const user = userQuery.data;
-  const topBooks = topBooksQuery.data ?? [];
-  const logs = logsQuery.data ?? [];
-
   return (
     <ScrollView
       style={{ flex: 1, backgroundColor: "transparent" }}
@@ -64,27 +81,17 @@ export default function ProfileScreen() {
         paddingHorizontal: 16,
       }}
     >
-      <YStack gap="$6">
-        <YStack gap="$2">
-          <Text fontSize="$8" fontWeight="bold" color="$color12">
-            {user?.name || user?.username || "Profile"}
-          </Text>
-          {user?.username && user?.name && (
-            <Text fontSize="$4" color="$color11">
-              @{user.username}
-            </Text>
-          )}
-          {user?.bio && (
-            <Text fontSize="$4" color="$color11" marginTop="$1">
-              {user.bio}
-            </Text>
-          )}
-        </YStack>
+      <YStack gap="$8">
+        <ProfileHeader
+          name={user?.name ?? null}
+          username={user?.username ?? null}
+          bio={user?.bio ?? null}
+          avatarUrl={user?.avatarUrl ?? null}
+          stats={stats}
+        />
 
-        <YStack gap="$3">
-          <Text fontSize="$5" fontWeight="600" color="$color12">
-            Favorite Books
-          </Text>
+        <YStack gap="$4">
+          <SectionHeader title="Favorite Books" />
           <FavoritesPreview
             favorites={topBooks}
             onSeeAll={() => {
@@ -93,17 +100,13 @@ export default function ProfileScreen() {
           />
         </YStack>
 
-        <YStack gap="$3">
-          <Text fontSize="$5" fontWeight="600" color="$color12">
-            Word Cloud
-          </Text>
+        <YStack gap="$4">
+          <SectionHeader title="Word Cloud" />
           <WordCloud words={logs.map((log) => log.word)} minWords={1} />
         </YStack>
 
-        <YStack gap="$3">
-          <Text fontSize="$5" fontWeight="600" color="$color12">
-            Recent Activity
-          </Text>
+        <YStack gap="$4">
+          <SectionHeader title="Recent Activity" />
           <RecentActivity logs={logs} />
         </YStack>
       </YStack>

@@ -3,17 +3,17 @@ import { XStack, YStack } from "tamagui";
 export function BookCardSkeleton() {
   return (
     <XStack
-      backgroundColor="$background"
+      backgroundColor="$color2"
       borderRadius="$4"
       padding="$3"
       gap="$3"
       borderWidth={1}
-      borderColor="$borderColor"
+      borderColor="$color4"
     >
       <YStack
         width={60}
         height={90}
-        borderRadius="$2"
+        borderRadius="$3"
         backgroundColor="$color3"
       />
       <YStack flex={1} justifyContent="center" gap="$2">

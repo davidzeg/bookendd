@@ -1,5 +1,6 @@
 import { useMemo } from "react";
-import { Text, XStack, YStack } from "tamagui";
+import { Text, XStack } from "tamagui";
+import { EmptyState } from "./ui/EmptyState";
 
 interface WordCloudProps {
   words: (string | null)[];
@@ -40,17 +41,10 @@ export function WordCloud({ words, minWords = 5 }: WordCloudProps) {
   if (totalWords < minWords) {
     const remaining = minWords - totalWords;
     return (
-      <YStack
-        padding="$4"
-        backgroundColor="$color2"
-        borderRadius="$4"
-        alignItems="center"
-      >
-        <Text color="$color11">Not enough words yet</Text>
-        <Text fontSize="$2" color="$color10" marginTop="$1">
-          Log {remaining} more book{remaining !== 1 ? "s" : ""} with descriptors
-        </Text>
-      </YStack>
+      <EmptyState
+        title="Not enough words yet"
+        description={`Log ${remaining} more book${remaining !== 1 ? "s" : ""} with descriptors`}
+      />
     );
   }
 
@@ -72,6 +66,13 @@ export function WordCloud({ words, minWords = 5 }: WordCloudProps) {
     return "400";
   }
 
+  // Per DESIGN_SYSTEM.md: opacity ranges 0.55-1.0 based on frequency
+  function getOpacity(count: number): number {
+    if (maxCount === minCount) return 0.8;
+    const ratio = (count - minCount) / (maxCount - minCount);
+    return 0.55 + ratio * 0.45;
+  }
+
   return (
     <XStack
       flexWrap="wrap"
@@ -88,6 +89,7 @@ export function WordCloud({ words, minWords = 5 }: WordCloudProps) {
           fontSize={getFontSize(count)}
           fontWeight={getFontWeight(count)}
           color="$color11"
+          opacity={getOpacity(count)}
           paddingHorizontal="$1"
         >
           {word}

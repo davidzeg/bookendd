@@ -78,10 +78,17 @@ export default function LogBookModal() {
           paddingHorizontal="$4"
           paddingVertical="$3"
         >
-          <Button size="$3" circular chromeless onPress={() => router.back()}>
+          <Button
+            size="$3"
+            circular
+            chromeless
+            onPress={() => router.back()}
+            accessibilityLabel="Close"
+            accessibilityRole="button"
+          >
             <X size={24} color="$color12" />
           </Button>
-          <Text fontSize="$5" fontWeight="600">
+          <Text fontSize="$5" fontWeight="600" color="$color12">
             Log Book
           </Text>
           <YStack width={40} />
@@ -96,20 +103,28 @@ export default function LogBookModal() {
             padding="$4"
             gap="$4"
             borderBottomWidth={1}
-            borderColor="$borderColor"
+            borderColor="$color4"
           >
-            <Image
-              src={
-                params.coverUrl ||
-                "https://placehold.co/80x120/1a1a2e/666666?text=No+Cover"
-              }
-              width={80}
-              height={120}
+            <YStack
               borderRadius="$3"
-              backgroundColor="$color2"
-            />
+              overflow="hidden"
+              shadowColor="$color1"
+              shadowOffset={{ width: 0, height: 4 }}
+              shadowOpacity={0.3}
+              shadowRadius={8}
+            >
+              <Image
+                src={
+                  params.coverUrl ||
+                  "https://placehold.co/80x120/1a1a2e/666666?text=No+Cover"
+                }
+                width={80}
+                height={120}
+                backgroundColor="$color2"
+              />
+            </YStack>
             <YStack flex={1} justifyContent="center" gap="$1">
-              <Text fontSize="$5" fontWeight="600" numberOfLines={2}>
+              <Text fontSize="$5" fontWeight="600" color="$color12" numberOfLines={2}>
                 {params.title}
               </Text>
               {params.author && (
@@ -126,7 +141,7 @@ export default function LogBookModal() {
           </XStack>
 
           <YStack padding="$4" gap="$3">
-            <Text fontSize="$3" fontWeight="600" color="$color11">
+            <Text fontSize="$3" fontWeight="600" color="$color12">
               STATUS
             </Text>
             <XStack gap="$3">
@@ -147,7 +162,7 @@ export default function LogBookModal() {
 
           {status === "FINISHED" && (
             <YStack padding="$4" gap="$3">
-              <Text fontSize="$3" fontWeight="600" color="$color11">
+              <Text fontSize="$3" fontWeight="600" color="$color12">
                 RATING
               </Text>
               <StarRating rating={rating} onRate={setRating} />
@@ -156,7 +171,7 @@ export default function LogBookModal() {
 
           {status !== null && (
             <YStack padding="$4" gap="$3">
-              <Text fontSize="$3" fontWeight="600" color="$color11">
+              <Text fontSize="$3" fontWeight="600" color="$color12">
                 DESCRIBE IN ONE WORD
               </Text>
               <Input
@@ -166,6 +181,13 @@ export default function LogBookModal() {
                 size="$4"
                 maxLength={30}
                 autoCapitalize="none"
+                backgroundColor="$color2"
+                borderColor="$color4"
+                borderWidth={1}
+                color="$color12"
+                placeholderTextColor="$color9"
+                accessibilityLabel="Describe this book in one word"
+                accessibilityHint="This word will appear in your profile word cloud"
               />
               <Text fontSize="$2" color="$color10">
                 This word will appear in your profile's word cloud
@@ -183,6 +205,9 @@ export default function LogBookModal() {
               onPress={handleSave}
               disabled={!canSave || createLog.isPending}
               opacity={!canSave || createLog.isPending ? 0.6 : 1}
+              accessibilityLabel={createLog.isPending ? "Saving your log" : "Save book log"}
+              accessibilityRole="button"
+              accessibilityState={{ disabled: !canSave || createLog.isPending }}
             >
               <Button.Text fontWeight="700" fontSize="$5">
                 {createLog.isPending ? "Saving..." : "Log Book"}
@@ -214,6 +239,9 @@ function StatusButton({
       variant={selected ? undefined : "outlined"}
       pressStyle={{ opacity: 0.8 }}
       onPress={onPress}
+      accessibilityLabel={`Mark as ${label}`}
+      accessibilityRole="button"
+      accessibilityState={{ selected }}
     >
       <Button.Text fontWeight={selected ? "700" : "500"} fontSize="$4">
         {label}
@@ -230,7 +258,7 @@ function StarRating({
   onRate: (rating: number | null) => void;
 }) {
   return (
-    <XStack gap="$2" justifyContent="center">
+    <XStack gap="$2" justifyContent="center" accessibilityRole="radiogroup">
       {[1, 2, 3, 4, 5, 6].map((star) => {
         const isActive = rating !== null && star <= rating;
         return (
@@ -240,10 +268,13 @@ function StarRating({
             circular
             theme={isActive ? "star" : undefined}
             backgroundColor={isActive ? "$color3" : "$background"}
-            borderColor={isActive ? "$color7" : "$borderColor"}
+            borderColor={isActive ? "$color7" : "$color4"}
             borderWidth={1}
             pressStyle={{ opacity: 0.8, scale: 0.95 }}
             onPress={() => onRate(rating === star ? null : star)}
+            accessibilityLabel={`${star} star${star > 1 ? "s" : ""}`}
+            accessibilityRole="radio"
+            accessibilityState={{ checked: rating === star }}
           >
             <Star size={28} color={isActive ? "$color11" : "$color10"} />
           </Button>

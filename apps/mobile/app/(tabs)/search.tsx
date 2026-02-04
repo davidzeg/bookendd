@@ -46,7 +46,14 @@ export default function SearchScreen() {
         paddingBottom="$3"
       >
         <XStack alignItems="center" gap="$3" paddingVertical="$2">
-          <Button size="$3" circular chromeless onPress={() => router.back()}>
+          <Button
+            size="$3"
+            circular
+            chromeless
+            onPress={() => router.back()}
+            accessibilityLabel="Go back"
+            accessibilityRole="button"
+          >
             <ArrowLeft size={24} color="$color12" />
           </Button>
 
@@ -59,13 +66,24 @@ export default function SearchScreen() {
             size="$4"
             autoCapitalize="none"
             returnKeyType="search"
-            backgroundColor="$background"
-            borderColor="$borderColor"
+            backgroundColor="$color2"
+            borderColor="$color4"
             borderWidth={1}
+            color="$color12"
+            placeholderTextColor="$color9"
+            accessibilityLabel="Search for a book"
+            accessibilityHint="Enter a title, author, or ISBN"
           />
 
           {query.length > 0 && (
-            <Button size="$3" circular chromeless onPress={() => setQuery("")}>
+            <Button
+              size="$3"
+              circular
+              chromeless
+              onPress={() => setQuery("")}
+              accessibilityLabel="Clear search"
+              accessibilityRole="button"
+            >
               <X size={20} color="$color11" />
             </Button>
           )}
@@ -133,6 +151,10 @@ export default function SearchScreen() {
           keyExtractor={(item) => item.openLibraryId}
           contentContainerStyle={styles.listContent}
           ItemSeparatorComponent={() => <YStack height={12} />}
+          removeClippedSubviews
+          initialNumToRender={8}
+          maxToRenderPerBatch={5}
+          windowSize={5}
           renderItem={({ item }) => (
             <BookCard
               title={item.title}

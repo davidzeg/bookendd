@@ -1,6 +1,7 @@
 import { ScrollView } from "react-native";
-import { Image, Text, XStack, YStack, Theme, useTheme } from "tamagui";
+import { Image, Text, XStack, YStack, Theme } from "tamagui";
 import { StarDisplay } from "@/components/ui/StarDisplay";
+import { EmptyState } from "@/components/ui/EmptyState";
 
 const PLACEHOLDER_COVER =
   "https://placehold.co/80x120/1a1a2e/666666?text=No+Cover";
@@ -73,13 +74,21 @@ function ActivityItem({ log }: { log: LogWithBook }) {
   return (
     <XStack gap={4} alignItems="flex-start">
       <YStack gap="$2" alignItems="center">
-        <Image
-          src={log.book.coverUrl ?? PLACEHOLDER_COVER}
-          width={COVER_WIDTH}
-          height={COVER_HEIGHT}
-          borderRadius="$2"
-          backgroundColor="$color3"
-        />
+        <YStack
+          borderRadius="$3"
+          overflow="hidden"
+          shadowColor="$color1"
+          shadowOffset={{ width: 0, height: 4 }}
+          shadowOpacity={0.3}
+          shadowRadius={8}
+        >
+          <Image
+            src={log.book.coverUrl ?? PLACEHOLDER_COVER}
+            width={COVER_WIDTH}
+            height={COVER_HEIGHT}
+            backgroundColor="$color3"
+          />
+        </YStack>
         <YStack height={STAR_SIZE} justifyContent="center" alignItems="center">
           {log.status === "FINISHED" && log.rating ? (
             <StarDisplay rating={log.rating} size={STAR_SIZE} />
@@ -97,17 +106,10 @@ function ActivityItem({ log }: { log: LogWithBook }) {
 export function RecentActivity({ logs }: RecentActivityProps) {
   if (logs.length === 0) {
     return (
-      <YStack
-        padding="$4"
-        backgroundColor="$color2"
-        borderRadius="$4"
-        alignItems="center"
-      >
-        <Text color="$color11">No activity yet</Text>
-        <Text fontSize="$2" color="$color10" marginTop="$1">
-          Search for a book to log your first read
-        </Text>
-      </YStack>
+      <EmptyState
+        title="No activity yet"
+        description="Search for a book to log your first read"
+      />
     );
   }
 
