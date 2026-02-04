@@ -1,4 +1,6 @@
 import { FavoritesPreview } from "@/components/FavoritesPreview";
+import { RecentActivity } from "@/components/RecentActivity";
+import { WordCloud } from "@/components/WordCloud";
 import { trpc } from "@/lib/trpc";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ScrollView, Spinner, Text, Theme, YStack } from "tamagui";
@@ -95,38 +97,14 @@ export default function ProfileScreen() {
           <Text fontSize="$5" fontWeight="600" color="$color12">
             Word Cloud
           </Text>
-          <YStack
-            padding="$4"
-            backgroundColor="$color2"
-            borderRadius="$4"
-            alignItems="center"
-          >
-            <Text color="$color11">
-              {logs.filter((l) => l.word).length} words - UI coming soon
-            </Text>
-          </YStack>
+          <WordCloud words={logs.map((log) => log.word)} minWords={1} />
         </YStack>
 
         <YStack gap="$3">
           <Text fontSize="$5" fontWeight="600" color="$color12">
-            Recent Logs
+            Recent Activity
           </Text>
-          {logs.length === 0 ? (
-            <YStack
-              padding="$4"
-              backgroundColor="$color2"
-              borderRadius="$4"
-              alignItems="center"
-            >
-              <Text color="$color11">No books logged yet</Text>
-            </YStack>
-          ) : (
-            <YStack padding="$4" backgroundColor="$color2" borderRadius="$4">
-              <Text color="$color11">
-                {logs.length} log{logs.length !== 1 ? "s" : ""} - UI coming soon
-              </Text>
-            </YStack>
-          )}
+          <RecentActivity logs={logs} />
         </YStack>
       </YStack>
     </ScrollView>

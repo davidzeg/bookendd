@@ -1,0 +1,128 @@
+import { ScrollView } from "react-native";
+import { Image, Text, XStack, YStack, Theme, useTheme } from "tamagui";
+import { StarDisplay } from "@/components/ui/StarDisplay";
+
+const PLACEHOLDER_COVER =
+  "https://placehold.co/80x120/1a1a2e/666666?text=No+Cover";
+
+const COVER_HEIGHT = 120;
+const COVER_WIDTH = Math.round(COVER_HEIGHT * (2 / 3)); // 2:3 aspect ratio
+const ITEM_GAP = 12;
+const STAR_SIZE = Math.round(COVER_HEIGHT / 10);
+const LETTER_SIZE = Math.round(COVER_HEIGHT / 9);
+const LETTER_LINE_HEIGHT = Math.round(LETTER_SIZE * 1.1);
+
+type LogWithBook = {
+  id: string;
+  status: "FINISHED" | "DNF";
+  rating: number | null;
+  word: string | null;
+  book: {
+    id: string;
+    title: string;
+    coverUrl: string | null;
+  };
+};
+
+interface RecentActivityProps {
+  logs: LogWithBook[];
+}
+
+function VerticalWord({ word }: { word: string }) {
+  const displayWord = word.length > 8 ? word.slice(0, 8) : word;
+
+  return (
+    <YStack
+      height={COVER_HEIGHT}
+      alignItems="center"
+      justifyContent="center"
+      gap={-2}
+    >
+      {displayWord.split("").map((letter, index) => (
+        <Text
+          key={index}
+          fontSize={LETTER_SIZE}
+          fontWeight="600"
+          color={"$accent10"}
+          lineHeight={LETTER_LINE_HEIGHT}
+        >
+          {letter.toUpperCase()}
+        </Text>
+      ))}
+    </YStack>
+  );
+}
+
+function DnfBadge() {
+  return (
+    <Theme name="error">
+      <DnfText />
+    </Theme>
+  );
+}
+
+function DnfText() {
+  return (
+    <Text fontSize={STAR_SIZE} fontWeight="600" color={"$accent10"}>
+      DNF
+    </Text>
+  );
+}
+
+function ActivityItem({ log }: { log: LogWithBook }) {
+  return (
+    <XStack gap={4} alignItems="flex-start">
+      <YStack gap="$2" alignItems="center">
+        <Image
+          src={log.book.coverUrl ?? PLACEHOLDER_COVER}
+          width={COVER_WIDTH}
+          height={COVER_HEIGHT}
+          borderRadius="$2"
+          backgroundColor="$color3"
+        />
+        <YStack height={STAR_SIZE} justifyContent="center" alignItems="center">
+          {log.status === "FINISHED" && log.rating ? (
+            <StarDisplay rating={log.rating} size={STAR_SIZE} />
+          ) : (
+            <DnfBadge />
+          )}
+        </YStack>
+      </YStack>
+
+      {log.word && <VerticalWord word={log.word} />}
+    </XStack>
+  );
+}
+
+export function RecentActivity({ logs }: RecentActivityProps) {
+  if (logs.length === 0) {
+    return (
+      <YStack
+        padding="$4"
+        backgroundColor="$color2"
+        borderRadius="$4"
+        alignItems="center"
+      >
+        <Text color="$color11">No activity yet</Text>
+        <Text fontSize="$2" color="$color10" marginTop="$1">
+          Search for a book to log your first read
+        </Text>
+      </YStack>
+    );
+  }
+
+  return (
+    <ScrollView
+      horizontal
+      showsHorizontalScrollIndicator={false}
+      contentContainerStyle={{
+        paddingHorizontal: 4,
+        gap: ITEM_GAP,
+      }}
+    >
+      {logs.map((log) => (
+        <ActivityItem key={log.id} log={log} />
+      ))}
+    </ScrollView>
+  );
+}
