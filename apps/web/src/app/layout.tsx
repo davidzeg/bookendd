@@ -4,7 +4,17 @@ import { NextTamaguiProvider } from "./NextTamaguiProvider";
 
 export const metadata: Metadata = {
   title: "Bookendd",
-  description: "Track your reading journey",
+  description: "Track your reading journey with a single word",
+  openGraph: {
+    title: "Bookendd",
+    description: "Track your reading journey with a single word",
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: "Bookendd",
+    description: "Track your reading journey with a single word",
+  },
 };
 
 export default function RootLayout({
@@ -14,7 +24,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body>
+      <body style={{ backgroundColor: "hsla(260, 45%, 10%, 1)" }}>
         <NextTamaguiProvider>{children}</NextTamaguiProvider>
       </body>
     </html>
