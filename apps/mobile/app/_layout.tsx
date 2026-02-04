@@ -140,7 +140,9 @@ function AuthGate() {
           Setting up your account...
         </Text>
         <Text fontSize="$2" color="$color10" textAlign="center">
-          This may take a moment
+          {userQuery.isError
+            ? "Taking longer than usual. Please retry"
+            : "This may take a moment"}
         </Text>
         <Button
           marginTop="$2"

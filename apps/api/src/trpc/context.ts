@@ -3,6 +3,11 @@ import { verifyToken } from '@clerk/backend';
 import { env } from '../env';
 import { PrismaService } from '../prisma/prisma.service';
 
+export type AuthUser = {
+  id: string;
+  clerkId: string;
+};
+
 export function createContextFactory(prisma: PrismaService) {
   return async function createContext({ req }: CreateExpressContextOptions) {
     const authHeader = req.headers.authorization;
@@ -21,7 +26,16 @@ export function createContextFactory(prisma: PrismaService) {
         clockSkewInMs: 5000,
       });
 
-      return { user: { clerkId: payload.sub }, prisma };
+      const dbUser = await prisma.user.findUnique({
+        where: { clerkId: payload.sub },
+        select: { id: true, clerkId: true },
+      });
+
+      if (!dbUser) {
+        return { user: null, prisma };
+      }
+
+      return { user: dbUser, prisma };
     } catch {
       return { user: null, prisma };
     }

@@ -8,7 +8,7 @@ export const healthRouter = router({
   authTest: protectedProcedure.query(({ ctx }) => {
     return {
       message: 'You are authenticated',
-      clerkId: ctx.user.clerkId,
+      id: ctx.user.id,
     };
   }),
 });

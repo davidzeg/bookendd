@@ -3,7 +3,7 @@ import { protectedProcedure, router } from '../trpc';
 export const userRouter = router({
   me: protectedProcedure.query(async ({ ctx }) => {
     const user = await ctx.prisma.user.findUnique({
-      where: { clerkId: ctx.user.clerkId },
+      where: { id: ctx.user.id },
       select: {
         id: true,
         username: true,
