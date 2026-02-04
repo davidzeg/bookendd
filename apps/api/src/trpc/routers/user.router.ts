@@ -17,6 +17,11 @@ type BookShape = {
 };
 
 async function getTopBooksForUser(prisma: PrismaClient, userId: string) {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { favoritesMode: true },
+  });
+
   const explicitTopBooks = await prisma.userTopBook.findMany({
     where: { userId },
     select: {
@@ -34,6 +39,13 @@ async function getTopBooksForUser(prisma: PrismaClient, userId: string) {
         position: number;
         book: BookShape;
       }[],
+      isExplicit: true,
+    };
+  }
+
+  if (user?.favoritesMode === 'manual') {
+    return {
+      books: [],
       isExplicit: true,
     };
   }
@@ -175,6 +187,11 @@ export const userRouter = router({
             })),
           });
         }
+
+        await tx.user.update({
+          where: { id: ctx.user.id },
+          data: { favoritesMode: 'manual' },
+        });
       });
 
       return getTopBooksForUser(ctx.prisma, ctx.user.id);

@@ -32,6 +32,7 @@ export default function LogBookModal() {
   const createLog = trpc.log.create.useMutation({
     onSuccess: () => {
       utils.log.listMine.invalidate();
+      utils.user.topBooksMine.invalidate();
       router.back();
     },
     onError: (error) => {
@@ -124,7 +125,12 @@ export default function LogBookModal() {
               />
             </YStack>
             <YStack flex={1} justifyContent="center" gap="$1">
-              <Text fontSize="$5" fontWeight="600" color="$color12" numberOfLines={2}>
+              <Text
+                fontSize="$5"
+                fontWeight="600"
+                color="$color12"
+                numberOfLines={2}
+              >
                 {params.title}
               </Text>
               {params.author && (
@@ -205,7 +211,9 @@ export default function LogBookModal() {
               onPress={handleSave}
               disabled={!canSave || createLog.isPending}
               opacity={!canSave || createLog.isPending ? 0.6 : 1}
-              accessibilityLabel={createLog.isPending ? "Saving your log" : "Save book log"}
+              accessibilityLabel={
+                createLog.isPending ? "Saving your log" : "Save book log"
+              }
               accessibilityRole="button"
               accessibilityState={{ disabled: !canSave || createLog.isPending }}
             >

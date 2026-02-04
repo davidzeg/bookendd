@@ -1,7 +1,7 @@
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { trpc } from "@/lib/trpc";
 import { useRouter } from "expo-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ScrollView, Spinner, Text, XStack, YStack, Image } from "tamagui";
 
@@ -32,17 +32,15 @@ export default function EditFavoritesScreen() {
     },
   });
 
-  const [favorites, setFavorites] = useState<FavoriteBook[]>(
-    () => topBooksQuery.data?.books ?? [],
-  );
+  const [favorites, setFavorites] = useState<FavoriteBook[]>([]);
+  const [hasInitialized, setHasInitialized] = useState(false);
 
-  if (
-    topBooksQuery.data &&
-    favorites.length === 0 &&
-    topBooksQuery.data.books.length > 0
-  ) {
-    setFavorites(topBooksQuery.data.books);
-  }
+  useEffect(() => {
+    if (topBooksQuery.data && !hasInitialized) {
+      setFavorites(topBooksQuery.data.books);
+      setHasInitialized(true);
+    }
+  }, [topBooksQuery.data, hasInitialized]);
 
   const moveUp = (index: number) => {
     if (index === 0) return;
@@ -65,8 +63,15 @@ export default function EditFavoritesScreen() {
   };
 
   const remove = (index: number) => {
-    const newFavorites = favorites.filter((_, i) => i !== index);
-    setFavorites(newFavorites.map((f, i) => ({ ...f, position: i + 1 })));
+    setFavorites((prev) => {
+      const newFavorites = prev.filter((_, i) => i !== index);
+
+      if (newFavorites.length === 0) {
+        return [];
+      }
+
+      return newFavorites.map((f, i) => ({ ...f, position: i + 1 }));
+    });
   };
 
   const handleSave = () => {
