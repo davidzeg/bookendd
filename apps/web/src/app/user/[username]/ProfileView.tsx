@@ -13,8 +13,26 @@ const STAR_SIZE = Math.round(COVER_HEIGHT / 10);
 const LETTER_SIZE = Math.round(COVER_HEIGHT / 9);
 const LETTER_LINE_HEIGHT = Math.round(LETTER_SIZE * 1.1);
 
+const AVATAR_SIZE = 96;
+
 const MIN_FONT_SIZE = 14;
-const MAX_FONT_SIZE = 32;
+const MAX_FONT_SIZE = 36;
+
+function SectionHeader({ title }: { title: string }) {
+  return (
+    <XStack alignItems="center" gap="$3">
+      <YStack
+        width={3}
+        height={20}
+        backgroundColor="$accent8"
+        borderRadius="$1"
+      />
+      <Text fontSize="$5" fontWeight="600" color="$color12">
+        {title}
+      </Text>
+    </XStack>
+  );
+}
 
 type ProfileData = {
   user: {
@@ -50,7 +68,6 @@ type ProfileData = {
   }>;
 };
 
-// ============ Word Cloud ============
 function WordCloud({
   words,
 }: {
@@ -66,14 +83,26 @@ function WordCloud({
   if (words.length === 0) {
     return (
       <YStack
-        padding="$4"
-        backgroundColor="$color2"
+        padding="$6"
         borderRadius="$4"
         alignItems="center"
+        justifyContent="center"
+        minHeight={140}
+        borderWidth={2}
+        borderColor="$color4"
+        style={{ borderStyle: "dashed" }}
       >
-        <Text color="$color11">No words yet</Text>
-        <Text fontSize="$2" color="$color10" marginTop="$1">
-          Words appear when books are logged with descriptors
+        <Text color="$color10" fontSize="$4" fontWeight="500">
+          No words yet
+        </Text>
+        <Text
+          fontSize="$3"
+          color="$color9"
+          marginTop="$2"
+          textAlign="center"
+          maxWidth={280}
+        >
+          Your descriptors will create a word cloud here
         </Text>
       </YStack>
     );
@@ -82,47 +111,71 @@ function WordCloud({
   const maxCount = sortedWords[0]?.count || 1;
   const minCount = sortedWords[sortedWords.length - 1]?.count || 1;
 
+  function getRatio(count: number): number {
+    if (maxCount === minCount) return 0.5;
+    return (count - minCount) / (maxCount - minCount);
+  }
+
   function getFontSize(count: number): number {
-    if (maxCount === minCount) return (MIN_FONT_SIZE + MAX_FONT_SIZE) / 2;
-    const ratio = (count - minCount) / (maxCount - minCount);
+    const ratio = getRatio(count);
     return Math.round(MIN_FONT_SIZE + ratio * (MAX_FONT_SIZE - MIN_FONT_SIZE));
   }
 
   function getFontWeight(count: number): "400" | "500" | "600" | "700" {
-    if (maxCount === minCount) return "500";
-    const ratio = (count - minCount) / (maxCount - minCount);
-    if (ratio > 0.75) return "700";
-    if (ratio > 0.5) return "600";
-    if (ratio > 0.25) return "500";
+    const ratio = getRatio(count);
+    if (ratio > 0.7) return "700";
+    if (ratio > 0.4) return "600";
+    if (ratio > 0.15) return "500";
     return "400";
+  }
+
+  function getOpacity(count: number): number {
+    const ratio = getRatio(count);
+    return 0.55 + ratio * 0.45;
+  }
+
+  function getLetterSpacing(count: number): string {
+    const ratio = getRatio(count);
+    if (ratio > 0.6) return "0.02em";
+    return "0";
   }
 
   return (
     <XStack
       flexWrap="wrap"
-      gap="$2"
-      padding="$4"
+      gap="$3"
+      paddingVertical="$5"
+      paddingHorizontal="$4"
       backgroundColor="$color2"
-      borderRadius="$4"
+      borderRadius="$5"
       justifyContent="center"
-      alignItems="center"
+      alignItems="baseline"
+      minHeight={120}
     >
-      {sortedWords.map(({ word, count }) => (
-        <Text
-          key={word}
-          fontSize={getFontSize(count)}
-          fontWeight={getFontWeight(count)}
-          color="$color11"
-          paddingHorizontal="$1"
-        >
-          {word}
-        </Text>
-      ))}
+      {sortedWords.map(({ word, count }) => {
+        const ratio = getRatio(count);
+        const colorToken = ratio > 0.5 ? "$color12" : "$color11";
+        return (
+          <Text
+            key={word}
+            fontSize={getFontSize(count)}
+            fontWeight={getFontWeight(count)}
+            color={colorToken}
+            opacity={getOpacity(count)}
+            paddingHorizontal="$1"
+            style={{ letterSpacing: getLetterSpacing(count) }}
+          >
+            {word}
+          </Text>
+        );
+      })}
     </XStack>
   );
 }
 
-// ============ Favorites Preview ============
+const FAV_COVER_WIDTH = 110;
+const FAV_COVER_HEIGHT = 165;
+
 function CoverTile({
   book,
 }: {
@@ -130,19 +183,42 @@ function CoverTile({
 }) {
   return (
     <YStack alignItems="center" gap="$2">
-      <Image
-        src={book.coverUrl || PLACEHOLDER_COVER}
-        alt={book.title}
-        width={80}
-        height={120}
-        style={{ borderRadius: 8, objectFit: "cover" }}
-      />
+      <YStack
+        borderRadius="$3"
+        overflow="hidden"
+        shadowColor="$color1"
+        shadowOffset={{ width: 0, height: 4 }}
+        shadowOpacity={0.3}
+        shadowRadius={8}
+        style={{
+          transition: "transform 0.2s ease, box-shadow 0.2s ease",
+        }}
+        hoverStyle={{
+          scale: 1.03,
+        }}
+      >
+        <Image
+          src={book.coverUrl || PLACEHOLDER_COVER}
+          alt={book.title}
+          width={FAV_COVER_WIDTH}
+          height={FAV_COVER_HEIGHT}
+          style={{ objectFit: "cover", display: "block" }}
+        />
+      </YStack>
       <Text
         fontSize="$2"
+        fontWeight="500"
         color="$color11"
         textAlign="center"
-        width={80}
-        numberOfLines={1}
+        width={FAV_COVER_WIDTH}
+        numberOfLines={2}
+        style={{
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+          display: "-webkit-box",
+          WebkitLineClamp: 2,
+          WebkitBoxOrient: "vertical",
+        }}
       >
         {book.title}
       </Text>
@@ -158,14 +234,26 @@ function FavoritesPreview({
   if (favorites.length === 0) {
     return (
       <YStack
-        padding="$4"
-        backgroundColor="$color2"
+        padding="$6"
         borderRadius="$4"
         alignItems="center"
+        justifyContent="center"
+        minHeight={200}
+        borderWidth={2}
+        borderColor="$color4"
+        style={{ borderStyle: "dashed" }}
       >
-        <Text color="$color11">No favorites yet</Text>
-        <Text fontSize="$2" color="$color10" marginTop="$1">
-          Favorites appear when added from logs
+        <Text color="$color10" fontSize="$4" fontWeight="500">
+          No favorites yet
+        </Text>
+        <Text
+          fontSize="$3"
+          color="$color9"
+          marginTop="$2"
+          textAlign="center"
+          maxWidth={280}
+        >
+          Your top books will appear here when you add them
         </Text>
       </YStack>
     );
@@ -176,14 +264,20 @@ function FavoritesPreview({
   const bottomRow = displayBooks.slice(2, 4);
 
   return (
-    <YStack gap="$4" padding="$3" backgroundColor="$color2" borderRadius="$4">
-      <XStack gap="$3" justifyContent="center">
+    <YStack
+      gap="$5"
+      paddingVertical="$5"
+      paddingHorizontal="$4"
+      backgroundColor="$color2"
+      borderRadius="$5"
+    >
+      <XStack gap="$5" justifyContent="center">
         {topRow.map((fav) => (
           <CoverTile key={fav.id} book={fav.book} />
         ))}
       </XStack>
       {bottomRow.length > 0 && (
-        <XStack gap="$3" justifyContent="center">
+        <XStack gap="$5" justifyContent="center">
           {bottomRow.map((fav) => (
             <CoverTile key={fav.id} book={fav.book} />
           ))}
@@ -193,23 +287,23 @@ function FavoritesPreview({
   );
 }
 
-// ============ Recent Activity ============
 function VerticalWord({ word }: { word: string }) {
-  const displayWord = word.length > 8 ? word.slice(0, 8) : word;
+  const displayWord = word.length > 7 ? word.slice(0, 7) : word;
   return (
     <YStack
       height={COVER_HEIGHT}
       alignItems="center"
       justifyContent="center"
-      gap={-2}
+      paddingLeft="$1"
     >
       {displayWord.split("").map((letter, index) => (
         <Text
           key={index}
           fontSize={LETTER_SIZE}
           fontWeight="600"
-          color="$accent10"
+          color="$accent9"
           lineHeight={LETTER_LINE_HEIGHT}
+          opacity={0.9}
         >
           {letter.toUpperCase()}
         </Text>
@@ -220,22 +314,31 @@ function VerticalWord({ word }: { word: string }) {
 
 function StarDisplay({ rating, size }: { rating: number; size: number }) {
   return (
-    <XStack gap={2}>
-      {Array.from({ length: rating }).map((_, i) => (
-        <Text key={i} fontSize={size} color="$accent10">
-          ★
-        </Text>
-      ))}
-    </XStack>
+    <Theme name="star">
+      <XStack gap={2}>
+        {Array.from({ length: rating }).map((_, i) => (
+          <Text key={i} fontSize={size} color="$accent10">
+            ★
+          </Text>
+        ))}
+      </XStack>
+    </Theme>
   );
 }
 
 function DnfBadge() {
   return (
     <Theme name="error">
-      <Text fontSize={STAR_SIZE} fontWeight="600" color="$accent10">
-        DNF
-      </Text>
+      <XStack
+        backgroundColor="$accent4"
+        paddingHorizontal="$2"
+        paddingVertical="$1"
+        borderRadius="$2"
+      >
+        <Text fontSize={10} fontWeight="700" color="$accent11">
+          DNF
+        </Text>
+      </XStack>
     </Theme>
   );
 }
@@ -244,14 +347,21 @@ function ActivityItem({ log }: { log: ProfileData["recentLogs"][0] }) {
   return (
     <XStack gap="$1" alignItems="flex-start" flexShrink={0}>
       <YStack gap="$2" alignItems="center">
-        <Image
-          src={log.book.coverUrl || PLACEHOLDER_COVER}
-          alt={log.book.title}
-          width={COVER_WIDTH}
-          height={COVER_HEIGHT}
-          style={{ borderRadius: 4, objectFit: "cover" }}
-        />
-        <YStack height={STAR_SIZE} justifyContent="center" alignItems="center">
+        <YStack
+          borderRadius="$2"
+          overflow="hidden"
+          borderWidth={1}
+          borderColor="$color4"
+        >
+          <Image
+            src={log.book.coverUrl || PLACEHOLDER_COVER}
+            alt={log.book.title}
+            width={COVER_WIDTH}
+            height={COVER_HEIGHT}
+            style={{ objectFit: "cover", display: "block" }}
+          />
+        </YStack>
+        <YStack minHeight={20} justifyContent="center" alignItems="center">
           {log.status === "FINISHED" && log.rating ? (
             <StarDisplay rating={log.rating} size={STAR_SIZE} />
           ) : (
@@ -268,14 +378,26 @@ function RecentActivity({ logs }: { logs: ProfileData["recentLogs"] }) {
   if (logs.length === 0) {
     return (
       <YStack
-        padding="$4"
-        backgroundColor="$color2"
+        padding="$6"
         borderRadius="$4"
         alignItems="center"
+        justifyContent="center"
+        minHeight={140}
+        borderWidth={2}
+        borderColor="$color4"
+        style={{ borderStyle: "dashed" }}
       >
-        <Text color="$color11">No activity yet</Text>
-        <Text fontSize="$2" color="$color10" marginTop="$1">
-          Activity appears when books are logged
+        <Text color="$color10" fontSize="$4" fontWeight="500">
+          No activity yet
+        </Text>
+        <Text
+          fontSize="$3"
+          color="$color9"
+          marginTop="$2"
+          textAlign="center"
+          maxWidth={280}
+        >
+          Your reading journey begins when you log a book
         </Text>
       </YStack>
     );
@@ -283,21 +405,25 @@ function RecentActivity({ logs }: { logs: ProfileData["recentLogs"] }) {
 
   return (
     <XStack
-      gap="$3"
-      paddingVertical="$2"
+      gap="$4"
+      paddingVertical="$3"
+      paddingHorizontal="$1"
+      className="hide-scrollbar"
       style={{
         overflowX: "auto",
         WebkitOverflowScrolling: "touch",
+        scrollSnapType: "x mandatory",
       }}
     >
       {logs.map((log) => (
-        <ActivityItem key={log.id} log={log} />
+        <YStack key={log.id} style={{ scrollSnapAlign: "start" }}>
+          <ActivityItem log={log} />
+        </YStack>
       ))}
     </XStack>
   );
 }
 
-// ============ Main Profile View ============
 export function ProfileView({ data }: { data: ProfileData }) {
   const { user, topBooks, recentLogs, words } = data;
   const displayName = user.name || user.username;
@@ -305,66 +431,84 @@ export function ProfileView({ data }: { data: ProfileData }) {
   return (
     <YStack
       flex={1}
-      padding="$4"
-      gap="$6"
-      maxWidth={600}
+      gap="$8"
+      maxWidth={640}
+      width="100%"
       marginHorizontal="auto"
+      paddingHorizontal="$4"
+      paddingTop="$6"
+      paddingBottom="$10"
     >
-      {/* Header */}
-      <YStack gap="$2">
-        <XStack gap="$4" alignItems="center">
-          <Avatar circular size="$8">
+      <YStack
+        gap="$4"
+        paddingVertical="$6"
+        paddingHorizontal="$4"
+        borderRadius="$6"
+        style={{
+          background:
+            "linear-gradient(180deg, hsla(262, 50%, 20%, 0.4) 0%, transparent 100%)",
+        }}
+      >
+        <XStack gap="$5" alignItems="center">
+          <Avatar
+            circular
+            size={AVATAR_SIZE}
+            borderWidth={3}
+            borderColor="$accent6"
+          >
             <Avatar.Image src={user.avatarUrl || undefined} />
             <Avatar.Fallback
               backgroundColor="$accent5"
               justifyContent="center"
               alignItems="center"
             >
-              <Text color="$accent12" fontSize="$6" fontWeight="600">
+              <Text color="$accent12" fontSize="$8" fontWeight="700">
                 {displayName.charAt(0).toUpperCase()}
               </Text>
             </Avatar.Fallback>
           </Avatar>
-          <YStack flex={1}>
-            <Text fontSize="$7" fontWeight="bold" color="$color12">
+          <YStack flex={1} gap="$1">
+            <Text
+              fontSize="$8"
+              fontWeight="700"
+              color="$color12"
+              style={{ letterSpacing: "-0.02em" }}
+            >
               {displayName}
             </Text>
             {user.username && user.name && (
-              <Text fontSize="$4" color="$color11">
+              <Text fontSize="$4" color="$color10" fontWeight="500">
                 @{user.username}
               </Text>
             )}
           </YStack>
         </XStack>
         {user.bio && (
-          <Text fontSize="$4" color="$color11" marginTop="$2">
+          <Text fontSize="$4" color="$color11" lineHeight="$5" maxWidth={480}>
             {user.bio}
           </Text>
         )}
       </YStack>
 
-      {/* Favorite Books */}
-      <YStack gap="$3">
-        <Text fontSize="$5" fontWeight="600" color="$color12">
-          Favorite Books
-        </Text>
+      <YStack gap="$4">
+        <SectionHeader title="Favorite Books" />
         <FavoritesPreview favorites={topBooks} />
       </YStack>
 
-      {/* Word Cloud */}
-      <YStack gap="$3">
-        <Text fontSize="$5" fontWeight="600" color="$color12">
-          Word Cloud
-        </Text>
+      <YStack gap="$4">
+        <SectionHeader title="Word Cloud" />
         <WordCloud words={words} />
       </YStack>
 
-      {/* Recent Activity */}
-      <YStack gap="$3">
-        <Text fontSize="$5" fontWeight="600" color="$color12">
-          Recent Activity
-        </Text>
+      <YStack gap="$4">
+        <SectionHeader title="Recent Activity" />
         <RecentActivity logs={recentLogs} />
+      </YStack>
+
+      <YStack alignItems="center" paddingTop="$4">
+        <Text fontSize="$2" color="$color8" fontWeight="500">
+          bookendd
+        </Text>
       </YStack>
     </YStack>
   );
