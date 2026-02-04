@@ -1,4 +1,4 @@
-import { Image, Text, XStack, YStack } from "tamagui";
+import { Image, ScrollView, Text, XStack, YStack } from "tamagui";
 import { Button } from "./ui/Button";
 import { EmptyState } from "./ui/EmptyState";
 
@@ -18,7 +18,6 @@ type FavoriteBook = {
 
 interface FavoritesPreviewProps {
   favorites: FavoriteBook[];
-  onSeeAll?: () => void;
 }
 
 function CoverTile({ book }: { book: FavoriteBook["book"] }) {
@@ -44,10 +43,7 @@ function CoverTile({ book }: { book: FavoriteBook["book"] }) {
   );
 }
 
-export function FavoritesPreview({
-  favorites,
-  onSeeAll,
-}: FavoritesPreviewProps) {
+export function FavoritesPreview({ favorites }: FavoritesPreviewProps) {
   if (favorites.length === 0) {
     return (
       <EmptyState
@@ -65,28 +61,17 @@ export function FavoritesPreview({
   const bottomRow = displayBooks.slice(2, 4);
 
   return (
-    <YStack gap="$4">
-      <YStack gap="$4" padding="$3" backgroundColor="$color2" borderRadius="$4">
-        <XStack gap="$3" justifyContent="center">
-          {topRow.map((fav) => (
-            <CoverTile key={fav.id} book={fav.book} />
-          ))}
-        </XStack>
-
-        {bottomRow.length > 0 && (
-          <XStack gap="$3" justifyContent="center">
-            {bottomRow.map((fav) => (
-              <CoverTile key={fav.id} book={fav.book} />
-            ))}
-          </XStack>
-        )}
-
-        {hasMore && onSeeAll && (
-          <Button size="$3" variant="outlined" onPress={onSeeAll}>
-            <Button.Text>See all ({totalCount})</Button.Text>
-          </Button>
-        )}
-      </YStack>
-    </YStack>
+    <ScrollView
+      horizontal
+      showsHorizontalScrollIndicator={false}
+      contentContainerStyle={{
+        gap: 12,
+        paddingHorizontal: 4,
+      }}
+    >
+      {favorites.map((fav) => (
+        <CoverTile key={fav.id} book={fav.book} />
+      ))}
+    </ScrollView>
   );
 }

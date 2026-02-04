@@ -17,7 +17,6 @@ type BookShape = {
 };
 
 async function getTopBooksForUser(prisma: PrismaClient, userId: string) {
-  // Check for explicit top books first
   const explicitTopBooks = await prisma.userTopBook.findMany({
     where: { userId },
     select: {
@@ -39,7 +38,6 @@ async function getTopBooksForUser(prisma: PrismaClient, userId: string) {
     };
   }
 
-  // Derive from highest-rated logs
   const highRatedLogs = await prisma.log.findMany({
     where: {
       userId,
@@ -137,5 +135,48 @@ export const userRouter = router({
         recentLogs,
         words,
       };
+    }),
+
+  setFavorites: protectedProcedure
+    .input(
+      z.object({
+        favorites: z.array(
+          z.object({
+            bookId: z.string(),
+            position: z.number().int().min(1),
+          }),
+        ),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { favorites } = input;
+
+      const positions = favorites.map((f) => f.position);
+      if (new Set(positions).size !== positions.length) {
+        throw new Error('Duplicate positions not allowed');
+      }
+
+      const bookIds = favorites.map((f) => f.bookId);
+      if (new Set(bookIds).size !== bookIds.length) {
+        throw new Error('Duplicate books not allowed');
+      }
+
+      await ctx.prisma.$transaction(async (tx) => {
+        await tx.userTopBook.deleteMany({
+          where: { userId: ctx.user.id },
+        });
+
+        if (favorites.length > 0) {
+          await tx.userTopBook.createMany({
+            data: favorites.map((f) => ({
+              userId: ctx.user.id,
+              bookId: f.bookId,
+              position: f.position,
+            })),
+          });
+        }
+      });
+
+      return getTopBooksForUser(ctx.prisma, ctx.user.id);
     }),
 });

@@ -7,9 +7,11 @@ import { SectionHeader } from "@/components/ui/SectionHeader";
 import { trpc } from "@/lib/trpc";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ScrollView, Spinner, Text, Theme, YStack } from "tamagui";
+import { useRouter } from "expo-router";
 
 export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
+  const router = useRouter();
 
   const userQuery = trpc.user.me.useQuery();
   const topBooksQuery = trpc.user.topBooksMine.useQuery();
@@ -91,13 +93,12 @@ export default function ProfileScreen() {
         />
 
         <YStack gap="$4">
-          <SectionHeader title="Favorite Books" />
-          <FavoritesPreview
-            favorites={topBooks}
-            onSeeAll={() => {
-              console.log("See all favorites");
-            }}
+          <SectionHeader
+            title="Favorite Books"
+            actionLabel="Edit"
+            onAction={() => router.push("/edit-favorites")}
           />
+          <FavoritesPreview favorites={topBooks} />
         </YStack>
 
         <YStack gap="$4">
