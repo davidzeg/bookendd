@@ -27,6 +27,7 @@ export interface BookSearchResult {
 
 const OPEN_LIBRARY_BASE = 'https://openlibrary.org';
 const COVERS_BASE = 'https://covers.openlibrary.org/b/id';
+const SEARCH_TIMEOUT_MS = 5000;
 
 function getCoverUrl(
   coverId: number | undefined,
@@ -65,12 +66,16 @@ export const bookRouter = router({
 
       const url = `${OPEN_LIBRARY_BASE}/search.json?${params}`;
 
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), SEARCH_TIMEOUT_MS);
+
       try {
         const response = await fetch(url, {
           headers: {
             'User-Agent':
-              'Bookendd/1.0 (https://bookendd.com; contact@bookendd.com)',
+              'Antilogos/1.0 (https://antilogos.com; contact@bookendd.com)',
           },
+          signal: controller.signal,
         });
 
         if (!response.ok) {
@@ -95,11 +100,20 @@ export const bookRouter = router({
           });
         }
 
+        if (error instanceof Error && error.name === 'AbortError') {
+          throw new TRPCError({
+            code: 'TIMEOUT',
+            message: 'Book search timed out - please try again',
+          });
+        }
+
         throw new TRPCError({
           code: 'INTERNAL_SERVER_ERROR',
           message: 'Failed to search books',
           cause: error,
         });
+      } finally {
+        clearTimeout(timeoutId);
       }
     }),
 });
