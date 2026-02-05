@@ -6,7 +6,9 @@ import {
 } from "@react-navigation/native";
 import { useFonts } from "expo-font";
 import { Stack, useRouter, useSegments } from "expo-router";
+import { isRunningInExpoGo } from "expo";
 import * as SplashScreen from "expo-splash-screen";
+import * as Sentry from "@sentry/react-native";
 import { useEffect } from "react";
 import "react-native-reanimated";
 
@@ -31,10 +33,24 @@ export const unstable_settings = {
   initialRouteName: "(tabs)",
 };
 
+const navigationIntegration = Sentry.reactNavigationIntegration({
+  enableTimeToInitialDisplay: !isRunningInExpoGo(),
+});
+
+if (env.EXPO_PUBLIC_SENTRY_DSN) {
+  Sentry.init({
+    dsn: env.EXPO_PUBLIC_SENTRY_DSN,
+    environment: __DEV__ ? "development" : "production",
+    tracesSampleRate: 0.1,
+    integrations: [navigationIntegration],
+    enableNativeFramesTracking: !isRunningInExpoGo(),
+  });
+}
+
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
-export default function RootLayout() {
+function RootLayout() {
   const colorScheme = useColorScheme();
   const [loaded, error] = useFonts({
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
@@ -77,6 +93,8 @@ export default function RootLayout() {
   );
 }
 
+export default Sentry.wrap(RootLayout);
+
 function AuthGate() {
   const { isSignedIn, isLoaded } = useAuth();
   const router = useRouter();
@@ -112,6 +130,10 @@ function AuthGate() {
   useEffect(() => {
     if (userQuery.data) {
       analytics.identify(userQuery.data.id, {
+        username: userQuery.data.username,
+      });
+      Sentry.setUser({
+        id: userQuery.data.id,
         username: userQuery.data.username,
       });
     }
