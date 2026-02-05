@@ -11,7 +11,19 @@ const getBaseUrl = () => {
 
 export function TRPCProvider({ children }: { children: React.ReactNode }) {
   const { getToken } = useAuth();
-  const [queryClient] = useState(() => new QueryClient());
+  const [queryClient] = useState(
+    () =>
+      new QueryClient({
+        defaultOptions: {
+          queries: {
+            staleTime: 1000 * 60 * 5,
+            gcTime: 1000 * 60 * 30,
+            retry: 2,
+            refetchOnWindowFocus: false,
+          },
+        },
+      }),
+  );
   const [trpcClient] = useState(() =>
     trpc.createClient({
       links: [

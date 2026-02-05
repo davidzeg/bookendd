@@ -8,6 +8,7 @@ import { WordCloud } from "@/components/WordCloud";
 import { RecentActivity } from "@/components/RecentActivity";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { StatPill } from "@/components/ui/StatPill";
+import { RefreshControl } from "react-native";
 
 type ProfileData = {
   user: {
@@ -48,12 +49,16 @@ interface ProfileViewProps {
   data: ProfileData;
   isOwnProfile: boolean;
   showBackButton?: boolean;
+  onRefresh?: () => void;
+  isRefreshing?: boolean;
 }
 
 export function ProfileView({
   data,
   isOwnProfile,
   showBackButton = false,
+  onRefresh,
+  isRefreshing = false,
 }: ProfileViewProps) {
   const insets = useSafeAreaInsets();
   const router = useRouter();
@@ -83,6 +88,11 @@ export function ProfileView({
         paddingBottom: insets.bottom + 24,
         paddingHorizontal: 16,
       }}
+      refreshControl={
+        onRefresh ? (
+          <RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />
+        ) : undefined
+      }
     >
       <YStack gap="$8">
         {/* Header */}

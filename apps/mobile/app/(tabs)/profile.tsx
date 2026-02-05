@@ -39,5 +39,12 @@ export default function ProfileScreen() {
     );
   }
 
-  return <ProfileView data={profileQuery.data} isOwnProfile={true} />;
+  return (
+    <ProfileView
+      data={profileQuery.data}
+      isOwnProfile={true}
+      onRefresh={() => profileQuery.refetch()}
+      isRefreshing={profileQuery.isRefetching}
+    />
+  );
 }
