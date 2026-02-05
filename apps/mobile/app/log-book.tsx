@@ -6,6 +6,7 @@ import { Star, X } from "@tamagui/lucide-icons";
 import { Button } from "@/components/ui/Button";
 import { Alert, KeyboardAvoidingView, Platform } from "react-native";
 import { trpc } from "@/lib/trpc";
+import { analytics } from "@/lib/posthog";
 
 type LogStatus = "FINISHED" | "DNF" | null;
 
@@ -31,6 +32,11 @@ export default function LogBookModal() {
 
   const createLog = trpc.log.create.useMutation({
     onSuccess: () => {
+      analytics.bookLogged(
+        status?.toLowerCase() as "finished" | "dnf",
+        rating !== null,
+        word !== "",
+      );
       utils.log.listMine.invalidate();
       utils.user.topBooksMine.invalidate();
       router.back();

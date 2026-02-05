@@ -11,6 +11,7 @@ const envSchema = z.object({
   EXPO_PUBLIC_CLOUDINARY_UPLOAD_PRESET: z
     .string()
     .min(1, "Cloudinary upload preset is required"),
+  EXPO_PUBLIC_POSTHOG_API_KEY: z.string().min(1, "PostHog API key is required"),
 });
 
 export const env = envSchema.parse({
@@ -21,4 +22,5 @@ export const env = envSchema.parse({
     process.env.EXPO_PUBLIC_CLOUDINARY_CLOUD_NAME,
   EXPO_PUBLIC_CLOUDINARY_UPLOAD_PRESET:
     process.env.EXPO_PUBLIC_CLOUDINARY_UPLOAD_PRESET,
+  EXPO_PUBLIC_POSTHOG_API_KEY: process.env.EXPO_PUBLIC_POSTHOG_API_KEY,
 });

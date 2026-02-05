@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/Button";
 import { SectionHeader } from "@/components/ui/SectionHeader";
+import { analytics } from "@/lib/posthog";
 import { trpc } from "@/lib/trpc";
 import { useRouter } from "expo-router";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -35,6 +36,7 @@ export default function EditFavoritesScreen() {
   const topBooksQuery = trpc.user.topBooksMine.useQuery();
   const setFavoritesMutation = trpc.user.setFavorites.useMutation({
     onSuccess: () => {
+      analytics.favoritesUpdated(favorites.length);
       utils.user.topBooksMine.invalidate();
       router.back();
     },

@@ -19,6 +19,7 @@ import { tokenCache } from "@/lib/clerk";
 import { env } from "@/lib/env";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/Button";
+import { analytics } from "@/lib/posthog";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -107,6 +108,14 @@ function AuthGate() {
       }
     }
   }, [isSignedIn, isLoaded, segments, userQuery.isLoading, userQuery.data]);
+
+  useEffect(() => {
+    if (userQuery.data) {
+      analytics.identify(userQuery.data.id, {
+        username: userQuery.data.username,
+      });
+    }
+  }, [userQuery.data]);
 
   if (!isLoaded) {
     return null;

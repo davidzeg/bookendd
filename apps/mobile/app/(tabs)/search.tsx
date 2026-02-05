@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { FlatList, StyleSheet } from "react-native";
 import { Input, TamaguiElement, Text, Theme, XStack, YStack } from "tamagui";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -9,6 +9,7 @@ import { useDebounce } from "@/lib/use-debounce";
 import { BookCard } from "@/components/BookCard";
 import { BookCardSkeleton } from "@/components/BookCardSkeleton";
 import { Button } from "@/components/ui/Button";
+import { analytics } from "@/lib/posthog";
 
 export default function SearchScreen() {
   const [query, setQuery] = useState("");
@@ -31,6 +32,12 @@ export default function SearchScreen() {
     { query: debouncedQuery, limit: 15 },
     { enabled: debouncedQuery.length > 0 },
   );
+
+  useEffect(() => {
+    if (searchQuery.data && debouncedQuery) {
+      analytics.bookSearched(debouncedQuery, searchQuery.data.length);
+    }
+  }, [searchQuery.data, debouncedQuery]);
 
   const showInitial = !debouncedQuery;
   const showLoading = searchQuery.isLoading && !searchQuery.data;
@@ -123,7 +130,12 @@ export default function SearchScreen() {
               Something went wrong
             </Text>
           </Theme>
-          <Text fontSize="$3" color="$color11" textAlign="center" marginTop="$2">
+          <Text
+            fontSize="$3"
+            color="$color11"
+            textAlign="center"
+            marginTop="$2"
+          >
             {searchQuery.error?.message ?? "Please try again"}
           </Text>
         </YStack>
@@ -139,7 +151,12 @@ export default function SearchScreen() {
           <Text fontSize="$5" color="$color11" textAlign="center">
             No books found
           </Text>
-          <Text fontSize="$3" color="$color10" textAlign="center" marginTop="$2">
+          <Text
+            fontSize="$3"
+            color="$color10"
+            textAlign="center"
+            marginTop="$2"
+          >
             Try a different search term
           </Text>
         </YStack>

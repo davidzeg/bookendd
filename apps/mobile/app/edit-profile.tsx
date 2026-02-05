@@ -16,6 +16,7 @@ import {
 } from "tamagui";
 import { trpc } from "@/lib/trpc";
 import { uploadAvatar } from "@/lib/cloudinary";
+import { analytics } from "@/lib/posthog";
 
 export default function EditProfileScreen() {
   const router = useRouter();
@@ -25,6 +26,11 @@ export default function EditProfileScreen() {
   const userQuery = trpc.user.me.useQuery();
   const updateMutation = trpc.user.updateProfile.useMutation({
     onSuccess: () => {
+      const changedFields: string[] = [];
+      if (name !== (userQuery.data?.name ?? "")) changedFields.push("name");
+      if (bio !== (userQuery.data?.bio ?? "")) changedFields.push("bio");
+      if (avatarUri) changedFields.push("avatar");
+      analytics.profileEdited(changedFields);
       utils.user.me.invalidate();
       router.back();
     },
