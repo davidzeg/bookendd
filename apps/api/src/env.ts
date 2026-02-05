@@ -16,6 +16,12 @@ const envSchema = z.object({
   PORT: z.coerce.number().default(3001),
   CLERK_WEBHOOK_SECRET: z.string().min(1),
   OPENAI_API_KEY: z.string().min(1),
+  CORS_ORIGINS: z
+    .string()
+    .optional()
+    .transform((val) =>
+      val ? val.split(',') : ['http://localhost:3000', 'http://localhost:8081'],
+    ),
 });
 
 export const env = envSchema.parse(process.env);

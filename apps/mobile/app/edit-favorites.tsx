@@ -38,6 +38,7 @@ export default function EditFavoritesScreen() {
     onSuccess: () => {
       analytics.favoritesUpdated(favorites.length);
       utils.user.topBooksMine.invalidate();
+      utils.user.myProfile.invalidate();
       router.back();
     },
   });

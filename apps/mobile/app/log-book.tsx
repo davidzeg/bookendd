@@ -39,6 +39,7 @@ export default function LogBookModal() {
       );
       utils.log.listMine.invalidate();
       utils.user.topBooksMine.invalidate();
+      utils.user.myProfile.invalidate();
       router.back();
     },
     onError: (error) => {

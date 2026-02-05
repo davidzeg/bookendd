@@ -3,14 +3,17 @@ import { env } from './env';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { TrpcService } from './trpc/trpc.module';
+import helmet from 'helmet';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     rawBody: true,
   });
 
+  app.use(helmet());
+
   app.enableCors({
-    origin: [/localhost:\d+$/],
+    origin: env.CORS_ORIGINS,
     credentials: true,
   });
 

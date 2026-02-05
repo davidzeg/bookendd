@@ -31,7 +31,7 @@ export default function EditProfileScreen() {
       if (bio !== (userQuery.data?.bio ?? "")) changedFields.push("bio");
       if (avatarUri) changedFields.push("avatar");
       analytics.profileEdited(changedFields);
-      utils.user.me.invalidate();
+      utils.user.myProfile.invalidate();
       router.back();
     },
     onError: (error) => {
