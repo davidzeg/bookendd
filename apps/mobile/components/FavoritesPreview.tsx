@@ -23,13 +23,14 @@ interface FavoritesPreviewProps {
 function CoverTile({ book }: { book: FavoriteBook["book"] }) {
   return (
     <YStack flex={1} alignItems="center" gap="$2">
-      <Image
-        src={book.coverUrl ?? PLACEHOLDER_COVER}
-        width={80}
-        height={120}
-        borderRadius="$3"
-        backgroundColor="$color3"
-      />
+      <YStack borderRadius="$3" overflow="hidden">
+        <Image
+          src={book.coverUrl ?? PLACEHOLDER_COVER}
+          width={80}
+          height={120}
+          backgroundColor="$color3"
+        />
+      </YStack>
       <Text
         fontSize="$2"
         color="$color11"

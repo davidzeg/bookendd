@@ -288,13 +288,14 @@ export default function EditFavoritesScreen() {
                     alignItems="center"
                     gap="$3"
                   >
-                    <Image
-                      src={fav.book.coverUrl ?? PLACEHOLDER_COVER}
-                      width={50}
-                      height={75}
-                      borderRadius="$2"
-                      backgroundColor="$color3"
-                    />
+                    <YStack borderRadius="$2" overflow="hidden">
+                      <Image
+                        src={fav.book.coverUrl ?? PLACEHOLDER_COVER}
+                        width={50}
+                        height={75}
+                        backgroundColor="$color3"
+                      />
+                    </YStack>
 
                     <YStack flex={1} gap="$1">
                       <Text
@@ -370,13 +371,14 @@ export default function EditFavoritesScreen() {
                     alignItems="center"
                     gap="$3"
                   >
-                    <Image
-                      src={log.book.coverUrl ?? PLACEHOLDER_COVER}
-                      width={50}
-                      height={75}
-                      borderRadius="$2"
-                      backgroundColor="$color3"
-                    />
+                    <YStack borderRadius="$2" overflow="hidden">
+                      <Image
+                        src={log.book.coverUrl ?? PLACEHOLDER_COVER}
+                        width={50}
+                        height={75}
+                        backgroundColor="$color3"
+                      />
+                    </YStack>
 
                     <YStack flex={1} gap="$1">
                       <Text
@@ -466,13 +468,14 @@ export default function EditFavoritesScreen() {
                         alignItems="center"
                         gap="$3"
                       >
-                        <Image
-                          src={book.coverUrl ?? PLACEHOLDER_COVER}
-                          width={50}
-                          height={75}
-                          borderRadius="$2"
-                          backgroundColor="$color3"
-                        />
+                        <YStack borderRadius="$2" overflow="hidden">
+                          <Image
+                            src={book.coverUrl ?? PLACEHOLDER_COVER}
+                            width={50}
+                            height={75}
+                            backgroundColor="$color3"
+                          />
+                        </YStack>
 
                         <YStack flex={1} gap="$1">
                           <Text
