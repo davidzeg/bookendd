@@ -22,6 +22,7 @@ const envSchema = z.object({
     .transform((val) =>
       val ? val.split(',') : ['http://localhost:3000', 'http://localhost:8081'],
     ),
+  SENTRY_DSN: z.url().optional(),
 });
 
 export const env = envSchema.parse(process.env);

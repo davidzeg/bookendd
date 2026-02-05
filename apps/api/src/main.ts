@@ -1,3 +1,4 @@
+import './instrument';
 import { env } from './env';
 
 import { NestFactory } from '@nestjs/core';
