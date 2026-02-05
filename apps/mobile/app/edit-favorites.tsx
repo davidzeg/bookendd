@@ -174,19 +174,6 @@ export default function EditFavoritesScreen() {
     }
   };
 
-  if (topBooksQuery.isLoading) {
-    return (
-      <YStack
-        flex={1}
-        justifyContent="center"
-        alignItems="center"
-        backgroundColor="$background"
-      >
-        <Spinner size="large" color="$accent10" />
-      </YStack>
-    );
-  }
-
   const initialFavorites = topBooksQuery.data?.books ?? [];
 
   const hasChanges = useMemo(() => {
@@ -199,6 +186,19 @@ export default function EditFavoritesScreen() {
   }, [favorites, initialFavorites]);
 
   const canSave = hasChanges && !setFavoritesMutation.isPending;
+
+  if (topBooksQuery.isLoading) {
+    return (
+      <YStack
+        flex={1}
+        justifyContent="center"
+        alignItems="center"
+        backgroundColor="$background"
+      >
+        <Spinner size="large" color="$accent10" />
+      </YStack>
+    );
+  }
 
   return (
     <KeyboardAvoidingView

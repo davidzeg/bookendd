@@ -1,45 +1,11 @@
-import { useMemo } from "react";
-import { FavoritesPreview } from "@/components/FavoritesPreview";
-import { ProfileHeader } from "@/components/ProfileHeader";
-import { RecentActivity } from "@/components/RecentActivity";
-import { WordCloud } from "@/components/WordCloud";
-import { SectionHeader } from "@/components/ui/SectionHeader";
+import { Spinner, YStack, Text, Theme } from "tamagui";
 import { trpc } from "@/lib/trpc";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { ScrollView, Spinner, Text, Theme, YStack } from "tamagui";
-import { useRouter } from "expo-router";
+import { ProfileView } from "@/components/ProfileView";
 
 export default function ProfileScreen() {
-  const insets = useSafeAreaInsets();
-  const router = useRouter();
+  const profileQuery = trpc.user.myProfile.useQuery();
 
-  const userQuery = trpc.user.me.useQuery();
-  const topBooksQuery = trpc.user.topBooksMine.useQuery();
-  const logsQuery = trpc.log.listMine.useQuery();
-
-  const isLoading =
-    userQuery.isLoading || topBooksQuery.isLoading || logsQuery.isLoading;
-  const isError =
-    userQuery.isError || topBooksQuery.isError || logsQuery.isError;
-
-  const user = userQuery.data;
-  const topBooks = topBooksQuery.data?.books ?? [];
-  const logs = logsQuery.data ?? [];
-
-  const stats = useMemo(() => {
-    const finishedLogs = logs.filter((log) => log.status === "FINISHED");
-    const booksRead = finishedLogs.length;
-    const ratingsSum = finishedLogs.reduce(
-      (sum, log) => sum + (log.rating ?? 0),
-      0,
-    );
-    const avgRating =
-      booksRead > 0 ? Math.round((ratingsSum / booksRead) * 10) / 10 : null;
-
-    return { booksRead, avgRating };
-  }, [logs]);
-
-  if (isLoading) {
+  if (profileQuery.isLoading) {
     return (
       <YStack
         flex={1}
@@ -52,7 +18,7 @@ export default function ProfileScreen() {
     );
   }
 
-  if (isError) {
+  if (profileQuery.isError || !profileQuery.data) {
     return (
       <YStack
         flex={1}
@@ -73,45 +39,5 @@ export default function ProfileScreen() {
     );
   }
 
-  return (
-    <ScrollView
-      flex={1}
-      backgroundColor="$background"
-      contentContainerStyle={{
-        paddingTop: insets.top + 16,
-        paddingBottom: insets.bottom + 24,
-        paddingHorizontal: 16,
-      }}
-    >
-      <YStack gap="$8">
-        <ProfileHeader
-          name={user?.name ?? null}
-          username={user?.username ?? null}
-          bio={user?.bio ?? null}
-          avatarUrl={user?.avatarUrl ?? null}
-          stats={stats}
-          onEditPress={() => router.push("/edit-profile")}
-        />
-
-        <YStack gap="$4">
-          <SectionHeader
-            title="Favorite Books"
-            actionLabel="Edit"
-            onAction={() => router.push("/edit-favorites")}
-          />
-          <FavoritesPreview favorites={topBooks} />
-        </YStack>
-
-        <YStack gap="$4">
-          <SectionHeader title="Word Cloud" />
-          <WordCloud words={logs.map((log) => log.word)} minWords={1} />
-        </YStack>
-
-        <YStack gap="$4">
-          <SectionHeader title="Recent Activity" />
-          <RecentActivity logs={logs} />
-        </YStack>
-      </YStack>
-    </ScrollView>
-  );
+  return <ProfileView data={profileQuery.data} isOwnProfile={true} />;
 }

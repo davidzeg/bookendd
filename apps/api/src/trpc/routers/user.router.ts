@@ -91,6 +91,54 @@ export const userRouter = router({
     return user;
   }),
 
+  myProfile: protectedProcedure.query(async ({ ctx }) => {
+    const user = await ctx.prisma.user.findUnique({
+      where: { id: ctx.user.id },
+      select: {
+        id: true,
+        username: true,
+        name: true,
+        avatarUrl: true,
+        bio: true,
+        createdAt: true,
+      },
+    });
+
+    if (!user) return null;
+
+    const topBooksResult = await getTopBooksForUser(ctx.prisma, user.id);
+
+    const recentLogs = await ctx.prisma.log.findMany({
+      where: { userId: user.id, isQuickAdd: false },
+      include: { book: true },
+      orderBy: { createdAt: 'desc' },
+      take: 10,
+    });
+
+    const wordCloudData = await ctx.prisma.log.groupBy({
+      by: ['word'],
+      where: {
+        userId: user.id,
+        word: { not: null },
+      },
+      _count: { word: true },
+    });
+
+    const words = wordCloudData
+      .filter((w) => w.word !== null)
+      .map((w) => ({
+        word: w.word as string,
+        count: w._count.word,
+      }));
+
+    return {
+      user,
+      topBooks: topBooksResult.books,
+      recentLogs,
+      words,
+    };
+  }),
+
   topBooksMine: protectedProcedure.query(async ({ ctx }) => {
     return getTopBooksForUser(ctx.prisma, ctx.user.id);
   }),
@@ -119,7 +167,7 @@ export const userRouter = router({
       const topBooksResult = await getTopBooksForUser(ctx.prisma, user.id);
 
       const recentLogs = await ctx.prisma.log.findMany({
-        where: { userId: user.id },
+        where: { userId: user.id, isQuickAdd: false },
         include: { book: true },
         orderBy: { createdAt: 'desc' },
         take: 10,

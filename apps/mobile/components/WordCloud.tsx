@@ -2,24 +2,36 @@ import { useMemo } from "react";
 import { Text, XStack } from "tamagui";
 import { EmptyState } from "./ui/EmptyState";
 
-interface WordCloudProps {
-  words: (string | null)[];
-  minWords?: number;
-}
-
 type WordFrequency = {
   word: string;
   count: number;
 };
 
+type WordCloudProps = {
+  minWords?: number;
+} & (
+  | { words: (string | null)[]; aggregatedWords?: never }
+  | { words?: never; aggregatedWords: WordFrequency[] }
+);
+
 const MIN_FONT_SIZE = 14;
 const MAX_FONT_SIZE = 32;
 
-export function WordCloud({ words, minWords = 5 }: WordCloudProps) {
+export function WordCloud({
+  words,
+  aggregatedWords,
+  minWords = 5,
+}: WordCloudProps) {
   const wordFrequencies = useMemo(() => {
-    const counts = new Map<string, number>();
+    if (aggregatedWords) {
+      return [...aggregatedWords].sort((a, b) => {
+        if (b.count !== a.count) return b.count - a.count;
+        return a.word.localeCompare(b.word);
+      });
+    }
 
-    for (const word of words) {
+    const counts = new Map<string, number>();
+    for (const word of words ?? []) {
       if (!word) continue;
       const normalized = word.toLowerCase().trim();
       counts.set(normalized, (counts.get(normalized) || 0) + 1);
@@ -34,9 +46,11 @@ export function WordCloud({ words, minWords = 5 }: WordCloudProps) {
       if (b.count !== a.count) return b.count - a.count;
       return a.word.localeCompare(b.word);
     });
-  }, [words]);
+  }, [words, aggregatedWords]);
 
-  const totalWords = words.filter(Boolean).length;
+  const totalWords = aggregatedWords
+    ? aggregatedWords.reduce((sum, w) => sum + w.count, 0)
+    : (words ?? []).filter(Boolean).length;
 
   if (totalWords < minWords) {
     const remaining = minWords - totalWords;
