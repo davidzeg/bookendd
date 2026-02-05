@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Text, YStack, XStack, Input, Button } from "tamagui";
+import Link from "next/link";
 
 function FeatureItem({
   title,
@@ -161,18 +162,30 @@ export default function Home() {
 
         <YStack gap="$4" paddingTop="$4">
           <XStack gap="$4">
-            <Text fontSize="$2" color="$color9">
-              Privacy Policy
-            </Text>
+            <Link href="/privacy" style={{ textDecoration: "none" }}>
+              <Text fontSize="$2" color="$color9">
+                Privacy Policy
+              </Text>
+            </Link>
             <Text fontSize="$2" color="$color8">
               ·
             </Text>
-            <Text fontSize="$2" color="$color9">
-              Terms of Service
+            <Link href="/terms" style={{ textDecoration: "none" }}>
+              <Text fontSize="$2" color="$color9">
+                Terms of Service
+              </Text>
+            </Link>
+            <Text fontSize="$2" color="$color8">
+              ·
             </Text>
+            <Link href="/guidelines" style={{ textDecoration: "none" }}>
+              <Text fontSize="$2" color="$color9">
+                Guidelines
+              </Text>
+            </Link>
           </XStack>
           <Text fontSize="$1" color="$color8">
-            © 2025 Bookendd
+            © 2026 Bookendd
           </Text>
         </YStack>
       </YStack>
