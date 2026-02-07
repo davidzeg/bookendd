@@ -1,8 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { Text, YStack, XStack, Avatar, Theme, Button } from "tamagui";
-import { Link2, Check } from "@tamagui/lucide-icons";
+import { Text, YStack, XStack, Avatar, Theme, Button, useTheme } from "tamagui";
+import { Link2, Check } from "lucide-react";
 import { useMemo, useState } from "react";
 
 const PLACEHOLDER_COVER =
@@ -37,6 +37,7 @@ function SectionHeader({ title }: { title: string }) {
 
 function CopyLinkButton({ username }: { username: string }) {
   const [copied, setCopied] = useState(false);
+  const theme = useTheme();
 
   const handleCopy = async () => {
     const url = `${window.location.origin}/user/${username}`;
@@ -69,14 +70,14 @@ function CopyLinkButton({ username }: { username: string }) {
     >
       {copied ? (
         <>
-          <Check size={16} color="$accent10" />
+          <Check size={16} color={theme.accent10.get()} />
           <Text color="$accent10" fontSize="$2" fontWeight="500">
             Copied!
           </Text>
         </>
       ) : (
         <>
-          <Link2 size={16} color="$color11" />
+          <Link2 size={16} color={theme.color11.get()} />
           <Text color="$color11" fontSize="$2" fontWeight="500">
             Copy link
           </Text>
