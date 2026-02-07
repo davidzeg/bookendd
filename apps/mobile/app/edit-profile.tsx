@@ -5,7 +5,6 @@ import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   Avatar,
-  Button,
   Input,
   ScrollView,
   Spinner,
@@ -15,6 +14,7 @@ import {
   YStack,
 } from "tamagui";
 import { trpc } from "@/lib/trpc";
+import { TextButton } from "@/components/ui/TextButton";
 import { uploadAvatar } from "@/lib/cloudinary";
 import { analytics } from "@/lib/posthog";
 
@@ -115,44 +115,32 @@ export default function EditProfileScreen() {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={{ flex: 1 }}
     >
-      <ScrollView
-        flex={1}
-        backgroundColor="$background"
-        contentContainerStyle={{
-          paddingTop: insets.top + 16,
-          paddingBottom: insets.bottom + 24,
-          paddingHorizontal: 16,
-        }}
-      >
-        <YStack gap="$6">
+      <YStack flex={1} backgroundColor="$background" paddingTop={insets.top + 16}>
+        <ScrollView
+          flex={1}
+          contentInsetAdjustmentBehavior="never"
+          contentContainerStyle={{
+            paddingBottom: insets.bottom + 24,
+            paddingHorizontal: 16,
+          }}
+        >
+          <YStack gap="$6">
           <XStack justifyContent="space-between" alignItems="center">
-            <Button
-              chromeless
+            <TextButton
+              label="Cancel"
               onPress={() => router.back()}
               disabled={isSaving}
-            >
-              <Text color="$accent10">Cancel</Text>
-            </Button>
+            />
             <Text fontSize="$6" fontWeight="700" color="$color12">
               Edit Profile
             </Text>
-            <Button
-              chromeless
+            <TextButton
+              label="Save"
               onPress={handleSave}
               disabled={!canSave}
-              width={80}
-            >
-              {isSaving ? (
-                <Spinner size="small" color="$accent10" />
-              ) : (
-                <Text
-                  color={canSave ? "$accent10" : "$color8"}
-                  fontWeight="600"
-                >
-                  Save
-                </Text>
-              )}
-            </Button>
+              loading={isSaving}
+              fontWeight="600"
+            />
           </XStack>
 
           <YStack alignItems="center" gap="$3">
@@ -178,9 +166,7 @@ export default function EditProfileScreen() {
                 </Avatar.Fallback>
               )}
             </Avatar>
-            <Button size="$3" chromeless onPress={pickImage}>
-              <Text color="$accent10">Change Photo</Text>
-            </Button>
+            <TextButton label="Change Photo" onPress={pickImage} />
           </YStack>
 
           <YStack gap="$4">
@@ -217,7 +203,8 @@ export default function EditProfileScreen() {
             </YStack>
           </YStack>
         </YStack>
-      </ScrollView>
+        </ScrollView>
+      </YStack>
     </KeyboardAvoidingView>
   );
 }

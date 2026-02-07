@@ -1,8 +1,9 @@
 "use client";
 
 import Image from "next/image";
-import { Text, YStack, XStack, Avatar, Theme } from "tamagui";
-import { useMemo } from "react";
+import { Text, YStack, XStack, Avatar, Theme, Button } from "tamagui";
+import { Link2, Check } from "@tamagui/lucide-icons";
+import { useMemo, useState } from "react";
 
 const PLACEHOLDER_COVER =
   "https://placehold.co/120x180/1a1a2e/666666?text=No+Cover";
@@ -31,6 +32,57 @@ function SectionHeader({ title }: { title: string }) {
         {title}
       </Text>
     </XStack>
+  );
+}
+
+function CopyLinkButton({ username }: { username: string }) {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = async () => {
+    const url = `${window.location.origin}/user/${username}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // Fallback for older browsers
+      const textarea = document.createElement("textarea");
+      textarea.value = url;
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand("copy");
+      document.body.removeChild(textarea);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
+  return (
+    <Button
+      size="$3"
+      backgroundColor={copied ? "$color3" : "$color2"}
+      borderColor="$color5"
+      borderWidth={1}
+      pressStyle={{ opacity: 0.8, scale: 0.98 }}
+      onPress={handleCopy}
+      gap="$2"
+    >
+      {copied ? (
+        <>
+          <Check size={16} color="$accent10" />
+          <Text color="$accent10" fontSize="$2" fontWeight="500">
+            Copied!
+          </Text>
+        </>
+      ) : (
+        <>
+          <Link2 size={16} color="$color11" />
+          <Text color="$color11" fontSize="$2" fontWeight="500">
+            Copy link
+          </Text>
+        </>
+      )}
+    </Button>
   );
 }
 
@@ -500,6 +552,7 @@ export function ProfileView({ data }: { data: ProfileData }) {
             {user.bio}
           </Text>
         )}
+        <CopyLinkButton username={user.username} />
       </YStack>
 
       <YStack gap="$4">

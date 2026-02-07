@@ -10,5 +10,24 @@
   },
   "devDependencies": {
     "turbo": "^2.5.0"
+  },
+  "pnpm": {
+    "overrides": {
+      "tamagui": "2.0.0-rc.5",
+      "@tamagui/*": "2.0.0-rc.5",
+      "react": "19.1.0",
+      "react-dom": "19.1.0"
+    },
+    "onlyBuiltDependencies": [
+      "@clerk/shared",
+      "@nestjs/core",
+      "@prisma/engines",
+      "@sentry/cli",
+      "browser-tabs-lock",
+      "bufferutil",
+      "core-js",
+      "prisma",
+      "utf-8-validate"
+    ]
   }
 }

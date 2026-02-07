@@ -1,5 +1,5 @@
-import { Button } from "@/components/ui/Button";
 import { SectionHeader } from "@/components/ui/SectionHeader";
+import { TextButton } from "@/components/ui/TextButton";
 import { analytics } from "@/lib/posthog";
 import { trpc } from "@/lib/trpc";
 import { useRouter } from "expo-router";
@@ -218,30 +218,21 @@ export default function EditFavoritesScreen() {
           marginBottom="$6"
           paddingHorizontal={16}
         >
-          <Button
-            chromeless
+          <TextButton
+            label="Cancel"
             onPress={() => router.back()}
             disabled={setFavoritesMutation.isPending}
-          >
-            <Text color="$accent10">Cancel</Text>
-          </Button>
+          />
           <Text fontSize="$6" fontWeight="700" color="$color12">
             Edit Favorites
           </Text>
-          <Button
-            chromeless
+          <TextButton
+            label="Save"
             onPress={handleSave}
             disabled={!canSave}
-            width={80}
-          >
-            {setFavoritesMutation.isPending ? (
-              <Spinner size="small" color="$accent10" />
-            ) : (
-              <Text color={canSave ? "$accent10" : "$color8"} fontWeight="600">
-                Save
-              </Text>
-            )}
-          </Button>
+            loading={setFavoritesMutation.isPending}
+            fontWeight="600"
+          />
         </XStack>
 
         <ScrollView

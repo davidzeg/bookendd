@@ -1,14 +1,24 @@
-import { Avatar, ScrollView, Text, XStack, YStack } from "tamagui";
+import {
+  Avatar,
+  ScrollView,
+  Text,
+  XStack,
+  YStack,
+  Theme,
+  useTheme,
+} from "tamagui";
+import { LinearGradient } from "expo-linear-gradient";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
-import { ArrowLeft } from "@tamagui/lucide-icons";
+import { ArrowLeft, BookOpen, Star } from "@tamagui/lucide-icons";
 import { Button } from "@/components/ui/Button";
+import { ShareButton } from "@/components/ui/ShareButton";
 import { FavoritesPreview } from "@/components/FavoritesPreview";
 import { WordCloud } from "@/components/WordCloud";
 import { RecentActivity } from "@/components/RecentActivity";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { StatPill } from "@/components/ui/StatPill";
-import { RefreshControl } from "react-native";
+import { Platform, RefreshControl } from "react-native";
 
 type ProfileData = {
   user: {
@@ -62,6 +72,7 @@ export function ProfileView({
 }: ProfileViewProps) {
   const insets = useSafeAreaInsets();
   const router = useRouter();
+  const theme = useTheme();
 
   const { user, topBooks, recentLogs, words } = data;
   const displayName = user.name || user.username;
@@ -80,115 +91,163 @@ export function ProfileView({
   };
 
   return (
-    <ScrollView
-      flex={1}
-      backgroundColor="$background"
-      contentContainerStyle={{
-        paddingTop: insets.top + 16,
-        paddingBottom: insets.bottom + 24,
-        paddingHorizontal: 16,
-      }}
-      refreshControl={
-        onRefresh ? (
-          <RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />
-        ) : undefined
-      }
-    >
-      <YStack gap="$8">
-        {/* Header */}
-        {showBackButton && (
-          <XStack alignItems="center" gap="$3">
-            <Button size="$3" circular chromeless onPress={() => router.back()}>
-              <ArrowLeft size={24} color="$color12" />
-            </Button>
-            <Text fontSize="$5" fontWeight="600" color="$color12">
-              Profile
-            </Text>
-          </XStack>
-        )}
-
-        <YStack gap="$4">
-          <XStack gap="$4" alignItems="center">
-            <Avatar circular size={96} borderWidth={3} borderColor="$accent6">
-              {user.avatarUrl ? (
-                <Avatar.Image src={user.avatarUrl} />
-              ) : (
-                <Avatar.Fallback
-                  backgroundColor="$accent5"
-                  alignItems="center"
-                  justifyContent="center"
-                >
-                  <Text color="$accent12" fontSize="$8" fontWeight="700">
-                    {initial}
-                  </Text>
-                </Avatar.Fallback>
-              )}
-            </Avatar>
-            <YStack flex={1} gap="$1">
-              <Text
-                fontSize="$8"
-                fontWeight="700"
-                color="$color12"
-                style={{ letterSpacing: -0.5 }}
+    <YStack flex={1} backgroundColor="$background" paddingTop={insets.top}>
+      <ScrollView
+        flex={1}
+        contentInsetAdjustmentBehavior="never"
+        contentContainerStyle={{
+          paddingBottom:
+            Platform.OS === "ios" ? insets.bottom + 64 : insets.bottom,
+          paddingHorizontal: 16,
+        }}
+        refreshControl={
+          onRefresh ? (
+            <RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />
+          ) : undefined
+        }
+      >
+        <YStack gap="$8">
+          {/* Header */}
+          {showBackButton && (
+            <XStack alignItems="center" gap="$3">
+              <Button
+                size="$3"
+                circular
+                chromeless
+                onPress={() => router.back()}
               >
-                {displayName}
+                <ArrowLeft size={24} color="$color12" />
+              </Button>
+              <Text fontSize="$5" fontWeight="600" color="$color12">
+                Profile
               </Text>
-              {user.username && user.name && (
-                <Text fontSize="$4" fontWeight="500" color="$color11">
-                  @{user.username}
+            </XStack>
+          )}
+
+          <LinearGradient
+            colors={[theme.color2.get(), theme.background.get()]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 0, y: 1 }}
+            style={{ borderRadius: 16, paddingVertical: 16 }}
+          >
+            <YStack gap="$4">
+              <XStack gap="$4" alignItems="center">
+                <Avatar
+                  circular
+                  size={96}
+                  borderWidth={3}
+                  borderColor="$accent6"
+                >
+                  {user.avatarUrl ? (
+                    <Avatar.Image src={user.avatarUrl} />
+                  ) : (
+                    <Avatar.Fallback
+                      backgroundColor="$accent5"
+                      alignItems="center"
+                      justifyContent="center"
+                    >
+                      <Text color="$accent12" fontSize="$8" fontWeight="700">
+                        {initial}
+                      </Text>
+                    </Avatar.Fallback>
+                  )}
+                </Avatar>
+                <YStack flex={1} gap="$1">
+                  <Text
+                    fontSize="$8"
+                    fontWeight="700"
+                    color="$color12"
+                    style={{ letterSpacing: -0.5 }}
+                  >
+                    {displayName}
+                  </Text>
+                  {user.username && user.name && (
+                    <Text fontSize="$4" fontWeight="500" color="$color11">
+                      @{user.username}
+                    </Text>
+                  )}
+                </YStack>
+              </XStack>
+
+              {user.bio && (
+                <Text
+                  fontSize="$4"
+                  color="$color11"
+                  lineHeight="$5"
+                  paddingHorizontal={16}
+                >
+                  {user.bio}
                 </Text>
               )}
+
+              <XStack gap="$3" flexWrap="wrap">
+                <StatPill
+                  value={stats.booksRead}
+                  label="books"
+                  icon={<BookOpen size={14} color="$accent10" />}
+                />
+                {stats.avgRating !== null && (
+                  <Theme name="star">
+                    <StatPill
+                      value={stats.avgRating.toFixed(1)}
+                      label="avg"
+                      icon={
+                        <Star
+                          size={14}
+                          color="$accent10"
+                          fill={theme.accent10.get()}
+                        />
+                      }
+                    />
+                  </Theme>
+                )}
+              </XStack>
+
+              {isOwnProfile && (
+                <XStack gap="$3">
+                  <Button
+                    size="$3"
+                    variant="outlined"
+                    borderColor="$color6"
+                    flex={1}
+                    onPress={() => router.push("/edit-profile")}
+                  >
+                    <Text color="$color11" fontWeight="500">
+                      Edit Profile
+                    </Text>
+                  </Button>
+                  <ShareButton
+                    url={`https://bookendd.com/user/${user.username}`}
+                    title={`${displayName}'s reading profile`}
+                    message={`Check out ${displayName}'s reading profile on Bookendd!`}
+                  />
+                </XStack>
+              )}
             </YStack>
-          </XStack>
+          </LinearGradient>
 
-          {user.bio && (
-            <Text fontSize="$4" color="$color11" lineHeight="$5">
-              {user.bio}
-            </Text>
-          )}
+          <YStack gap="$4">
+            <SectionHeader
+              title="Favorite Books"
+              actionLabel={isOwnProfile ? "Edit" : undefined}
+              onAction={
+                isOwnProfile ? () => router.push("/edit-favorites") : undefined
+              }
+            />
+            <FavoritesPreview favorites={topBooks} />
+          </YStack>
 
-          <XStack gap="$3" flexWrap="wrap">
-            <StatPill value={stats.booksRead} label="books" />
-            {stats.avgRating !== null && (
-              <StatPill value={stats.avgRating.toFixed(1)} label="avg rating" />
-            )}
-          </XStack>
+          <YStack gap="$4">
+            <SectionHeader title="Word Cloud" />
+            <WordCloud aggregatedWords={words} minWords={1} />
+          </YStack>
 
-          {isOwnProfile && (
-            <Button
-              size="$3"
-              variant="outlined"
-              borderColor="$color6"
-              onPress={() => router.push("/edit-profile")}
-            >
-              <Text color="$color11" fontWeight="500">
-                Edit Profile
-              </Text>
-            </Button>
-          )}
+          <YStack gap="$4">
+            <SectionHeader title="Recent Activity" />
+            <RecentActivity logs={recentLogs} />
+          </YStack>
         </YStack>
-
-        <YStack gap="$4">
-          <SectionHeader
-            title="Favorite Books"
-            actionLabel={isOwnProfile ? "Edit" : undefined}
-            onAction={
-              isOwnProfile ? () => router.push("/edit-favorites") : undefined
-            }
-          />
-          <FavoritesPreview favorites={topBooks} />
-        </YStack>
-
-        <YStack gap="$4">
-          <SectionHeader title="Word Cloud" />
-          <WordCloud aggregatedWords={words} minWords={1} />
-        </YStack>
-
-        <YStack gap="$4">
-          <SectionHeader title="Recent Activity" />
-          <RecentActivity logs={recentLogs} />
-        </YStack>
-      </YStack>
-    </ScrollView>
+      </ScrollView>
+    </YStack>
   );
 }

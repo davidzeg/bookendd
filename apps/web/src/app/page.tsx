@@ -1,32 +1,47 @@
 "use client";
 
-import { useState } from "react";
+import { useState, ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { Text, YStack, XStack, Input, Button } from "tamagui";
+import { Star, MessageSquare, Share2 } from "lucide-react";
+import { useTheme } from "tamagui";
 import Link from "next/link";
 
 function FeatureItem({
+  icon,
   title,
   description,
 }: {
+  icon: ReactNode;
   title: string;
   description: string;
 }) {
   return (
-    <YStack gap="$1">
-      <Text fontSize="$4" fontWeight="600" color="$color12">
-        {title}
-      </Text>
-      <Text fontSize="$3" color="$color10" lineHeight="$4">
-        {description}
-      </Text>
-    </YStack>
+    <XStack gap="$3" alignItems="flex-start">
+      <YStack
+        backgroundColor="$color2"
+        padding="$2"
+        borderRadius={8}
+        marginTop="$1"
+      >
+        {icon}
+      </YStack>
+      <YStack gap="$1" flex={1}>
+        <Text fontSize="$4" fontWeight="600" color="$color12">
+          {title}
+        </Text>
+        <Text fontSize="$3" color="$color10" lineHeight="$4">
+          {description}
+        </Text>
+      </YStack>
+    </XStack>
   );
 }
 
 export default function Home() {
   const [username, setUsername] = useState("");
   const router = useRouter();
+  const theme = useTheme();
 
   const handleViewProfile = () => {
     const trimmed = username.trim();
@@ -91,7 +106,6 @@ export default function Home() {
               value={username}
               onChangeText={setUsername}
               onKeyDown={handleKeyDown}
-              autoCapitalize="none"
               autoCorrect="off"
             />
             <Button
@@ -111,14 +125,17 @@ export default function Home() {
 
         <YStack gap="$5" paddingVertical="$4">
           <FeatureItem
+            icon={<Star size={20} color={theme.accent10.get()} />}
             title="Six-star ratings"
             description="No mushy middle. Force yourself to choose."
           />
           <FeatureItem
+            icon={<MessageSquare size={20} color={theme.accent10.get()} />}
             title="One-word descriptors"
             description="Capture the essence of each book in a single word."
           />
           <FeatureItem
+            icon={<Share2 size={20} color={theme.accent10.get()} />}
             title="Shareable profiles"
             description="Your reading history, beautifully displayed."
           />

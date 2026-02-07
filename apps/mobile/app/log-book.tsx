@@ -1,12 +1,22 @@
 import { useState } from "react";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Image, Text, XStack, YStack, Input, ScrollView } from "tamagui";
+import {
+  Image,
+  Text,
+  XStack,
+  YStack,
+  Input,
+  ScrollView,
+  useTheme,
+} from "tamagui";
 import { Star, X } from "@tamagui/lucide-icons";
 import { Button } from "@/components/ui/Button";
+import { StatusButton } from "@/components/ui/StatusButton";
 import { Alert, KeyboardAvoidingView, Platform } from "react-native";
 import { trpc } from "@/lib/trpc";
 import { analytics } from "@/lib/posthog";
+import { haptics } from "@/lib/haptics";
 
 type LogStatus = "FINISHED" | "DNF" | null;
 
@@ -32,6 +42,7 @@ export default function LogBookModal() {
 
   const createLog = trpc.log.create.useMutation({
     onSuccess: () => {
+      haptics.success();
       analytics.bookLogged(
         status?.toLowerCase() as "finished" | "dnf",
         rating !== null,
@@ -43,6 +54,7 @@ export default function LogBookModal() {
       router.back();
     },
     onError: (error) => {
+      haptics.error();
       Alert.alert("Error", error.message || "Failed to save log");
     },
   });
@@ -161,13 +173,13 @@ export default function LogBookModal() {
               <StatusButton
                 label="Finished"
                 selected={status === "FINISHED"}
-                themeName="success"
+                variant="finished"
                 onPress={() => setStatus("FINISHED")}
               />
               <StatusButton
                 label="DNF"
                 selected={status === "DNF"}
-                themeName="error"
+                variant="dnf"
                 onPress={() => setStatus("DNF")}
               />
             </XStack>
@@ -235,36 +247,6 @@ export default function LogBookModal() {
   );
 }
 
-function StatusButton({
-  label,
-  selected,
-  onPress,
-  themeName,
-}: {
-  label: string;
-  selected: boolean;
-  onPress: () => void;
-  themeName: "success" | "error";
-}) {
-  return (
-    <Button
-      flex={1}
-      size="$5"
-      theme={selected ? themeName : undefined}
-      variant={selected ? undefined : "outlined"}
-      pressStyle={{ opacity: 0.8 }}
-      onPress={onPress}
-      accessibilityLabel={`Mark as ${label}`}
-      accessibilityRole="button"
-      accessibilityState={{ selected }}
-    >
-      <Button.Text fontWeight={selected ? "700" : "500"} fontSize="$4">
-        {label}
-      </Button.Text>
-    </Button>
-  );
-}
-
 function StarRating({
   rating,
   onRate,
@@ -272,6 +254,12 @@ function StarRating({
   rating: number | null;
   onRate: (rating: number | null) => void;
 }) {
+  const theme = useTheme();
+  const handleRate = (star: number) => {
+    haptics.selection();
+    onRate(rating === star ? null : star);
+  };
+
   return (
     <XStack gap="$2" justifyContent="center" accessibilityRole="radiogroup">
       {[1, 2, 3, 4, 5, 6].map((star) => {
@@ -286,12 +274,16 @@ function StarRating({
             borderColor={isActive ? "$color7" : "$color4"}
             borderWidth={1}
             pressStyle={{ opacity: 0.8, scale: 0.95 }}
-            onPress={() => onRate(rating === star ? null : star)}
+            onPress={() => handleRate(star)}
             accessibilityLabel={`${star} star${star > 1 ? "s" : ""}`}
             accessibilityRole="radio"
             accessibilityState={{ checked: rating === star }}
           >
-            <Star size={28} color={isActive ? "$color11" : "$color10"} />
+            <Star
+              size={28}
+              color={isActive ? "$color11" : "$color10"}
+              fill={isActive ? theme.color11.get() : "transparent"}
+            />
           </Button>
         );
       })}

@@ -1,19 +1,25 @@
-import { Spinner, YStack, Text, Theme } from "tamagui";
+import { ScrollView, YStack, Text, Theme } from "tamagui";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { trpc } from "@/lib/trpc";
 import { ProfileView } from "@/components/ProfileView";
+import { ProfileViewSkeleton } from "@/components/skeletons";
 
 export default function ProfileScreen() {
+  const insets = useSafeAreaInsets();
   const profileQuery = trpc.user.myProfile.useQuery();
 
   if (profileQuery.isLoading) {
     return (
-      <YStack
-        flex={1}
-        justifyContent="center"
-        alignItems="center"
-        backgroundColor="$background"
-      >
-        <Spinner size="large" color="$accent10" />
+      <YStack flex={1} backgroundColor="$background" paddingTop={insets.top + 16}>
+        <ScrollView
+          flex={1}
+          contentInsetAdjustmentBehavior="never"
+          contentContainerStyle={{
+            paddingBottom: insets.bottom + 24,
+          }}
+        >
+          <ProfileViewSkeleton />
+        </ScrollView>
       </YStack>
     );
   }
