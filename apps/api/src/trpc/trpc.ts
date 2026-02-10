@@ -26,3 +26,18 @@ export const protectedProcedure = baseProcedure.use(({ ctx, next }) => {
     },
   });
 });
+
+// Requires valid JWT (clerkId) but does NOT require a DB user row.
+// Used for ensureMe — the fallback that creates the user if webhook hasn't fired.
+export const clerkAuthProcedure = baseProcedure.use(({ ctx, next }) => {
+  if (!ctx.clerkId) {
+    throw new TRPCError({ code: 'UNAUTHORIZED' });
+  }
+
+  return next({
+    ctx: {
+      ...ctx,
+      clerkId: ctx.clerkId,
+    },
+  });
+});

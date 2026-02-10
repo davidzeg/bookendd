@@ -11,8 +11,8 @@ import Animated, {
 const AnimatedYStack = Animated.createAnimatedComponent(YStack);
 
 interface SkeletonBoxProps extends Omit<YStackProps, "children"> {
-  width?: number | string;
-  height?: number | string;
+  width?: YStackProps["width"];
+  height?: YStackProps["height"];
   borderRadius?: number;
   shimmer?: boolean;
 }

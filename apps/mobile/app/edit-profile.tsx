@@ -1,7 +1,8 @@
-import { useState } from "react";
-import { Alert, KeyboardAvoidingView, Platform } from "react-native";
+import { useEffect, useState } from "react";
+import { Alert, KeyboardAvoidingView, Platform, Share } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
+import { useAuth } from "@clerk/clerk-expo";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   Avatar,
@@ -23,7 +24,21 @@ export default function EditProfileScreen() {
   const insets = useSafeAreaInsets();
   const utils = trpc.useUtils();
 
+  const { signOut } = useAuth();
+
   const userQuery = trpc.user.me.useQuery();
+  const exportQuery = trpc.user.exportMyData.useQuery(undefined, {
+    enabled: false,
+  });
+  const deleteMutation = trpc.user.deleteMyAccount.useMutation({
+    onSuccess: async () => {
+      await signOut();
+      router.replace("/(auth)/sign-in");
+    },
+    onError: (error) => {
+      Alert.alert("Error", error.message || "Failed to delete account.");
+    },
+  });
   const updateMutation = trpc.user.updateProfile.useMutation({
     onSuccess: () => {
       const changedFields: string[] = [];
@@ -39,10 +54,19 @@ export default function EditProfileScreen() {
     },
   });
 
-  const [name, setName] = useState(userQuery.data?.name ?? "");
-  const [bio, setBio] = useState(userQuery.data?.bio ?? "");
+  const [name, setName] = useState("");
+  const [bio, setBio] = useState("");
   const [avatarUri, setAvatarUri] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
+
+  useEffect(() => {
+    if (userQuery.data && !isInitialized) {
+      setName(userQuery.data.name ?? "");
+      setBio(userQuery.data.bio ?? "");
+      setIsInitialized(true);
+    }
+  }, [userQuery.data, isInitialized]);
 
   const currentAvatarUrl = userQuery.data?.avatarUrl;
   const displayAvatar = avatarUri ?? currentAvatarUrl;
@@ -89,10 +113,53 @@ export default function EditProfileScreen() {
     }
   };
 
+  const handleExport = async () => {
+    try {
+      const result = await exportQuery.refetch();
+      if (result.data) {
+        await Share.share({
+          message: JSON.stringify(result.data, null, 2),
+          title: "My Antilogos Data",
+        });
+      }
+    } catch {
+      Alert.alert("Error", "Failed to export data. Please try again.");
+    }
+  };
+
+  const handleDeleteAccount = () => {
+    Alert.alert(
+      "Delete Account",
+      "This will permanently delete your account and all your data. This cannot be undone.",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: () => {
+            Alert.alert(
+              "Are you sure?",
+              "All your reading logs, favorites, and profile data will be permanently deleted.",
+              [
+                { text: "Cancel", style: "cancel" },
+                {
+                  text: "Delete Forever",
+                  style: "destructive",
+                  onPress: () => deleteMutation.mutate(),
+                },
+              ],
+            );
+          },
+        },
+      ],
+    );
+  };
+
   const hasChanges =
-    name !== (userQuery.data?.name ?? "") ||
-    bio !== (userQuery.data?.bio ?? "") ||
-    avatarUri !== null;
+    isInitialized &&
+    (name !== (userQuery.data?.name ?? "") ||
+      bio !== (userQuery.data?.bio ?? "") ||
+      avatarUri !== null);
 
   const isSaving = isUploading || updateMutation.isPending;
   const canSave = hasChanges && !isSaving;
@@ -201,6 +268,30 @@ export default function EditProfileScreen() {
                 {bio.length}/500
               </Text>
             </YStack>
+          </YStack>
+
+          <YStack
+            gap="$3"
+            marginTop="$6"
+            paddingTop="$6"
+            borderTopWidth={1}
+            borderTopColor="$color4"
+          >
+            <Text fontSize="$3" fontWeight="600" color="$color11">
+              Account
+            </Text>
+            <TextButton
+              label={exportQuery.isFetching ? "Exporting..." : "Export My Data"}
+              onPress={handleExport}
+              disabled={exportQuery.isFetching}
+              color="$color12"
+            />
+            <TextButton
+              label={deleteMutation.isPending ? "Deleting..." : "Delete Account"}
+              onPress={handleDeleteAccount}
+              disabled={deleteMutation.isPending}
+              color="$red10"
+            />
           </YStack>
         </YStack>
         </ScrollView>

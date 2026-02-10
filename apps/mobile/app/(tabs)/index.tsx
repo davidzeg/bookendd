@@ -10,6 +10,7 @@ import {
   HomeScreenSkeleton,
 } from "@/components/home";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { Button } from "@/components/ui/Button";
 
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
@@ -42,8 +43,16 @@ export default function HomeScreen() {
           </Text>
         </Theme>
         <Text fontSize="$3" color="$color11" textAlign="center" marginTop="$2">
-          Pull down to refresh
+          {profileQuery.error?.message ?? "Could not load your data"}
         </Text>
+        <Button
+          marginTop="$2"
+          size="$3"
+          variant="outlined"
+          onPress={() => profileQuery.refetch()}
+        >
+          <Button.Text>Retry</Button.Text>
+        </Button>
       </YStack>
     );
   }

@@ -3,6 +3,7 @@ import { Text, XStack } from "tamagui";
 import { Share2 } from "@tamagui/lucide-icons";
 import { Button } from "./Button";
 import { haptics } from "@/lib/haptics";
+import { analytics } from "@/lib/posthog";
 
 interface ShareButtonProps {
   url: string;
@@ -14,7 +15,7 @@ export function ShareButton({ url, title, message }: ShareButtonProps) {
   const handleShare = async () => {
     haptics.light();
     try {
-      await Share.share(
+      const result = await Share.share(
         Platform.select({
           ios: {
             url,
@@ -29,6 +30,9 @@ export function ShareButton({ url, title, message }: ShareButtonProps) {
           },
         })!
       );
+      if (result.action === Share.sharedAction) {
+        analytics.profileShared(result.activityType ?? "unknown");
+      }
     } catch (error) {
       // User cancelled or error - silently ignore
     }

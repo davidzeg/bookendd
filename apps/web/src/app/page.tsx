@@ -84,7 +84,7 @@ export default function Home() {
           >
             bookendd
           </Text>
-          <Text fontSize="$6" color="$color11" lineHeight="$7" maxWidth={360}>
+          <Text fontSize="$6" color="$color11" lineHeight="$7" maxWidth={400}>
             Track your reading journey with a single word.
           </Text>
         </YStack>

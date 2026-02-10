@@ -3,6 +3,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { trpc } from "@/lib/trpc";
 import { ProfileView } from "@/components/ProfileView";
 import { ProfileViewSkeleton } from "@/components/skeletons";
+import { Button } from "@/components/ui/Button";
 
 export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
@@ -39,8 +40,16 @@ export default function ProfileScreen() {
           </Text>
         </Theme>
         <Text fontSize="$3" color="$color11" textAlign="center" marginTop="$2">
-          Pull down to refresh
+          {profileQuery.error?.message ?? "Could not load your profile"}
         </Text>
+        <Button
+          marginTop="$2"
+          size="$3"
+          variant="outlined"
+          onPress={() => profileQuery.refetch()}
+        >
+          <Button.Text>Retry</Button.Text>
+        </Button>
       </YStack>
     );
   }

@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { router, protectedProcedure } from '../trpc';
-import { moderateText } from 'src/lib/moderation';
+import { moderateText } from '../../lib/moderation';
 import { TRPCError } from '@trpc/server';
 
 const bookDataSchema = z.object({

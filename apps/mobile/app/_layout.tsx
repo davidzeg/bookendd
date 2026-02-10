@@ -102,9 +102,36 @@ function AuthGate() {
 
   const userQuery = trpc.user.me.useQuery(undefined, {
     enabled: isSignedIn === true,
-    retry: 5,
-    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000),
+    retry: 3,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 5000),
   });
+
+  const ensureMeMutation = trpc.user.ensureMe.useMutation({
+    onSuccess: () => {
+      userQuery.refetch();
+    },
+  });
+
+  // Auto-trigger ensureMe when user.me returns null (webhook hasn't fired yet)
+  useEffect(() => {
+    if (
+      isSignedIn &&
+      !userQuery.isLoading &&
+      !userQuery.data &&
+      !userQuery.isRefetching &&
+      !ensureMeMutation.isPending &&
+      !ensureMeMutation.isSuccess
+    ) {
+      ensureMeMutation.mutate();
+    }
+  }, [
+    isSignedIn,
+    userQuery.isLoading,
+    userQuery.data,
+    userQuery.isRefetching,
+    ensureMeMutation.isPending,
+    ensureMeMutation.isSuccess,
+  ]);
 
   useEffect(() => {
     if (!isLoaded) return;
@@ -132,6 +159,7 @@ function AuthGate() {
       analytics.identify(userQuery.data.id, {
         username: userQuery.data.username,
       });
+      analytics.authSuccess();
       Sentry.setUser({
         id: userQuery.data.id,
         username: userQuery.data.username,
@@ -143,15 +171,22 @@ function AuthGate() {
     return null;
   }
 
-  if (isSignedIn && userQuery.isLoading) {
+  if (
+    isSignedIn &&
+    (userQuery.isLoading || ensureMeMutation.isPending)
+  ) {
     return (
       <YStack
         flex={1}
         justifyContent="center"
         alignItems="center"
         backgroundColor="$background"
+        gap="$3"
       >
         <Spinner size="large" color="$accent10" />
+        <Text color="$color11" textAlign="center">
+          Setting up your account...
+        </Text>
       </YStack>
     );
   }
@@ -166,20 +201,20 @@ function AuthGate() {
         padding="$6"
         gap="$3"
       >
-        <Spinner size="large" color="$accent10" />
-        <Text color="$color11" textAlign="center">
-          Setting up your account...
+        <Text fontSize="$5" color="$color12" textAlign="center">
+          Something went wrong
         </Text>
         <Text fontSize="$2" color="$color10" textAlign="center">
-          {userQuery.isError
-            ? "Taking longer than usual. Please retry"
-            : "This may take a moment"}
+          We couldn't set up your account. Please try again.
         </Text>
         <Button
           marginTop="$2"
           size="$3"
           variant="outlined"
-          onPress={() => userQuery.refetch()}
+          onPress={() => {
+            ensureMeMutation.reset();
+            userQuery.refetch();
+          }}
         >
           <Button.Text>Retry</Button.Text>
         </Button>

@@ -1,5 +1,10 @@
 import { z } from 'zod';
-import { protectedProcedure, publicProcedure, router } from '../trpc';
+import {
+  clerkAuthProcedure,
+  protectedProcedure,
+  publicProcedure,
+  router,
+} from '../trpc';
 import { PrismaClient } from '@prisma/client';
 
 const bookSelect = {
@@ -91,6 +96,27 @@ export const userRouter = router({
     return user;
   }),
 
+  // Fallback for when Clerk webhook hasn't fired yet — creates user from JWT
+  ensureMe: clerkAuthProcedure.mutation(async ({ ctx }) => {
+    const user = await ctx.prisma.user.upsert({
+      where: { clerkId: ctx.clerkId },
+      create: {
+        clerkId: ctx.clerkId,
+        username: `reader_${ctx.clerkId.slice(-8)}`,
+      },
+      update: {},
+      select: {
+        id: true,
+        username: true,
+        name: true,
+        avatarUrl: true,
+        bio: true,
+        createdAt: true,
+      },
+    });
+    return user;
+  }),
+
   myProfile: protectedProcedure.query(async ({ ctx }) => {
     const user = await ctx.prisma.user.findUnique({
       where: { id: ctx.user.id },
@@ -146,7 +172,11 @@ export const userRouter = router({
   byUsername: publicProcedure
     .input(
       z.object({
-        username: z.string().min(1),
+        username: z
+          .string()
+          .min(1)
+          .max(30)
+          .regex(/^[a-zA-Z0-9_]+$/, 'Invalid username format'),
       }),
     )
     .query(async ({ ctx, input }) => {
@@ -244,6 +274,71 @@ export const userRouter = router({
 
       return getTopBooksForUser(ctx.prisma, ctx.user.id);
     }),
+
+  exportMyData: protectedProcedure.query(async ({ ctx }) => {
+    const user = await ctx.prisma.user.findUnique({
+      where: { id: ctx.user.id },
+      select: {
+        id: true,
+        username: true,
+        name: true,
+        avatarUrl: true,
+        bio: true,
+        favoritesMode: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+
+    const logs = await ctx.prisma.log.findMany({
+      where: { userId: ctx.user.id },
+      include: { book: true },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    const topBooks = await ctx.prisma.userTopBook.findMany({
+      where: { userId: ctx.user.id },
+      include: { book: true },
+      orderBy: { position: 'asc' },
+    });
+
+    return {
+      exportedAt: new Date().toISOString(),
+      user,
+      logs: logs.map((log) => ({
+        id: log.id,
+        status: log.status,
+        rating: log.rating,
+        word: log.word,
+        readNumber: log.readNumber,
+        finishedAt: log.finishedAt,
+        isQuickAdd: log.isQuickAdd,
+        createdAt: log.createdAt,
+        book: {
+          title: log.book.title,
+          author: log.book.author,
+          openLibraryId: log.book.openLibraryId,
+        },
+      })),
+      topBooks: topBooks.map((tb) => ({
+        position: tb.position,
+        book: {
+          title: tb.book.title,
+          author: tb.book.author,
+          openLibraryId: tb.book.openLibraryId,
+        },
+      })),
+    };
+  }),
+
+  deleteMyAccount: protectedProcedure.mutation(async ({ ctx }) => {
+    // Prisma cascade deletes handle Log and UserTopBook records
+    await ctx.prisma.user.delete({
+      where: { id: ctx.user.id },
+    });
+
+    return { deleted: true };
+  }),
 
   updateProfile: protectedProcedure
     .input(

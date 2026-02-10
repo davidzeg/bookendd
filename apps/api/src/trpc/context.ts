@@ -16,7 +16,7 @@ export function createContextFactory(prisma: PrismaService) {
       : null;
 
     if (!token) {
-      return { user: null, prisma };
+      return { user: null, clerkId: null, prisma };
     }
 
     try {
@@ -31,13 +31,13 @@ export function createContextFactory(prisma: PrismaService) {
         select: { id: true, clerkId: true },
       });
 
-      if (!dbUser) {
-        return { user: null, prisma };
-      }
-
-      return { user: dbUser, prisma };
+      return {
+        user: dbUser,
+        clerkId: payload.sub,
+        prisma,
+      };
     } catch {
-      return { user: null, prisma };
+      return { user: null, clerkId: null, prisma };
     }
   };
 }

@@ -66,20 +66,48 @@ export class ClerkWebhookController {
   private async handleUserCreated(data: ClerkUserEvent['data']) {
     const { id: clerkId, username, email_addresses } = data;
 
-    const generatedUsername =
+    const baseUsername =
       username ??
       email_addresses[0]?.email_address.split('@')[0] ??
       `user_${clerkId.slice(-8)}`;
+
+    const uniqueUsername = await this.generateUniqueUsername(baseUsername);
 
     await this.prisma.user.upsert({
       where: { clerkId },
       create: {
         clerkId,
-        username: generatedUsername,
+        username: uniqueUsername,
       },
       update: {},
     });
 
-    console.log(`Upserted user: ${generatedUsername} (${clerkId})`);
+    console.log(`Upserted user: ${uniqueUsername} (${clerkId})`);
+  }
+
+  private async generateUniqueUsername(base: string): Promise<string> {
+    const normalized =
+      base
+        .toLowerCase()
+        .replace(/[^a-z0-9_]/g, '')
+        .slice(0, 20) || 'reader';
+
+    const existing = await this.prisma.user.findUnique({
+      where: { username: normalized },
+      select: { id: true },
+    });
+    if (!existing) return normalized;
+
+    for (let i = 0; i < 5; i++) {
+      const suffix = Math.random().toString(36).slice(2, 6);
+      const candidate = `${normalized.slice(0, 16)}_${suffix}`;
+      const exists = await this.prisma.user.findUnique({
+        where: { username: candidate },
+        select: { id: true },
+      });
+      if (!exists) return candidate;
+    }
+
+    return `user_${Date.now().toString(36)}`;
   }
 }

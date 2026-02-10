@@ -114,7 +114,7 @@ export function LegalLayout({
             </Link>
           </XStack>
           <Text fontSize="$1" color="$color8">
-            © 2025 Bookendd
+            © 2026 Antilogos
           </Text>
         </YStack>
       </YStack>

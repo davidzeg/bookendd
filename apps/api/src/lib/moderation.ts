@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { TRPCError } from '@trpc/server';
 import { env } from '../env';
 
 const moderationResponseSchema = z.object({
@@ -23,18 +24,34 @@ const BLOCKED_CATEGORIES = [
 ];
 
 export async function moderateText(text: string): Promise<ModerationResult> {
-  const response = await fetch('https://api.openai.com/v1/moderations', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${env.OPENAI_API_KEY}`,
-    },
-    body: JSON.stringify({ input: text }),
-  });
+  let response: Response;
+
+  try {
+    response = await fetch('https://api.openai.com/v1/moderations', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${env.OPENAI_API_KEY}`,
+      },
+      body: JSON.stringify({ input: text }),
+      signal: AbortSignal.timeout(5000),
+    });
+  } catch (error) {
+    console.error('Moderation API network error:', error);
+    throw new TRPCError({
+      code: 'INTERNAL_SERVER_ERROR',
+      message: 'Content check temporarily unavailable. Please try again.',
+      cause: error,
+    });
+  }
 
   if (!response.ok) {
     console.error('Moderation API error:', response.status);
-    return { flagged: false, categories: [] };
+    throw new TRPCError({
+      code: 'INTERNAL_SERVER_ERROR',
+      message: 'Content check temporarily unavailable. Please try again.',
+      cause: new Error(`Moderation API returned ${response.status}`),
+    });
   }
 
   const json: unknown = await response.json();

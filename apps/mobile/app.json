@@ -2,7 +2,7 @@
   "expo": {
     "name": "Antilogos",
     "slug": "antilogos",
-    "version": "1.0.0",
+    "version": "0.1.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "antilogos",
@@ -14,7 +14,8 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.davgjorgoski.antilogos"
     },
     "android": {
       "package": "com.davgjorgoski.antilogos",

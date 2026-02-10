@@ -20,7 +20,7 @@ export function TextButton({
   fontSize = "$4",
 }: TextButtonProps) {
   if (loading) {
-    return <Spinner size="small" color={color} />;
+    return <Spinner size="small" color={color as string} />;
   }
 
   return (

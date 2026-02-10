@@ -33,6 +33,22 @@ export const analytics = {
     posthog.capture("profile_edited", { changed_fields: changedFields });
   },
 
+  authSuccess: () => {
+    posthog.capture("auth_success");
+  },
+
+  profileShared: (method: string) => {
+    posthog.capture("profile_shared", { method });
+  },
+
+  errorEncountered: (screen: string, type: string, message?: string) => {
+    posthog.capture("error_encountered", {
+      screen,
+      type,
+      message: message ?? null,
+    });
+  },
+
   screenViewed: (screenName: string, params?: EventProperties) => {
     posthog.screen(screenName, params);
   },

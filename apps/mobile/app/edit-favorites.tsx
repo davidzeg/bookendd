@@ -5,6 +5,7 @@ import { trpc } from "@/lib/trpc";
 import { useRouter } from "expo-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
+  Alert,
   Keyboard,
   KeyboardAvoidingView,
   Platform,
@@ -40,6 +41,12 @@ export default function EditFavoritesScreen() {
       utils.user.topBooksMine.invalidate();
       utils.user.myProfile.invalidate();
       router.back();
+    },
+    onError: (error) => {
+      Alert.alert(
+        "Error",
+        error.message || "Failed to save favorites. Please try again.",
+      );
     },
   });
   const logsQuery = trpc.log.listMine.useQuery();

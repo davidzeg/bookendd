@@ -3,7 +3,6 @@ dist/
 .next/
 .expo/
 .turbo/
-.github/
 *.log
 .env
 .env.*
