@@ -27,4 +27,4 @@ jobs:
       - run: pnpm lint
 
       - name: Run API tests
-        run: cd apps/api && pnpm test -- --passWithNoTests
+        run: cd apps/api && pnpm test --passWithNoTests
