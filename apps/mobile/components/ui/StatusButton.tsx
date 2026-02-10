@@ -38,10 +38,7 @@ export function StatusButton({
       minHeight={56}
     >
       <XStack gap="$2" alignItems="center">
-        <Icon
-          size={20}
-          color={selected ? "$color12" : "$color10"}
-        />
+        <Icon size={20} color={selected ? "$color12" : "$color10"} />
         <Text
           fontWeight={selected ? "700" : "500"}
           fontSize="$4"

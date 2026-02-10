@@ -14,6 +14,7 @@ import { ArrowLeft, BookOpen, Star } from "@tamagui/lucide-icons";
 import { Button } from "@/components/ui/Button";
 import { ShareButton } from "@/components/ui/ShareButton";
 import { FavoritesPreview } from "@/components/FavoritesPreview";
+import { CurrentlyReading } from "@/components/CurrentlyReading";
 import { WordCloud } from "@/components/WordCloud";
 import { RecentActivity } from "@/components/RecentActivity";
 import { SectionHeader } from "@/components/ui/SectionHeader";
@@ -33,6 +34,7 @@ type ProfileData = {
     position: number;
     book: {
       id: string;
+      openLibraryId: string;
       title: string;
       author: string | null;
       coverUrl: string | null;
@@ -40,12 +42,14 @@ type ProfileData = {
   }>;
   recentLogs: Array<{
     id: string;
-    status: "FINISHED" | "DNF";
+    status: "FINISHED" | "DNF" | "READING";
     rating: number | null;
     word: string | null;
     book: {
       id: string;
+      openLibraryId: string;
       title: string;
+      author: string | null;
       coverUrl: string | null;
     };
   }>;
@@ -77,6 +81,9 @@ export function ProfileView({
   const { user, topBooks, recentLogs, words } = data;
   const displayName = user.name || user.username;
   const initial = displayName.charAt(0).toUpperCase();
+
+  const currentlyReading = recentLogs.filter((log) => log.status === "READING");
+  const completedLogs = recentLogs.filter((log) => log.status !== "READING");
 
   const stats = {
     booksRead: recentLogs.filter((log) => log.status === "FINISHED").length,
@@ -242,9 +249,16 @@ export function ProfileView({
             <WordCloud aggregatedWords={words} minWords={1} />
           </YStack>
 
+          {currentlyReading.length > 0 && (
+            <YStack gap="$4">
+              <SectionHeader title="Currently Reading" />
+              <CurrentlyReading logs={currentlyReading} />
+            </YStack>
+          )}
+
           <YStack gap="$4">
             <SectionHeader title="Recent Activity" />
-            <RecentActivity logs={recentLogs} />
+            <RecentActivity logs={completedLogs} />
           </YStack>
         </YStack>
       </ScrollView>

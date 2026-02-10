@@ -1,4 +1,5 @@
 import { Image, ScrollView, Text, XStack, YStack } from "tamagui";
+import { useRouter } from "expo-router";
 import { Button } from "./ui/Button";
 import { EmptyState } from "./ui/EmptyState";
 
@@ -10,6 +11,7 @@ type FavoriteBook = {
   position: number;
   book: {
     id: string;
+    openLibraryId: string;
     title: string;
     author: string | null;
     coverUrl: string | null;
@@ -21,8 +23,29 @@ interface FavoritesPreviewProps {
 }
 
 function CoverTile({ book }: { book: FavoriteBook["book"] }) {
+  const router = useRouter();
+
+  const handlePress = () => {
+    router.push({
+      pathname: "/book/[openLibraryId]",
+      params: {
+        openLibraryId: book.openLibraryId,
+        title: book.title,
+        author: book.author ?? "",
+        coverUrl: book.coverUrl ?? "",
+        year: "",
+      },
+    });
+  };
+
   return (
-    <YStack flex={1} alignItems="center" gap="$2">
+    <YStack
+      flex={1}
+      alignItems="center"
+      gap="$2"
+      onPress={handlePress}
+      pressStyle={{ opacity: 0.7, scale: 0.97 }}
+    >
       <YStack borderRadius="$3" overflow="hidden">
         <Image
           src={book.coverUrl ?? PLACEHOLDER_COVER}

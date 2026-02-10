@@ -1,5 +1,6 @@
 import { ScrollView } from "react-native";
 import { Image, Text, XStack, YStack, Theme } from "tamagui";
+import { useRouter } from "expo-router";
 import { StarDisplay } from "@/components/ui/StarDisplay";
 import { EmptyState } from "@/components/ui/EmptyState";
 
@@ -15,12 +16,14 @@ const LETTER_LINE_HEIGHT = Math.round(LETTER_SIZE * 1.1);
 
 type LogWithBook = {
   id: string;
-  status: "FINISHED" | "DNF";
+  status: "FINISHED" | "DNF" | "READING";
   rating: number | null;
   word: string | null;
   book: {
     id: string;
+    openLibraryId: string;
     title: string;
+    author: string | null;
     coverUrl: string | null;
   };
 };
@@ -71,8 +74,28 @@ function DnfText() {
 }
 
 function ActivityItem({ log }: { log: LogWithBook }) {
+  const router = useRouter();
+
+  const handlePress = () => {
+    router.push({
+      pathname: "/book/[openLibraryId]",
+      params: {
+        openLibraryId: log.book.openLibraryId,
+        title: log.book.title,
+        author: log.book.author ?? "",
+        coverUrl: log.book.coverUrl ?? "",
+        year: "",
+      },
+    });
+  };
+
   return (
-    <XStack gap={4} alignItems="flex-start">
+    <XStack
+      gap={4}
+      alignItems="flex-start"
+      onPress={handlePress}
+      pressStyle={{ opacity: 0.7, scale: 0.97 }}
+    >
       <YStack gap="$2" alignItems="center">
         <YStack
           borderRadius="$3"

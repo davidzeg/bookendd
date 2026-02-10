@@ -6,9 +6,11 @@ import {
   router,
 } from '../trpc';
 import { PrismaClient } from '@prisma/client';
+import { ensureUserForClerkId } from '../ensure-user';
 
 const bookSelect = {
   id: true,
+  openLibraryId: true,
   title: true,
   author: true,
   coverUrl: true,
@@ -16,6 +18,7 @@ const bookSelect = {
 
 type BookShape = {
   id: string;
+  openLibraryId: string;
   title: string;
   author: string | null;
   coverUrl: string | null;
@@ -98,23 +101,16 @@ export const userRouter = router({
 
   // Fallback for when Clerk webhook hasn't fired yet — creates user from JWT
   ensureMe: clerkAuthProcedure.mutation(async ({ ctx }) => {
-    const user = await ctx.prisma.user.upsert({
-      where: { clerkId: ctx.clerkId },
-      create: {
-        clerkId: ctx.clerkId,
-        username: `reader_${ctx.clerkId.slice(-8)}`,
-      },
-      update: {},
-      select: {
-        id: true,
-        username: true,
-        name: true,
-        avatarUrl: true,
-        bio: true,
-        createdAt: true,
-      },
-    });
-    return user;
+    const user = await ensureUserForClerkId(ctx.prisma, ctx.clerkId);
+
+    return {
+      id: user.id,
+      username: user.username,
+      name: user.name,
+      avatarUrl: user.avatarUrl,
+      bio: user.bio,
+      createdAt: user.createdAt,
+    };
   }),
 
   myProfile: protectedProcedure.query(async ({ ctx }) => {

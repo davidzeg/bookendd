@@ -25,6 +25,10 @@ export const analytics = {
     });
   },
 
+  bookStarted: () => {
+    posthog.capture("book_started");
+  },
+
   favoritesUpdated: (count: number) => {
     posthog.capture("favorites_updated", { count });
   },

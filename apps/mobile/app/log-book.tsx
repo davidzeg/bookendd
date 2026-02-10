@@ -19,6 +19,7 @@ import { analytics } from "@/lib/posthog";
 import { haptics } from "@/lib/haptics";
 
 type LogStatus = "FINISHED" | "DNF" | null;
+type LogBookMode = "create" | "finish";
 
 export default function LogBookModal() {
   const router = useRouter();
@@ -29,35 +30,52 @@ export default function LogBookModal() {
     author: string;
     coverUrl: string;
     year: string;
+    mode?: LogBookMode;
+    logId?: string;
   }>();
+  const mode = params.mode === "finish" ? "finish" : "create";
+  const isFinishMode = mode === "finish";
 
   const [status, setStatus] = useState<LogStatus>(null);
   const [rating, setRating] = useState<number | null>(null);
   const [word, setWord] = useState("");
+  const [review, setReview] = useState("");
 
   const utils = trpc.useUtils();
 
   const canSave =
     status === "DNF" || (status === "FINISHED" && rating !== null);
 
+  const onSaveSuccess = () => {
+    haptics.success();
+    analytics.bookLogged(
+      status?.toLowerCase() as "finished" | "dnf",
+      rating !== null,
+      word !== "",
+    );
+    utils.log.listMine.invalidate();
+    utils.user.topBooksMine.invalidate();
+    utils.user.myProfile.invalidate();
+    router.back();
+  };
+
   const createLog = trpc.log.create.useMutation({
-    onSuccess: () => {
-      haptics.success();
-      analytics.bookLogged(
-        status?.toLowerCase() as "finished" | "dnf",
-        rating !== null,
-        word !== "",
-      );
-      utils.log.listMine.invalidate();
-      utils.user.topBooksMine.invalidate();
-      utils.user.myProfile.invalidate();
-      router.back();
-    },
+    onSuccess: onSaveSuccess,
     onError: (error) => {
       haptics.error();
       Alert.alert("Error", error.message || "Failed to save log");
     },
   });
+
+  const finishLog = trpc.log.finish.useMutation({
+    onSuccess: onSaveSuccess,
+    onError: (error) => {
+      haptics.error();
+      Alert.alert("Error", error.message || "Failed to finish reading");
+    },
+  });
+
+  const isSubmitting = createLog.isPending || finishLog.isPending;
 
   const handleSave = () => {
     if (status === null) return;
@@ -69,20 +87,50 @@ export default function LogBookModal() {
       coverUrl: params.coverUrl || null,
     };
 
+    if (isFinishMode) {
+      if (!params.logId) {
+        Alert.alert("Error", "Missing active reading log.");
+        return;
+      }
+
+      if (status === "FINISHED") {
+        finishLog.mutate({
+          logId: params.logId,
+          status: "FINISHED",
+          rating: rating ?? 1,
+          word: word.trim() || null,
+          review: review.trim() || null,
+        });
+        return;
+      }
+
+      finishLog.mutate({
+        logId: params.logId,
+        status: "DNF",
+        rating: null,
+        word: word.trim() || null,
+        review: review.trim() || null,
+      });
+      return;
+    }
+
     if (status === "FINISHED") {
       createLog.mutate({
         ...baseData,
         status: "FINISHED",
         rating: rating ?? 1,
         word: word.trim() || null,
+        review: review.trim() || null,
       });
-    } else {
-      createLog.mutate({
-        ...baseData,
-        status: "DNF",
-        word: word.trim() || null,
-      });
+      return;
     }
+
+    createLog.mutate({
+      ...baseData,
+      status: "DNF",
+      word: word.trim() || null,
+      review: review.trim() || null,
+    });
   };
 
   return (
@@ -109,7 +157,7 @@ export default function LogBookModal() {
             <X size={24} color="$color12" />
           </Button>
           <Text fontSize="$5" fontWeight="600" color="$color12">
-            Log Book
+            {isFinishMode ? "Finish Reading" : "Log Book"}
           </Text>
           <YStack width={40} />
         </XStack>
@@ -194,7 +242,7 @@ export default function LogBookModal() {
             </YStack>
           )}
 
-          {status !== null && (
+          {(status === "FINISHED" || status === "DNF") && (
             <YStack padding="$4" gap="$3">
               <Text fontSize="$3" fontWeight="600" color="$color12">
                 DESCRIBE IN ONE WORD
@@ -220,6 +268,34 @@ export default function LogBookModal() {
             </YStack>
           )}
 
+          {(status === "FINISHED" || status === "DNF") && (
+            <YStack padding="$4" gap="$3">
+              <Text fontSize="$3" fontWeight="600" color="$color12">
+                REVIEW
+              </Text>
+              <Input
+                value={review}
+                onChangeText={setReview}
+                placeholder="What did you think?"
+                size="$4"
+                maxLength={1000}
+                multiline
+                numberOfLines={4}
+                textAlignVertical="top"
+                backgroundColor="$color2"
+                borderColor="$color4"
+                borderWidth={1}
+                color="$color12"
+                placeholderTextColor="$color9"
+                minHeight={100}
+                accessibilityLabel="Write a short review"
+              />
+              <Text fontSize="$2" color="$color10">
+                {review.length}/1000
+              </Text>
+            </YStack>
+          )}
+
           <YStack flex={1} minHeight={24} />
 
           <YStack padding="$4" paddingBottom={insets.bottom + 16}>
@@ -228,16 +304,28 @@ export default function LogBookModal() {
               theme={canSave ? "accent" : undefined}
               variant={canSave ? undefined : "outlined"}
               onPress={handleSave}
-              disabled={!canSave || createLog.isPending}
-              opacity={!canSave || createLog.isPending ? 0.6 : 1}
+              disabled={!canSave || isSubmitting}
+              opacity={!canSave || isSubmitting ? 0.6 : 1}
               accessibilityLabel={
-                createLog.isPending ? "Saving your log" : "Save book log"
+                isSubmitting
+                  ? isFinishMode
+                    ? "Finishing reading"
+                    : "Saving your log"
+                  : isFinishMode
+                    ? "Finish reading"
+                    : "Save book log"
               }
               accessibilityRole="button"
-              accessibilityState={{ disabled: !canSave || createLog.isPending }}
+              accessibilityState={{ disabled: !canSave || isSubmitting }}
             >
               <Button.Text fontWeight="700" fontSize="$5">
-                {createLog.isPending ? "Saving..." : "Log Book"}
+                {isSubmitting
+                  ? isFinishMode
+                    ? "Finishing..."
+                    : "Saving..."
+                  : isFinishMode
+                    ? "Finish Reading"
+                    : "Log Book"}
               </Button.Text>
             </Button>
           </YStack>

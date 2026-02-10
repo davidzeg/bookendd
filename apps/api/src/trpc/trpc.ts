@@ -1,6 +1,7 @@
 import { initTRPC, TRPCError } from '@trpc/server';
 import * as Sentry from '@sentry/nestjs';
 import { Context } from './context';
+import { ensureUserForClerkId } from './ensure-user';
 
 export const t = initTRPC.context<Context>().create();
 
@@ -14,15 +15,29 @@ export const router = t.router;
 const baseProcedure = t.procedure.use(sentryMiddleWare);
 export const publicProcedure = baseProcedure;
 
-export const protectedProcedure = baseProcedure.use(({ ctx, next }) => {
-  if (!ctx.user) {
+export const protectedProcedure = baseProcedure.use(async ({ ctx, next }) => {
+  if (ctx.user) {
+    return next({
+      ctx: {
+        ...ctx,
+        user: ctx.user,
+      },
+    });
+  }
+
+  if (!ctx.clerkId) {
     throw new TRPCError({ code: 'UNAUTHORIZED' });
   }
+
+  const ensuredUser = await ensureUserForClerkId(ctx.prisma, ctx.clerkId);
 
   return next({
     ctx: {
       ...ctx,
-      user: ctx.user,
+      user: {
+        id: ensuredUser.id,
+        clerkId: ensuredUser.clerkId,
+      },
     },
   });
 });

@@ -101,7 +101,9 @@ function AuthGate() {
   const segments = useSegments();
 
   const userQuery = trpc.user.me.useQuery(undefined, {
-    enabled: isSignedIn === true,
+    enabled: isLoaded === true && isSignedIn === true,
+    staleTime: 0,
+    refetchOnMount: "always",
     retry: 3,
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 5000),
   });
@@ -115,22 +117,30 @@ function AuthGate() {
   // Auto-trigger ensureMe when user.me returns null (webhook hasn't fired yet)
   useEffect(() => {
     if (
+      isLoaded &&
       isSignedIn &&
+      userQuery.isFetched &&
       !userQuery.isLoading &&
       !userQuery.data &&
+      !userQuery.error &&
       !userQuery.isRefetching &&
       !ensureMeMutation.isPending &&
-      !ensureMeMutation.isSuccess
+      !ensureMeMutation.isSuccess &&
+      !ensureMeMutation.isError
     ) {
       ensureMeMutation.mutate();
     }
   }, [
+    isLoaded,
     isSignedIn,
+    userQuery.isFetched,
     userQuery.isLoading,
     userQuery.data,
+    userQuery.error,
     userQuery.isRefetching,
     ensureMeMutation.isPending,
     ensureMeMutation.isSuccess,
+    ensureMeMutation.isError,
   ]);
 
   useEffect(() => {
@@ -226,6 +236,7 @@ function AuthGate() {
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="(auth)" />
       <Stack.Screen name="(tabs)" />
+      <Stack.Screen name="book/[openLibraryId]" />
       <Stack.Screen name="log-book" options={{ presentation: "modal" }} />
     </Stack>
   );

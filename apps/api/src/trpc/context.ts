@@ -23,7 +23,7 @@ export function createContextFactory(prisma: PrismaService) {
       const payload = await verifyToken(token, {
         jwtKey: env.CLERK_JWT_KEY,
         authorizedParties: env.CLERK_AUTHORIZED_PARTIES,
-        clockSkewInMs: 5000,
+        clockSkewInMs: 60000,
       });
 
       const dbUser = await prisma.user.findUnique({

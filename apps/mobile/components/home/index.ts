@@ -3,3 +3,4 @@ export { QuickStats } from "./QuickStats";
 export { LastReadCard } from "./LastReadCard";
 export { SearchCTA } from "./SearchCTA";
 export { HomeScreenSkeleton } from "./HomeScreenSkeleton";
+export { FeedCard } from "./FeedCard";

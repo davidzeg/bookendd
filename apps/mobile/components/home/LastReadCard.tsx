@@ -6,7 +6,7 @@ interface LastReadCardProps {
     title: string;
     coverUrl: string | null;
   };
-  status: "FINISHED" | "DNF";
+  status: "FINISHED" | "DNF" | "READING";
   rating: number | null;
   word: string | null;
 }

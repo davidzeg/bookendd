@@ -180,7 +180,7 @@ export default function SearchScreen() {
               year={item.firstPublishYear}
               onPress={() => {
                 router.push({
-                  pathname: "/log-book",
+                  pathname: "/book/[openLibraryId]",
                   params: {
                     openLibraryId: item.openLibraryId,
                     title: item.title,
