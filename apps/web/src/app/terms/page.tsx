@@ -60,12 +60,12 @@ export default function TermsOfService() {
       <Section title="The Service">
         <Paragraph>
           We strive to keep Bookendd available and functional, but we provide
-          the service "as is" without warranties. We may modify, suspend, or
+          the service &quot;as is&quot; without warranties. We may modify, suspend, or
           discontinue features at any time.
         </Paragraph>
         <Paragraph>
           Book metadata and covers are provided by OpenLibrary and other
-          sources. We don't guarantee the accuracy or availability of this
+          sources. We don&apos;t guarantee the accuracy or availability of this
           information.
         </Paragraph>
       </Section>
@@ -81,7 +81,7 @@ export default function TermsOfService() {
       <Section title="Changes to Terms">
         <Paragraph>
           We may update these terms occasionally. Continued use of Bookendd
-          after changes constitutes acceptance. We'll notify users of
+          after changes constitutes acceptance. We&apos;ll notify users of
           significant changes through the app or email.
         </Paragraph>
       </Section>

@@ -11,7 +11,7 @@ export default function PrivacyPolicy() {
   return (
     <LegalLayout title="Privacy Policy" lastUpdated="February 2026">
       <Paragraph>
-        Bookendd ("we", "our", or "us") is committed to protecting your privacy.
+        Bookendd (&quot;we&quot;, &quot;our&quot;, or &quot;us&quot;) is committed to protecting your privacy.
         This policy explains how we collect, use, and safeguard your information
         when you use our mobile app and website.
       </Paragraph>

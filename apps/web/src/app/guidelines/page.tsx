@@ -17,7 +17,7 @@ export default function CommunityGuidelines() {
 
       <Section title="Be Respectful">
         <Paragraph>
-          Reading is personal. People have different tastes, and that's what
+          Reading is personal. People have different tastes, and that&apos;s what
           makes book discussions interesting.
         </Paragraph>
         <BulletList
