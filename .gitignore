@@ -3,6 +3,8 @@ dist/
 .next/
 .expo/
 .turbo/
+**/.next/
+**/.tamagui/
 *.log
 .env
 .env.*
