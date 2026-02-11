@@ -11,8 +11,8 @@ const bookDataSchema = z.object({
     .refine((id) => id.startsWith('/works/'), {
       message: 'Must be an OpenLibrary work ID (e.g., /works/OL123W)',
     }),
-  title: z.string().min(1),
-  author: z.string().nullable(),
+  title: z.string().min(1).max(500),
+  author: z.string().max(500).nullable(),
   coverUrl: z.url().nullable(),
 });
 
@@ -27,7 +27,7 @@ const finishedLogSchema = z.object({
   status: z.literal('FINISHED'),
   rating: z.number().int().min(1).max(6),
   word: wordSchema.nullable(),
-  review: z.string().nullable(),
+  review: z.string().max(5000).nullable(),
   finishedAt: z.coerce.date().optional(),
   startedAt: z.coerce.date().optional(),
 });
@@ -36,7 +36,9 @@ const dnfLogSchema = z.object({
   status: z.literal('DNF'),
   rating: z.null().optional(),
   word: wordSchema.nullable(),
-  review: z.string().nullable(),
+  review: z.string().max(5000).nullable(),
+  dnfReason: z.string().trim().max(500).nullable().optional(),
+  dnfProgress: z.string().trim().max(50).nullable().optional(),
   finishedAt: z.coerce.date().optional(),
   startedAt: z.coerce.date().optional(),
 });
@@ -125,6 +127,14 @@ export const logRouter = router({
               review: input.review ?? null,
               startedAt: input.startedAt ?? latestLog.startedAt,
               finishedAt: input.finishedAt ?? new Date(),
+              dnfReason:
+                input.status === 'DNF' && 'dnfReason' in input
+                  ? (input.dnfReason ?? null)
+                  : null,
+              dnfProgress:
+                input.status === 'DNF' && 'dnfProgress' in input
+                  ? (input.dnfProgress ?? null)
+                  : null,
             },
             include: { book: true },
           });
@@ -153,6 +163,14 @@ export const logRouter = router({
             (input.status === 'FINISHED' || input.status === 'DNF'
               ? new Date()
               : null),
+          dnfReason:
+            input.status === 'DNF' && 'dnfReason' in input
+              ? (input.dnfReason ?? null)
+              : null,
+          dnfProgress:
+            input.status === 'DNF' && 'dnfProgress' in input
+              ? (input.dnfProgress ?? null)
+              : null,
         };
 
         try {
@@ -189,11 +207,11 @@ export const logRouter = router({
   finish: protectedProcedure
     .input(
       z.object({
-        logId: z.string().min(1),
+        logId: z.string().min(1).max(30),
         status: z.enum(['FINISHED', 'DNF']),
         rating: z.number().int().min(1).max(6).nullable(),
         word: wordSchema.nullable(),
-        review: z.string().nullable(),
+        review: z.string().max(5000).nullable(),
         dnfReason: z.string().trim().max(500).nullable().optional(),
         dnfProgress: z.string().trim().max(50).nullable().optional(),
         finishedAt: z.coerce.date().optional(),
@@ -266,7 +284,23 @@ export const logRouter = router({
   listMine: protectedProcedure.query(async ({ ctx }) => {
     const logs = await ctx.prisma.log.findMany({
       where: { userId: ctx.user.id, isQuickAdd: false },
-      include: { book: true },
+      select: {
+        id: true,
+        status: true,
+        rating: true,
+        word: true,
+        createdAt: true,
+        startedAt: true,
+        book: {
+          select: {
+            id: true,
+            openLibraryId: true,
+            title: true,
+            author: true,
+            coverUrl: true,
+          },
+        },
+      },
       orderBy: { createdAt: 'desc' },
       take: 20,
     });

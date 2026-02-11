@@ -4,6 +4,7 @@ import Image from "next/image";
 import { Text, YStack, XStack, Avatar, Theme, Button, useTheme } from "tamagui";
 import { Link2, Check } from "lucide-react";
 import { useMemo, useState } from "react";
+import type { ProfileData } from "@/lib/trpc";
 
 const PLACEHOLDER_COVER =
   "https://placehold.co/120x180/1a1a2e/666666?text=No+Cover";
@@ -18,6 +19,9 @@ const AVATAR_SIZE = 96;
 
 const MIN_FONT_SIZE = 14;
 const MAX_FONT_SIZE = 36;
+
+const READING_COVER_WIDTH = 80;
+const READING_COVER_HEIGHT = 120;
 
 function SectionHeader({ title }: { title: string }) {
   return (
@@ -86,40 +90,6 @@ function CopyLinkButton({ username }: { username: string }) {
     </Button>
   );
 }
-
-type ProfileData = {
-  user: {
-    id: string;
-    username: string;
-    name: string | null;
-    avatarUrl: string | null;
-    bio: string | null;
-  };
-  topBooks: Array<{
-    id: string;
-    book: {
-      id: string;
-      title: string;
-      author: string | null;
-      coverUrl: string | null;
-    };
-  }>;
-  recentLogs: Array<{
-    id: string;
-    status: string;
-    rating: number | null;
-    word: string | null;
-    book: {
-      id: string;
-      title: string;
-      coverUrl: string | null;
-    };
-  }>;
-  words: Array<{
-    word: string;
-    count: number;
-  }>;
-};
 
 function WordCloud({
   words,
@@ -427,6 +397,63 @@ function ActivityItem({ log }: { log: ProfileData["recentLogs"][0] }) {
   );
 }
 
+function CurrentlyReadingSection({
+  logs,
+}: {
+  logs: ProfileData["recentLogs"];
+}) {
+  return (
+    <XStack
+      gap="$4"
+      paddingVertical="$3"
+      paddingHorizontal="$1"
+      className="hide-scrollbar"
+      style={{
+        overflowX: "auto",
+        WebkitOverflowScrolling: "touch",
+        scrollSnapType: "x mandatory",
+      }}
+    >
+      {logs.map((log) => (
+        <YStack
+          key={log.id}
+          alignItems="center"
+          gap="$2"
+          flexShrink={0}
+          style={{ scrollSnapAlign: "start" }}
+        >
+          <YStack borderRadius={8} overflow="hidden" borderWidth={1} borderColor="$color4">
+            <Image
+              src={log.book.coverUrl || PLACEHOLDER_COVER}
+              alt={log.book.title}
+              width={READING_COVER_WIDTH}
+              height={READING_COVER_HEIGHT}
+              style={{ objectFit: "cover", display: "block" }}
+            />
+          </YStack>
+          <Text
+            fontSize="$2"
+            fontWeight="500"
+            color="$color11"
+            textAlign="center"
+            width={READING_COVER_WIDTH}
+            numberOfLines={2}
+            style={{
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              display: "-webkit-box",
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: "vertical",
+            }}
+          >
+            {log.book.title}
+          </Text>
+        </YStack>
+      ))}
+    </XStack>
+  );
+}
+
 function RecentActivity({ logs }: { logs: ProfileData["recentLogs"] }) {
   if (logs.length === 0) {
     return (
@@ -480,6 +507,11 @@ function RecentActivity({ logs }: { logs: ProfileData["recentLogs"] }) {
 export function ProfileView({ data }: { data: ProfileData }) {
   const { user, topBooks, recentLogs, words } = data;
   const displayName = user.name || user.username;
+
+  const currentlyReading = recentLogs.filter(
+    (log) => log.status === "READING"
+  );
+  const completedLogs = recentLogs.filter((log) => log.status !== "READING");
 
   return (
     <YStack
@@ -556,6 +588,13 @@ export function ProfileView({ data }: { data: ProfileData }) {
         <CopyLinkButton username={user.username} />
       </YStack>
 
+      {currentlyReading.length > 0 && (
+        <YStack gap="$4">
+          <SectionHeader title="Currently Reading" />
+          <CurrentlyReadingSection logs={currentlyReading} />
+        </YStack>
+      )}
+
       <YStack gap="$4">
         <SectionHeader title="Favorite Books" />
         <FavoritesPreview favorites={topBooks} />
@@ -568,12 +607,12 @@ export function ProfileView({ data }: { data: ProfileData }) {
 
       <YStack gap="$4">
         <SectionHeader title="Recent Activity" />
-        <RecentActivity logs={recentLogs} />
+        <RecentActivity logs={completedLogs} />
       </YStack>
 
       <YStack alignItems="center" paddingTop="$4">
         <Text fontSize="$2" color="$color8" fontWeight="500">
-          bookendd
+          antilogos
         </Text>
       </YStack>
     </YStack>

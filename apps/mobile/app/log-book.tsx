@@ -278,7 +278,7 @@ export default function LogBookModal() {
                 onChangeText={setReview}
                 placeholder="What did you think?"
                 size="$4"
-                maxLength={1000}
+                maxLength={5000}
                 multiline
                 numberOfLines={4}
                 textAlignVertical="top"
@@ -291,7 +291,7 @@ export default function LogBookModal() {
                 accessibilityLabel="Write a short review"
               />
               <Text fontSize="$2" color="$color10">
-                {review.length}/1000
+                {review.length}/5000
               </Text>
             </YStack>
           )}

@@ -122,6 +122,8 @@ export function ProfileView({
                 circular
                 chromeless
                 onPress={() => router.back()}
+                accessibilityLabel="Go back"
+                accessibilityRole="button"
               >
                 <ArrowLeft size={24} color="$color12" />
               </Button>
@@ -226,7 +228,7 @@ export function ProfileView({
                   <ShareButton
                     url={`https://bookendd.com/user/${user.username}`}
                     title={`${displayName}'s reading profile`}
-                    message={`Check out ${displayName}'s reading profile on Bookendd!`}
+                    message={`Check out ${displayName}'s reading profile on Antilogos!`}
                   />
                 </XStack>
               )}

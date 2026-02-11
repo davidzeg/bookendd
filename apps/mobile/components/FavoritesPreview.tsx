@@ -1,6 +1,5 @@
-import { Image, ScrollView, Text, XStack, YStack } from "tamagui";
+import { Image, ScrollView, Text, YStack } from "tamagui";
 import { useRouter } from "expo-router";
-import { Button } from "./ui/Button";
 import { EmptyState } from "./ui/EmptyState";
 
 const PLACEHOLDER_COVER =
@@ -45,6 +44,8 @@ function CoverTile({ book }: { book: FavoriteBook["book"] }) {
       gap="$2"
       onPress={handlePress}
       pressStyle={{ opacity: 0.7, scale: 0.97 }}
+      accessibilityLabel={`${book.title} by ${book.author ?? "unknown author"}`}
+      accessibilityRole="button"
     >
       <YStack borderRadius="$3" overflow="hidden">
         <Image
@@ -76,13 +77,6 @@ export function FavoritesPreview({ favorites }: FavoritesPreviewProps) {
       />
     );
   }
-
-  const displayBooks = favorites.slice(0, 4);
-  const totalCount = favorites.length;
-  const hasMore = totalCount > 4;
-
-  const topRow = displayBooks.slice(0, 2);
-  const bottomRow = displayBooks.slice(2, 4);
 
   return (
     <ScrollView

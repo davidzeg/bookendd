@@ -3,16 +3,16 @@ import "./globals.css";
 import { NextTamaguiProvider } from "./NextTamaguiProvider";
 
 export const metadata: Metadata = {
-  title: "Bookendd",
+  title: "Antilogos",
   description: "Track your reading journey with a single word",
   openGraph: {
-    title: "Bookendd",
+    title: "Antilogos",
     description: "Track your reading journey with a single word",
     type: "website",
   },
   twitter: {
     card: "summary",
-    title: "Bookendd",
+    title: "Antilogos",
     description: "Track your reading journey with a single word",
   },
 };

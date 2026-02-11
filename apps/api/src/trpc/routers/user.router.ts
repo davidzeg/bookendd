@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { TRPCError } from '@trpc/server';
 import {
   clerkAuthProcedure,
   protectedProcedure,
@@ -82,6 +83,62 @@ async function getTopBooksForUser(prisma: PrismaClient, userId: string) {
   };
 }
 
+async function buildProfileData(prisma: PrismaClient, userId: string) {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: {
+      id: true,
+      username: true,
+      name: true,
+      avatarUrl: true,
+      bio: true,
+      createdAt: true,
+    },
+  });
+
+  if (!user) return null;
+
+  const topBooksResult = await getTopBooksForUser(prisma, user.id);
+
+  const recentLogs = await prisma.log.findMany({
+    where: { userId: user.id, isQuickAdd: false },
+    select: {
+      id: true,
+      status: true,
+      rating: true,
+      word: true,
+      createdAt: true,
+      startedAt: true,
+      book: { select: bookSelect },
+    },
+    orderBy: { createdAt: 'desc' },
+    take: 10,
+  });
+
+  const wordCloudData = await prisma.log.groupBy({
+    by: ['word'],
+    where: {
+      userId: user.id,
+      word: { not: null },
+    },
+    _count: { word: true },
+  });
+
+  const words = wordCloudData
+    .filter((w) => w.word !== null)
+    .map((w) => ({
+      word: w.word as string,
+      count: w._count.word,
+    }));
+
+  return {
+    user,
+    topBooks: topBooksResult.books,
+    recentLogs,
+    words,
+  };
+}
+
 export const userRouter = router({
   me: protectedProcedure.query(async ({ ctx }) => {
     const user = await ctx.prisma.user.findUnique({
@@ -114,51 +171,7 @@ export const userRouter = router({
   }),
 
   myProfile: protectedProcedure.query(async ({ ctx }) => {
-    const user = await ctx.prisma.user.findUnique({
-      where: { id: ctx.user.id },
-      select: {
-        id: true,
-        username: true,
-        name: true,
-        avatarUrl: true,
-        bio: true,
-        createdAt: true,
-      },
-    });
-
-    if (!user) return null;
-
-    const topBooksResult = await getTopBooksForUser(ctx.prisma, user.id);
-
-    const recentLogs = await ctx.prisma.log.findMany({
-      where: { userId: user.id, isQuickAdd: false },
-      include: { book: true },
-      orderBy: { createdAt: 'desc' },
-      take: 10,
-    });
-
-    const wordCloudData = await ctx.prisma.log.groupBy({
-      by: ['word'],
-      where: {
-        userId: user.id,
-        word: { not: null },
-      },
-      _count: { word: true },
-    });
-
-    const words = wordCloudData
-      .filter((w) => w.word !== null)
-      .map((w) => ({
-        word: w.word as string,
-        count: w._count.word,
-      }));
-
-    return {
-      user,
-      topBooks: topBooksResult.books,
-      recentLogs,
-      words,
-    };
+    return buildProfileData(ctx.prisma, ctx.user.id);
   }),
 
   topBooksMine: protectedProcedure.query(async ({ ctx }) => {
@@ -178,49 +191,12 @@ export const userRouter = router({
     .query(async ({ ctx, input }) => {
       const user = await ctx.prisma.user.findUnique({
         where: { username: input.username },
-        select: {
-          id: true,
-          username: true,
-          name: true,
-          avatarUrl: true,
-          bio: true,
-          createdAt: true,
-        },
+        select: { id: true },
       });
 
       if (!user) return null;
 
-      const topBooksResult = await getTopBooksForUser(ctx.prisma, user.id);
-
-      const recentLogs = await ctx.prisma.log.findMany({
-        where: { userId: user.id, isQuickAdd: false },
-        include: { book: true },
-        orderBy: { createdAt: 'desc' },
-        take: 10,
-      });
-
-      const wordCloudData = await ctx.prisma.log.groupBy({
-        by: ['word'],
-        where: {
-          userId: user.id,
-          word: { not: null },
-        },
-        _count: { word: true },
-      });
-
-      const words = wordCloudData
-        .filter((w) => w.word !== null)
-        .map((w) => ({
-          word: w.word as string,
-          count: w._count.word,
-        }));
-
-      return {
-        user,
-        topBooks: topBooksResult.books,
-        recentLogs,
-        words,
-      };
+      return buildProfileData(ctx.prisma, user.id);
     }),
 
   setFavorites: protectedProcedure
@@ -228,7 +204,7 @@ export const userRouter = router({
       z.object({
         favorites: z.array(
           z.object({
-            bookId: z.string(),
+            bookId: z.string().min(1),
             position: z.number().int().min(1),
           }),
         ),
@@ -239,12 +215,31 @@ export const userRouter = router({
 
       const positions = favorites.map((f) => f.position);
       if (new Set(positions).size !== positions.length) {
-        throw new Error('Duplicate positions not allowed');
+        throw new TRPCError({
+          code: 'BAD_REQUEST',
+          message: 'Duplicate positions not allowed',
+        });
       }
 
       const bookIds = favorites.map((f) => f.bookId);
       if (new Set(bookIds).size !== bookIds.length) {
-        throw new Error('Duplicate books not allowed');
+        throw new TRPCError({
+          code: 'BAD_REQUEST',
+          message: 'Duplicate books not allowed',
+        });
+      }
+
+      if (favorites.length > 0) {
+        const existingBooks = await ctx.prisma.book.findMany({
+          where: { id: { in: bookIds } },
+          select: { id: true },
+        });
+        if (existingBooks.length !== bookIds.length) {
+          throw new TRPCError({
+            code: 'BAD_REQUEST',
+            message: 'One or more books not found',
+          });
+        }
       }
 
       await ctx.prisma.$transaction(async (tx) => {
@@ -339,8 +334,8 @@ export const userRouter = router({
   updateProfile: protectedProcedure
     .input(
       z.object({
-        name: z.string().min(1).max(100).optional(),
-        bio: z.string().max(500).optional(),
+        name: z.string().trim().min(1).max(100).optional(),
+        bio: z.string().trim().max(500).optional(),
         avatarUrl: z.url().optional(),
       }),
     )
@@ -349,7 +344,9 @@ export const userRouter = router({
         where: { id: ctx.user.id },
         data: {
           ...(input.name !== undefined && { name: input.name }),
-          ...(input.bio !== undefined && { bio: input.bio }),
+          ...(input.bio !== undefined && {
+            bio: input.bio === '' ? null : input.bio,
+          }),
           ...(input.avatarUrl !== undefined && { avatarUrl: input.avatarUrl }),
         },
         select: {

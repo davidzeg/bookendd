@@ -13,7 +13,11 @@ export function SearchCTA() {
   };
 
   return (
-    <Pressable onPress={handlePress}>
+    <Pressable
+      onPress={handlePress}
+      accessibilityLabel="Log a book — search and track what you've read"
+      accessibilityRole="button"
+    >
       {({ pressed }) => (
         <XStack
           backgroundColor="$accent6"

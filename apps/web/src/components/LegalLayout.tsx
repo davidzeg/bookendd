@@ -52,7 +52,7 @@ export function LegalLayout({
             color="$accent10"
             style={{ letterSpacing: "-0.03em" }}
           >
-            bookendd
+            antilogos
           </Text>
         </Link>
 

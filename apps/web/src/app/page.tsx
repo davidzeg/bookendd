@@ -82,7 +82,7 @@ export default function Home() {
             color="$accent10"
             style={{ letterSpacing: "-0.03em" }}
           >
-            bookendd
+            antilogos
           </Text>
           <Text fontSize="$6" color="$color11" lineHeight="$7" maxWidth={400}>
             Track your reading journey with a single word.
@@ -202,7 +202,7 @@ export default function Home() {
             </Link>
           </XStack>
           <Text fontSize="$1" color="$color8">
-            © 2026 Bookendd
+            © 2026 Antilogos
           </Text>
         </YStack>
       </YStack>

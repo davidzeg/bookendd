@@ -98,6 +98,8 @@ export function FeedCard({ item }: FeedCardProps) {
         alignItems="center"
         onPress={handleUserPress}
         pressStyle={{ opacity: 0.7 }}
+        accessibilityLabel={`View ${item.user.name || item.user.username}'s profile`}
+        accessibilityRole="button"
       >
         <Avatar circular size={32}>
           {item.user.avatarUrl ? (
@@ -128,6 +130,8 @@ export function FeedCard({ item }: FeedCardProps) {
         alignItems="center"
         onPress={handleBookPress}
         pressStyle={{ opacity: 0.7, scale: 0.98 }}
+        accessibilityLabel={`${item.book.title} by ${item.book.author ?? "unknown author"}`}
+        accessibilityRole="button"
       >
         <YStack borderRadius={6} overflow="hidden">
           <Image

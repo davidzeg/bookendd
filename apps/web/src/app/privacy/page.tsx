@@ -11,7 +11,7 @@ export default function PrivacyPolicy() {
   return (
     <LegalLayout title="Privacy Policy" lastUpdated="February 2026">
       <Paragraph>
-        Bookendd (&quot;we&quot;, &quot;our&quot;, or &quot;us&quot;) is committed to protecting your privacy.
+        Antilogos (&quot;we&quot;, &quot;our&quot;, or &quot;us&quot;) is committed to protecting your privacy.
         This policy explains how we collect, use, and safeguard your information
         when you use our mobile app and website.
       </Paragraph>
@@ -38,7 +38,7 @@ export default function PrivacyPolicy() {
       <Section title="How We Use Your Information">
         <BulletList
           items={[
-            "Provide and maintain the Bookendd service",
+            "Provide and maintain the Antilogos service",
             "Display your public profile and reading activity",
             "Analyze usage patterns to improve the app",
             "Send important service updates (not marketing)",
@@ -49,7 +49,7 @@ export default function PrivacyPolicy() {
 
       <Section title="Third-Party Services">
         <Paragraph>
-          We use trusted third-party services to operate Bookendd:
+          We use trusted third-party services to operate Antilogos:
         </Paragraph>
         <BulletList
           items={[
@@ -73,7 +73,7 @@ export default function PrivacyPolicy() {
         <BulletList
           items={[
             "When you make your profile public (username, books, ratings, words)",
-            "With service providers who help operate Bookendd",
+            "With service providers who help operate Antilogos",
             "If required by law or to protect rights and safety",
           ]}
         />
@@ -101,7 +101,7 @@ export default function PrivacyPolicy() {
 
       <Section title="Contact">
         <Paragraph>
-          Questions about this policy? Contact us at privacy@bookendd.com
+          Questions about this policy? Contact us at privacy@antilogos.com
         </Paragraph>
       </Section>
     </LegalLayout>

@@ -16,3 +16,7 @@ export const trpc = createTRPCClient<AppRouter>({
     }),
   ],
 });
+
+export type ProfileData = NonNullable<
+  Awaited<ReturnType<typeof trpc.user.byUsername.query>>
+>;

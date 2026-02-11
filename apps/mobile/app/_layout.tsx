@@ -9,7 +9,7 @@ import { Stack, useRouter, useSegments } from "expo-router";
 import { isRunningInExpoGo } from "expo";
 import * as SplashScreen from "expo-splash-screen";
 import * as Sentry from "@sentry/react-native";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import "react-native-reanimated";
 
 import { useColorScheme } from "react-native";
@@ -99,6 +99,8 @@ function AuthGate() {
   const { isSignedIn, isLoaded } = useAuth();
   const router = useRouter();
   const segments = useSegments();
+  const hasIdentifiedRef = useRef(false);
+  const hasTriedEnsureMe = useRef(false);
 
   const userQuery = trpc.user.me.useQuery(undefined, {
     enabled: isLoaded === true && isSignedIn === true,
@@ -114,34 +116,31 @@ function AuthGate() {
     },
   });
 
-  // Auto-trigger ensureMe when user.me returns null (webhook hasn't fired yet)
   useEffect(() => {
     if (
       isLoaded &&
       isSignedIn &&
       userQuery.isFetched &&
-      !userQuery.isLoading &&
-      !userQuery.data &&
+      userQuery.data === null &&
       !userQuery.error &&
-      !userQuery.isRefetching &&
-      !ensureMeMutation.isPending &&
-      !ensureMeMutation.isSuccess &&
-      !ensureMeMutation.isError
+      !hasTriedEnsureMe.current
     ) {
+      hasTriedEnsureMe.current = true;
       ensureMeMutation.mutate();
     }
   }, [
     isLoaded,
     isSignedIn,
     userQuery.isFetched,
-    userQuery.isLoading,
     userQuery.data,
     userQuery.error,
-    userQuery.isRefetching,
-    ensureMeMutation.isPending,
-    ensureMeMutation.isSuccess,
-    ensureMeMutation.isError,
   ]);
+
+  useEffect(() => {
+    if (!isSignedIn) {
+      hasTriedEnsureMe.current = false;
+    }
+  }, [isSignedIn]);
 
   useEffect(() => {
     if (!isLoaded) return;
@@ -165,7 +164,8 @@ function AuthGate() {
   }, [isSignedIn, isLoaded, segments, userQuery.isLoading, userQuery.data]);
 
   useEffect(() => {
-    if (userQuery.data) {
+    if (userQuery.data && !hasIdentifiedRef.current) {
+      hasIdentifiedRef.current = true;
       analytics.identify(userQuery.data.id, {
         username: userQuery.data.username,
       });
@@ -175,16 +175,16 @@ function AuthGate() {
         username: userQuery.data.username,
       });
     }
-  }, [userQuery.data]);
+    if (!userQuery.data && !isSignedIn) {
+      hasIdentifiedRef.current = false;
+    }
+  }, [userQuery.data, isSignedIn]);
 
   if (!isLoaded) {
     return null;
   }
 
-  if (
-    isSignedIn &&
-    (userQuery.isLoading || ensureMeMutation.isPending)
-  ) {
+  if (isSignedIn && (userQuery.isLoading || ensureMeMutation.isPending)) {
     return (
       <YStack
         flex={1}

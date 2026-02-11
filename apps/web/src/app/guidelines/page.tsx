@@ -11,7 +11,7 @@ export default function CommunityGuidelines() {
   return (
     <LegalLayout title="Community Guidelines" lastUpdated="February 2026">
       <Paragraph>
-        Bookendd is a community of readers. These guidelines help keep it
+        Antilogos is a community of readers. These guidelines help keep it
         welcoming and useful for everyone.
       </Paragraph>
 
@@ -32,7 +32,7 @@ export default function CommunityGuidelines() {
 
       <Section title="Keep It Authentic">
         <Paragraph>
-          Bookendd works best when people share genuine reading experiences.
+          Antilogos works best when people share genuine reading experiences.
         </Paragraph>
         <BulletList
           items={[
@@ -79,7 +79,7 @@ export default function CommunityGuidelines() {
 
       <Section title="Contact">
         <Paragraph>
-          Questions or reports? Contact us at community@bookendd.com
+          Questions or reports? Contact us at community@antilogos.com
         </Paragraph>
       </Section>
     </LegalLayout>

@@ -23,6 +23,7 @@ type FavoriteBook = {
   position: number;
   book: {
     id: string;
+    openLibraryId?: string;
     title: string;
     author: string | null;
     coverUrl: string | null;
@@ -164,6 +165,7 @@ export default function EditFavoritesScreen() {
           position: newPosition,
           book: {
             id: savedBook.id,
+            openLibraryId: savedBook.openLibraryId,
             title: savedBook.title,
             author: savedBook.author,
             coverUrl: savedBook.coverUrl,
@@ -318,6 +320,8 @@ export default function EditFavoritesScreen() {
                         onPress={() => moveUp(index)}
                         pressStyle={{ opacity: 0.7 }}
                         padding="$1"
+                        accessibilityLabel={`Move ${fav.book.title} up`}
+                        accessibilityRole="button"
                       >
                         ↑
                       </Text>
@@ -331,6 +335,8 @@ export default function EditFavoritesScreen() {
                         onPress={() => moveDown(index)}
                         pressStyle={{ opacity: 0.7 }}
                         padding="$1"
+                        accessibilityLabel={`Move ${fav.book.title} down`}
+                        accessibilityRole="button"
                       >
                         ↓
                       </Text>
@@ -342,6 +348,8 @@ export default function EditFavoritesScreen() {
                       onPress={() => remove(index)}
                       pressStyle={{ opacity: 0.7 }}
                       padding="$2"
+                      accessibilityLabel={`Remove ${fav.book.title} from favorites`}
+                      accessibilityRole="button"
                     >
                       ✕
                     </Text>
@@ -402,8 +410,9 @@ export default function EditFavoritesScreen() {
 
                     <Text
                       fontSize="$5"
-                      color="$accent10"
+                      color={favorites.length >= 8 ? "$color6" : "$accent10"}
                       onPress={() => {
+                        if (favorites.length >= 8) return;
                         const newPosition = favorites.length + 1;
                         setFavorites([
                           ...favorites,
@@ -414,7 +423,7 @@ export default function EditFavoritesScreen() {
                           },
                         ]);
                       }}
-                      pressStyle={{ opacity: 0.7 }}
+                      pressStyle={favorites.length >= 8 ? undefined : { opacity: 0.7 }}
                       padding="$2"
                     >
                       +
@@ -451,8 +460,7 @@ export default function EditFavoritesScreen() {
                   {searchResults.data.map((book) => {
                     const isInFavorites = favorites.some(
                       (f) =>
-                        f.book.id === book.openLibraryId ||
-                        f.book.title === book.title, // fallback check
+                        f.book.openLibraryId === book.openLibraryId,
                     );
 
                     if (isInFavorites) return null;
@@ -498,12 +506,20 @@ export default function EditFavoritesScreen() {
                         <Text
                           fontSize="$5"
                           color={
-                            quickAddMutation.isPending ? "$color9" : "$accent10"
+                            quickAddMutation.isPending || favorites.length >= 8
+                              ? "$color6"
+                              : "$accent10"
                           }
                           onPress={() =>
-                            !quickAddMutation.isPending && handleQuickAdd(book)
+                            !quickAddMutation.isPending &&
+                            favorites.length < 8 &&
+                            handleQuickAdd(book)
                           }
-                          pressStyle={{ opacity: 0.7 }}
+                          pressStyle={
+                            quickAddMutation.isPending || favorites.length >= 8
+                              ? undefined
+                              : { opacity: 0.7 }
+                          }
                           padding="$2"
                         >
                           +

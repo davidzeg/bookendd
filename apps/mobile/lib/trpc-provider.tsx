@@ -76,14 +76,14 @@ export function TRPCProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const principal = isSignedIn ? (userId ?? null) : null;
-
     if (principalRef.current === undefined) {
       principalRef.current = principal;
       return;
     }
-
     if (principalRef.current !== principal) {
-      queryClient.clear();
+      if (principalRef.current !== null) {
+        queryClient.clear();
+      }
       principalRef.current = principal;
     }
   }, [isSignedIn, userId, queryClient]);

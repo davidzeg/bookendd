@@ -42,6 +42,8 @@ function ReadingCover({ log }: { log: ReadingBook }) {
       gap="$2"
       onPress={handlePress}
       pressStyle={{ opacity: 0.7, scale: 0.97 }}
+      accessibilityLabel={`Currently reading ${log.book.title}`}
+      accessibilityRole="button"
     >
       <YStack
         borderRadius={8}

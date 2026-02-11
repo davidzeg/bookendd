@@ -143,8 +143,12 @@ export default function SignInScreen() {
       if (createdSessionId && setActive) {
         await setActive({ session: createdSessionId });
       }
-    } catch (error) {
-      console.error(`${strategy} error:`, error);
+    } catch (err) {
+      const clerkError = err as ClerkError;
+      setError(
+        clerkError.errors?.[0]?.message ||
+          "Sign in was cancelled or failed. Please try again.",
+      );
     }
   };
 
@@ -180,7 +184,7 @@ export default function SignInScreen() {
               textAlign="center"
               marginBottom="$4"
             >
-              Welcome to dBOOKENDb
+              Welcome to Antilogos
             </Text>
 
             {error && (

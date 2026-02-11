@@ -95,6 +95,8 @@ function ActivityItem({ log }: { log: LogWithBook }) {
       alignItems="flex-start"
       onPress={handlePress}
       pressStyle={{ opacity: 0.7, scale: 0.97 }}
+      accessibilityLabel={`${log.book.title}${log.word ? `, described as ${log.word}` : ""}`}
+      accessibilityRole="button"
     >
       <YStack gap="$2" alignItems="center">
         <YStack
