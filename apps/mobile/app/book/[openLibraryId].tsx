@@ -1,7 +1,15 @@
 import { useEffect, useState } from "react";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { ScrollView, Spinner, Text, Theme, XStack, YStack } from "tamagui";
+import {
+  Avatar,
+  ScrollView,
+  Spinner,
+  Text,
+  Theme,
+  XStack,
+  YStack,
+} from "tamagui";
 import {
   ArrowLeft,
   BookOpen,
@@ -20,6 +28,107 @@ import {
 } from "@/components/ui/tokens";
 import { haptics } from "@/lib/haptics";
 import { analytics } from "@/lib/posthog";
+
+function AvatarStack({
+  loggers,
+  onPressUser,
+}: {
+  loggers: Array<{
+    user: {
+      id: string;
+      username: string;
+      name: string | null;
+      avatarUrl: string | null;
+    };
+  }>;
+  onPressUser: (username: string) => void;
+}) {
+  return (
+    <XStack alignItems="center">
+      {loggers.map((logger, i) => (
+        <Button
+          key={logger.user.id}
+          size="$2"
+          circular
+          chromeless
+          padding={0}
+          onPress={() => onPressUser(logger.user.username)}
+          accessibilityLabel={`View ${logger.user.name || logger.user.username}'s profile`}
+          accessibilityRole="button"
+          marginLeft={i > 0 ? -8 : 0}
+          zIndex={loggers.length - i}
+        >
+          <Avatar circular size={32} borderWidth={2} borderColor="$background">
+            {logger.user.avatarUrl ? (
+              <Avatar.Image src={logger.user.avatarUrl} />
+            ) : (
+              <Avatar.Fallback
+                backgroundColor="$accent5"
+                alignItems="center"
+                justifyContent="center"
+              >
+                <Text color="$accent12" fontSize={12} fontWeight="700">
+                  {(
+                    logger.user.name?.[0] || logger.user.username[0]
+                  ).toUpperCase()}
+                </Text>
+              </Avatar.Fallback>
+            )}
+          </Avatar>
+        </Button>
+      ))}
+    </XStack>
+  );
+}
+
+function BookActivity({ openLibraryId }: { openLibraryId: string }) {
+  const router = useRouter();
+  const meQuery = trpc.user.me.useQuery();
+  const activityQuery = trpc.log.bookActivity.useQuery({ openLibraryId });
+
+  const data = activityQuery.data;
+  if (!data) return null;
+
+  const { counts, recentLoggers } = data;
+  const otherLoggers = recentLoggers.filter(
+    (l) => l.user.id !== meQuery.data?.id,
+  );
+
+  if (otherLoggers.length === 0) return null;
+
+  const parts: string[] = [];
+  if (counts.FINISHED > 0) parts.push(`${counts.FINISHED} read`);
+  if (counts.READING > 0) parts.push(`${counts.READING} reading`);
+  if (counts.DNF > 0) parts.push(`${counts.DNF} DNF`);
+
+  return (
+    <YStack
+      paddingHorizontal={SCREEN_PADDING_H}
+      paddingTop="$2"
+      paddingBottom="$1"
+      gap="$2"
+    >
+      <Text
+        fontSize="$3"
+        fontWeight="600"
+        color="$color10"
+        textTransform="uppercase"
+        style={{ letterSpacing: 0.5 }}
+      >
+        Community
+      </Text>
+      <XStack alignItems="center" gap="$3">
+        <AvatarStack
+          loggers={otherLoggers}
+          onPressUser={(username) => router.push(`/user/${username}`)}
+        />
+        <Text fontSize="$3" color="$color11" fontWeight="500">
+          {parts.join("  ·  ")}
+        </Text>
+      </XStack>
+    </YStack>
+  );
+}
 
 export default function BookDetailScreen() {
   const router = useRouter();
@@ -220,6 +329,8 @@ export default function BookDetailScreen() {
             <StatusBadge status={statusLog.status} />
           </YStack>
         )}
+
+        <BookActivity openLibraryId={params.openLibraryId} />
 
         {/* Divider */}
         <YStack

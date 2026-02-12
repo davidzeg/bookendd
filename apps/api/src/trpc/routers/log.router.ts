@@ -420,6 +420,82 @@ export const logRouter = router({
       });
       return latestLog;
     }),
+
+  bookActivity: protectedProcedure
+    .input(
+      z.object({
+        openLibraryId: z
+          .string()
+          .min(1)
+          .refine((id) => id.startsWith('/works/'), {
+            message: 'Must be an OpenLibrary work ID',
+          }),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const book = await ctx.prisma.book.findUnique({
+        where: { openLibraryId: input.openLibraryId },
+        select: { id: true },
+      });
+
+      if (!book) {
+        return {
+          counts: { READING: 0, FINISHED: 0, DNF: 0, total: 0 },
+          recentLoggers: [],
+        };
+      }
+
+      const [countRows, recentLogs] = await Promise.all([
+        ctx.prisma.log.groupBy({
+          by: ['status'],
+          where: { bookId: book.id },
+          _count: { id: true },
+        }),
+        ctx.prisma.log.findMany({
+          where: { bookId: book.id },
+          select: {
+            id: true,
+            status: true,
+            rating: true,
+            createdAt: true,
+            user: {
+              select: {
+                id: true,
+                username: true,
+                name: true,
+                avatarUrl: true,
+              },
+            },
+          },
+          orderBy: { createdAt: 'desc' },
+          take: 5,
+        }),
+      ]);
+
+      const counts = { READING: 0, FINISHED: 0, DNF: 0, total: 0 };
+      for (const row of countRows) {
+        const status = row.status as keyof typeof counts;
+        if (status in counts) {
+          counts[status] = row._count.id;
+          counts.total += row._count.id;
+        }
+      }
+
+      const seen = new Set<string>();
+      const recentLoggers = recentLogs
+        .filter((log) => {
+          if (seen.has(log.user.id)) return false;
+          seen.add(log.user.id);
+          return true;
+        })
+        .map((log) => ({
+          user: log.user,
+          status: log.status,
+          rating: log.rating,
+        }));
+
+      return { counts, recentLoggers };
+    }),
 });
 
 export type CreateLogInput = z.infer<typeof createLogInputSchema>;
