@@ -1,6 +1,5 @@
 import { moderateText } from './moderation';
 
-// Mock env module
 jest.mock('../env', () => ({
   env: {
     OPENAI_API_KEY: 'test-key',

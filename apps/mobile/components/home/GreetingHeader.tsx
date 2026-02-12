@@ -1,5 +1,6 @@
 import { Text, YStack, useTheme } from "tamagui";
 import { LinearGradient } from "expo-linear-gradient";
+import { RADIUS_LG, SCREEN_PADDING_H } from "@/components/ui/tokens";
 
 interface GreetingHeaderProps {
   name?: string | null;
@@ -22,17 +23,27 @@ export function GreetingHeader({ name }: GreetingHeaderProps) {
       colors={[theme.color2.get(), theme.background.get()]}
       start={{ x: 0, y: 0 }}
       end={{ x: 0, y: 1 }}
-      style={{ borderRadius: 16, padding: 20 }}
+      style={{
+        borderRadius: RADIUS_LG,
+        paddingVertical: 24,
+        paddingHorizontal: SCREEN_PADDING_H,
+      }}
     >
       <YStack gap="$2">
-        <Text fontSize="$4" color="$color10" fontWeight="500">
-          {greeting},
+        <Text
+          fontSize="$3"
+          color="$color10"
+          fontWeight="500"
+          textTransform="uppercase"
+          style={{ letterSpacing: 1.5 }}
+        >
+          {greeting}
         </Text>
         <Text
-          fontSize="$8"
+          fontSize="$9"
           fontWeight="700"
           color="$color12"
-          style={{ letterSpacing: -0.5 }}
+          style={{ letterSpacing: -0.8 }}
         >
           {displayName}
         </Text>

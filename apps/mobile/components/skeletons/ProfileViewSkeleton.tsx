@@ -1,21 +1,22 @@
 import { XStack, YStack } from "tamagui";
 import { SkeletonBox } from "./SkeletonBox";
+import { COVER, RADIUS_LG, RADIUS_SM, SCREEN_PADDING_H } from "../ui/tokens";
 
 export function ProfileViewSkeleton() {
   return (
-    <YStack gap="$8" padding="$4">
+    <YStack gap="$8" padding={SCREEN_PADDING_H}>
       {/* Header gradient section */}
       <YStack
         backgroundColor="$color2"
-        borderRadius={16}
+        borderRadius={RADIUS_LG}
         padding="$4"
         gap="$4"
       >
         {/* Avatar and name row */}
         <XStack gap="$4" alignItems="center">
-          <SkeletonBox width={96} height={96} borderRadius={48} />
+          <SkeletonBox width={104} height={104} borderRadius={52} />
           <YStack flex={1} gap="$2">
-            <SkeletonBox width="70%" height={28} borderRadius={6} />
+            <SkeletonBox width="70%" height={32} borderRadius={6} />
             <SkeletonBox width="50%" height={18} borderRadius={4} />
           </YStack>
         </XStack>
@@ -28,27 +29,27 @@ export function ProfileViewSkeleton() {
 
         {/* Stats */}
         <XStack gap="$3">
-          <SkeletonBox width={90} height={36} borderRadius={12} />
-          <SkeletonBox width={80} height={36} borderRadius={12} />
+          <SkeletonBox width={90} height={40} borderRadius={RADIUS_SM} />
+          <SkeletonBox width={80} height={40} borderRadius={RADIUS_SM} />
         </XStack>
 
         {/* Buttons */}
         <XStack gap="$3">
-          <SkeletonBox flex={1} height={40} borderRadius={8} />
-          <SkeletonBox width={80} height={40} borderRadius={8} />
+          <SkeletonBox flex={1} height={42} borderRadius={RADIUS_SM} />
+          <SkeletonBox width={80} height={42} borderRadius={RADIUS_SM} />
         </XStack>
       </YStack>
 
       {/* Favorites section */}
       <YStack gap="$4">
         <XStack alignItems="center" gap="$3">
-          <SkeletonBox width={3} height={20} borderRadius={2} />
-          <SkeletonBox width={120} height={20} borderRadius={4} />
+          <SkeletonBox width={4} height={24} borderRadius={2} />
+          <SkeletonBox width={120} height={24} borderRadius={4} />
         </XStack>
-        <XStack gap="$3">
+        <XStack gap={16}>
           {[1, 2, 3, 4].map((i) => (
             <YStack key={i} gap="$2">
-              <SkeletonBox width={80} height={120} borderRadius={6} />
+              <SkeletonBox width={COVER.shelf.w} height={COVER.shelf.h} borderRadius={14} />
               <SkeletonBox width={70} height={12} borderRadius={4} />
             </YStack>
           ))}
@@ -58,8 +59,8 @@ export function ProfileViewSkeleton() {
       {/* Word cloud section */}
       <YStack gap="$4">
         <XStack alignItems="center" gap="$3">
-          <SkeletonBox width={3} height={20} borderRadius={2} />
-          <SkeletonBox width={100} height={20} borderRadius={4} />
+          <SkeletonBox width={4} height={24} borderRadius={2} />
+          <SkeletonBox width={100} height={24} borderRadius={4} />
         </XStack>
         <XStack flexWrap="wrap" gap="$2" justifyContent="center">
           {[80, 60, 100, 50, 70, 90, 55, 75].map((width, i) => (
@@ -71,14 +72,14 @@ export function ProfileViewSkeleton() {
       {/* Recent activity section */}
       <YStack gap="$4">
         <XStack alignItems="center" gap="$3">
-          <SkeletonBox width={3} height={20} borderRadius={2} />
-          <SkeletonBox width={130} height={20} borderRadius={4} />
+          <SkeletonBox width={4} height={24} borderRadius={2} />
+          <SkeletonBox width={130} height={24} borderRadius={4} />
         </XStack>
-        <XStack gap="$4">
+        <XStack gap={16}>
           {[1, 2, 3].map((i) => (
             <YStack key={i} gap="$2">
-              <SkeletonBox width={80} height={120} borderRadius={6} />
-              <SkeletonBox width={60} height={12} borderRadius={4} />
+              <SkeletonBox width={COVER.shelf.w} height={COVER.shelf.h} borderRadius={14} />
+              <SkeletonBox width={60} height={14} borderRadius={4} />
             </YStack>
           ))}
         </XStack>

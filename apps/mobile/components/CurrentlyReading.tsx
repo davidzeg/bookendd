@@ -1,9 +1,8 @@
 import { ScrollView } from "react-native";
-import { Image, Text, YStack } from "tamagui";
+import { Text, YStack } from "tamagui";
 import { useRouter } from "expo-router";
-
-const PLACEHOLDER_COVER =
-  "https://placehold.co/80x120/1a1a2e/666666?text=No+Cover";
+import { BookCover } from "@/components/ui/BookCover";
+import { COVER } from "@/components/ui/tokens";
 
 type ReadingBook = {
   id: string;
@@ -37,35 +36,20 @@ function ReadingCover({ log }: { log: ReadingBook }) {
   };
 
   return (
-    <YStack
-      alignItems="center"
-      gap="$2"
-      onPress={handlePress}
-      pressStyle={{ opacity: 0.7, scale: 0.97 }}
-      accessibilityLabel={`Currently reading ${log.book.title}`}
-      accessibilityRole="button"
-    >
-      <YStack
-        borderRadius={8}
-        overflow="hidden"
-        shadowColor="$color1"
-        shadowOffset={{ width: 0, height: 4 }}
-        shadowOpacity={0.3}
-        shadowRadius={8}
-      >
-        <Image
-          src={log.book.coverUrl ?? PLACEHOLDER_COVER}
-          width={80}
-          height={120}
-          backgroundColor="$color3"
-        />
-      </YStack>
+    <YStack alignItems="center" gap="$2">
+      <BookCover
+        uri={log.book.coverUrl}
+        size="shelf"
+        onPress={handlePress}
+        accessibilityLabel={`Currently reading ${log.book.title}`}
+      />
       <Text
         fontSize="$2"
+        fontWeight="500"
         color="$color11"
         numberOfLines={1}
         textAlign="center"
-        width={80}
+        width={COVER.shelf.w}
       >
         {log.book.title}
       </Text>
@@ -82,7 +66,7 @@ export function CurrentlyReading({ logs }: CurrentlyReadingProps) {
       showsHorizontalScrollIndicator={false}
       contentContainerStyle={{
         paddingHorizontal: 4,
-        gap: 12,
+        gap: 16,
       }}
     >
       {logs.map((log) => (

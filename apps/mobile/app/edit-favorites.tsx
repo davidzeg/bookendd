@@ -1,5 +1,9 @@
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { TextButton } from "@/components/ui/TextButton";
+import { BookCover } from "@/components/ui/BookCover";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { Button } from "@/components/ui/Button";
+import { RADIUS_MD, RADIUS_SM, SCREEN_PADDING_H } from "@/components/ui/tokens";
 import { analytics } from "@/lib/posthog";
 import { trpc } from "@/lib/trpc";
 import { useRouter } from "expo-router";
@@ -13,10 +17,14 @@ import {
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Spinner, Text, XStack, YStack, Image, Input } from "tamagui";
-
-const PLACEHOLDER_COVER =
-  "https://placehold.co/120x180/1a1a2e/666666?text=No+Cover";
+import {
+  ChevronUp,
+  ChevronDown,
+  X,
+  Plus,
+  Heart,
+} from "@tamagui/lucide-icons";
+import { Spinner, Text, XStack, YStack, Input } from "tamagui";
 
 type FavoriteBook = {
   id: string;
@@ -225,7 +233,7 @@ export default function EditFavoritesScreen() {
           justifyContent="space-between"
           alignItems="center"
           marginBottom="$6"
-          paddingHorizontal={16}
+          paddingHorizontal={SCREEN_PADDING_H}
         >
           <TextButton
             label="Cancel"
@@ -248,7 +256,7 @@ export default function EditFavoritesScreen() {
           ref={scrollViewRef}
           style={{ flex: 1 }}
           contentContainerStyle={{
-            paddingHorizontal: 16,
+            paddingHorizontal: SCREEN_PADDING_H,
             paddingBottom: insets.bottom + 24,
           }}
           keyboardShouldPersistTaps="handled"
@@ -257,45 +265,23 @@ export default function EditFavoritesScreen() {
           <YStack gap="$4">
             <SectionHeader title="Your Favorites" />
             {favorites.length === 0 ? (
-              <YStack
-                padding="$6"
-                borderRadius="$4"
-                alignItems="center"
-                borderWidth={2}
-                borderColor="$color4"
-                style={{ borderStyle: "dashed" }}
-              >
-                <Text color="$color10" fontSize="$4" fontWeight="500">
-                  No favorites yet
-                </Text>
-                <Text
-                  fontSize="$3"
-                  color="$color9"
-                  marginTop="$2"
-                  textAlign="center"
-                >
-                  Add books from your reads below
-                </Text>
-              </YStack>
+              <EmptyState
+                title="No favorites yet"
+                description="Add books from your reads below"
+                icon={<Heart size={40} color="$color8" />}
+              />
             ) : (
               <YStack gap="$3">
                 {favorites.map((fav, index) => (
                   <XStack
                     key={fav.id}
                     backgroundColor="$color2"
-                    borderRadius="$4"
+                    borderRadius={RADIUS_MD}
                     padding="$3"
                     alignItems="center"
                     gap="$3"
                   >
-                    <YStack borderRadius="$2" overflow="hidden">
-                      <Image
-                        src={fav.book.coverUrl ?? PLACEHOLDER_COVER}
-                        width={50}
-                        height={75}
-                        backgroundColor="$color3"
-                      />
-                    </YStack>
+                    <BookCover uri={fav.book.coverUrl} size="mini" />
 
                     <YStack flex={1} gap="$1">
                       <Text
@@ -314,45 +300,45 @@ export default function EditFavoritesScreen() {
                     </YStack>
 
                     <YStack gap="$1">
-                      <Text
-                        fontSize="$4"
-                        color={index === 0 ? "$color6" : "$color11"}
+                      <Button
+                        size="$2"
+                        circular
+                        backgroundColor={index === 0 ? "$color2" : "$color3"}
+                        opacity={index === 0 ? 0.3 : 1}
                         onPress={() => moveUp(index)}
+                        disabled={index === 0}
                         pressStyle={{ opacity: 0.7 }}
-                        padding="$1"
                         accessibilityLabel={`Move ${fav.book.title} up`}
                         accessibilityRole="button"
                       >
-                        ↑
-                      </Text>
-                      <Text
-                        fontSize="$4"
-                        color={
-                          index === favorites.length - 1
-                            ? "$color6"
-                            : "$color11"
-                        }
+                        <ChevronUp size={20} color="$color11" />
+                      </Button>
+                      <Button
+                        size="$2"
+                        circular
+                        backgroundColor={index === favorites.length - 1 ? "$color2" : "$color3"}
+                        opacity={index === favorites.length - 1 ? 0.3 : 1}
                         onPress={() => moveDown(index)}
+                        disabled={index === favorites.length - 1}
                         pressStyle={{ opacity: 0.7 }}
-                        padding="$1"
                         accessibilityLabel={`Move ${fav.book.title} down`}
                         accessibilityRole="button"
                       >
-                        ↓
-                      </Text>
+                        <ChevronDown size={20} color="$color11" />
+                      </Button>
                     </YStack>
 
-                    <Text
-                      fontSize="$4"
-                      color="$color10"
+                    <Button
+                      size="$2"
+                      circular
+                      chromeless
                       onPress={() => remove(index)}
                       pressStyle={{ opacity: 0.7 }}
-                      padding="$2"
                       accessibilityLabel={`Remove ${fav.book.title} from favorites`}
                       accessibilityRole="button"
                     >
-                      ✕
-                    </Text>
+                      <X size={16} color="$color10" />
+                    </Button>
                   </XStack>
                 ))}
               </YStack>
@@ -372,19 +358,12 @@ export default function EditFavoritesScreen() {
                   <XStack
                     key={log.id}
                     backgroundColor="$color2"
-                    borderRadius="$4"
+                    borderRadius={RADIUS_MD}
                     padding="$3"
                     alignItems="center"
                     gap="$3"
                   >
-                    <YStack borderRadius="$2" overflow="hidden">
-                      <Image
-                        src={log.book.coverUrl ?? PLACEHOLDER_COVER}
-                        width={50}
-                        height={75}
-                        backgroundColor="$color3"
-                      />
-                    </YStack>
+                    <BookCover uri={log.book.coverUrl} size="mini" />
 
                     <YStack flex={1} gap="$1">
                       <Text
@@ -408,9 +387,12 @@ export default function EditFavoritesScreen() {
                       </Text>
                     )}
 
-                    <Text
-                      fontSize="$5"
-                      color={favorites.length >= 8 ? "$color6" : "$accent10"}
+                    <Button
+                      size="$2"
+                      circular
+                      theme="accent"
+                      opacity={favorites.length >= 8 ? 0.3 : 1}
+                      disabled={favorites.length >= 8}
                       onPress={() => {
                         if (favorites.length >= 8) return;
                         const newPosition = favorites.length + 1;
@@ -424,10 +406,11 @@ export default function EditFavoritesScreen() {
                         ]);
                       }}
                       pressStyle={favorites.length >= 8 ? undefined : { opacity: 0.7 }}
-                      padding="$2"
+                      accessibilityLabel={`Add ${log.book.title} to favorites`}
+                      accessibilityRole="button"
                     >
-                      +
-                    </Text>
+                      <Plus size={16} color="$color12" />
+                    </Button>
                   </XStack>
                 ))}
               </YStack>
@@ -441,8 +424,9 @@ export default function EditFavoritesScreen() {
                 size="$4"
                 placeholder="Search for a book..."
                 backgroundColor="$color2"
-                borderColor="$color4"
+                borderColor="$color3"
                 borderWidth={1}
+                borderRadius={RADIUS_SM}
                 color="$color12"
                 placeholderTextColor="$color9"
                 value={searchQuery}
@@ -469,19 +453,12 @@ export default function EditFavoritesScreen() {
                       <XStack
                         key={book.openLibraryId}
                         backgroundColor="$color2"
-                        borderRadius="$4"
+                        borderRadius={RADIUS_MD}
                         padding="$3"
                         alignItems="center"
                         gap="$3"
                       >
-                        <YStack borderRadius="$2" overflow="hidden">
-                          <Image
-                            src={book.coverUrl ?? PLACEHOLDER_COVER}
-                            width={50}
-                            height={75}
-                            backgroundColor="$color3"
-                          />
-                        </YStack>
+                        <BookCover uri={book.coverUrl} size="mini" />
 
                         <YStack flex={1} gap="$1">
                           <Text
@@ -503,13 +480,12 @@ export default function EditFavoritesScreen() {
                           )}
                         </YStack>
 
-                        <Text
-                          fontSize="$5"
-                          color={
-                            quickAddMutation.isPending || favorites.length >= 8
-                              ? "$color6"
-                              : "$accent10"
-                          }
+                        <Button
+                          size="$2"
+                          circular
+                          theme="accent"
+                          opacity={quickAddMutation.isPending || favorites.length >= 8 ? 0.3 : 1}
+                          disabled={quickAddMutation.isPending || favorites.length >= 8}
                           onPress={() =>
                             !quickAddMutation.isPending &&
                             favorites.length < 8 &&
@@ -520,10 +496,11 @@ export default function EditFavoritesScreen() {
                               ? undefined
                               : { opacity: 0.7 }
                           }
-                          padding="$2"
+                          accessibilityLabel={`Add ${book.title} to favorites`}
+                          accessibilityRole="button"
                         >
-                          +
-                        </Text>
+                          <Plus size={16} color="$color12" />
+                        </Button>
                       </XStack>
                     );
                   })}

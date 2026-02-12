@@ -6,7 +6,7 @@ interface StarDisplayProps {
   size?: number;
 }
 
-export function StarDisplay({ rating, size = 12 }: StarDisplayProps) {
+export function StarDisplay({ rating, size = 14 }: StarDisplayProps) {
   return (
     <Theme name="star">
       <StarIcons rating={rating} size={size} />
@@ -19,7 +19,7 @@ function StarIcons({ rating, size }: StarDisplayProps) {
   const starColor = theme.accent10.get();
 
   return (
-    <XStack gap={2}>
+    <XStack gap={3}>
       {Array.from({ length: rating }).map((_, index) => (
         <Star key={index} size={size} fill={starColor} color="$accent10" />
       ))}

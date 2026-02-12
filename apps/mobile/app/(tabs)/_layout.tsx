@@ -55,7 +55,12 @@ export default function TabLayout() {
         headerShown: false,
         tabBarActiveTintColor: activeColor,
         tabBarInactiveTintColor: inactiveColor,
-        tabBarStyle: { backgroundColor },
+        tabBarStyle: {
+          backgroundColor,
+          borderTopWidth: 1,
+          borderTopColor: theme.color3.get(),
+          elevation: 8,
+        },
       }}
     >
       <Tabs.Screen

@@ -1,15 +1,13 @@
 import { ScrollView } from "react-native";
-import { Image, Text, XStack, YStack, Theme } from "tamagui";
+import { Text, XStack, YStack, Theme } from "tamagui";
 import { useRouter } from "expo-router";
+import { BookOpen } from "@tamagui/lucide-icons";
 import { StarDisplay } from "@/components/ui/StarDisplay";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { BookCover } from "@/components/ui/BookCover";
+import { COVER } from "@/components/ui/tokens";
 
-const PLACEHOLDER_COVER =
-  "https://placehold.co/80x120/1a1a2e/666666?text=No+Cover";
-
-const COVER_HEIGHT = 120;
-const COVER_WIDTH = Math.round(COVER_HEIGHT * (2 / 3)); // 2:3 aspect ratio
-const ITEM_GAP = 12;
+const COVER_HEIGHT = COVER.shelf.h;
 const STAR_SIZE = Math.round(COVER_HEIGHT / 10);
 const LETTER_SIZE = Math.round(COVER_HEIGHT / 9);
 const LETTER_LINE_HEIGHT = Math.round(LETTER_SIZE * 1.1);
@@ -46,8 +44,8 @@ function VerticalWord({ word }: { word: string }) {
         <Text
           key={index}
           fontSize={LETTER_SIZE}
-          fontWeight="600"
-          color={"$accent10"}
+          fontWeight="700"
+          color="$accent9"
           lineHeight={LETTER_LINE_HEIGHT}
         >
           {letter.toUpperCase()}
@@ -67,7 +65,7 @@ function DnfBadge() {
 
 function DnfText() {
   return (
-    <Text fontSize={STAR_SIZE} fontWeight="600" color={"$accent10"}>
+    <Text fontSize={STAR_SIZE} fontWeight="600" color="$accent10">
       DNF
     </Text>
   );
@@ -99,21 +97,7 @@ function ActivityItem({ log }: { log: LogWithBook }) {
       accessibilityRole="button"
     >
       <YStack gap="$2" alignItems="center">
-        <YStack
-          borderRadius="$3"
-          overflow="hidden"
-          shadowColor="$color1"
-          shadowOffset={{ width: 0, height: 4 }}
-          shadowOpacity={0.3}
-          shadowRadius={8}
-        >
-          <Image
-            src={log.book.coverUrl ?? PLACEHOLDER_COVER}
-            width={COVER_WIDTH}
-            height={COVER_HEIGHT}
-            backgroundColor="$color3"
-          />
-        </YStack>
+        <BookCover uri={log.book.coverUrl} size="shelf" />
         <YStack height={STAR_SIZE} justifyContent="center" alignItems="center">
           {log.status === "FINISHED" && log.rating ? (
             <StarDisplay rating={log.rating} size={STAR_SIZE} />
@@ -134,6 +118,7 @@ export function RecentActivity({ logs }: RecentActivityProps) {
       <EmptyState
         title="No activity yet"
         description="Search for a book to log your first read"
+        icon={<BookOpen size={40} color="$color8" />}
       />
     );
   }
@@ -144,7 +129,7 @@ export function RecentActivity({ logs }: RecentActivityProps) {
       showsHorizontalScrollIndicator={false}
       contentContainerStyle={{
         paddingHorizontal: 4,
-        gap: ITEM_GAP,
+        gap: 16,
       }}
     >
       {logs.map((log) => (

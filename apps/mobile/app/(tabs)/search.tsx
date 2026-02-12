@@ -3,12 +3,13 @@ import { FlatList, StyleSheet } from "react-native";
 import { Input, TamaguiElement, Text, Theme, XStack, YStack } from "tamagui";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useFocusEffect, useRouter } from "expo-router";
-import { ArrowLeft, X } from "@tamagui/lucide-icons";
+import { ArrowLeft, BookOpen, Search, X } from "@tamagui/lucide-icons";
 import { trpc } from "@/lib/trpc";
 import { useDebounce } from "@/lib/use-debounce";
 import { BookCard } from "@/components/BookCard";
 import { BookCardSkeleton } from "@/components/BookCardSkeleton";
 import { Button } from "@/components/ui/Button";
+import { RADIUS_MD, SCREEN_PADDING_H } from "@/components/ui/tokens";
 import { analytics } from "@/lib/posthog";
 
 export default function SearchScreen() {
@@ -49,7 +50,7 @@ export default function SearchScreen() {
     <YStack flex={1} backgroundColor="$background">
       <YStack
         paddingTop={insets.top + 8}
-        paddingHorizontal="$4"
+        paddingHorizontal={SCREEN_PADDING_H}
         paddingBottom="$3"
       >
         <XStack alignItems="center" gap="$3" paddingVertical="$2">
@@ -71,11 +72,13 @@ export default function SearchScreen() {
             onChangeText={setQuery}
             placeholder="Search for a book..."
             size="$4"
+            height={48}
             autoCapitalize="none"
             returnKeyType="search"
             backgroundColor="$color2"
-            borderColor="$color4"
+            borderColor="$color3"
             borderWidth={1}
+            borderRadius={RADIUS_MD}
             color="$color12"
             placeholderTextColor="$color9"
             accessibilityLabel="Search for a book"
@@ -103,7 +106,9 @@ export default function SearchScreen() {
           justifyContent="center"
           alignItems="center"
           padding="$6"
+          gap="$3"
         >
+          <Search size={48} color="$color7" />
           <Text fontSize="$5" color="$color11" textAlign="center">
             Search by title, author, or ISBN
           </Text>
@@ -111,7 +116,7 @@ export default function SearchScreen() {
       )}
 
       {showLoading && (
-        <YStack padding="$4" gap="$3">
+        <YStack paddingHorizontal={SCREEN_PADDING_H} paddingVertical="$4" gap={16}>
           {[1, 2, 3, 4, 5].map((i) => (
             <BookCardSkeleton key={i} />
           ))}
@@ -147,7 +152,9 @@ export default function SearchScreen() {
           justifyContent="center"
           alignItems="center"
           padding="$6"
+          gap="$3"
         >
+          <BookOpen size={48} color="$color7" />
           <Text fontSize="$5" color="$color11" textAlign="center">
             No books found
           </Text>
@@ -155,7 +162,6 @@ export default function SearchScreen() {
             fontSize="$3"
             color="$color10"
             textAlign="center"
-            marginTop="$2"
           >
             Try a different search term
           </Text>
@@ -167,7 +173,7 @@ export default function SearchScreen() {
           data={searchQuery.data}
           keyExtractor={(item) => item.openLibraryId}
           contentContainerStyle={styles.listContent}
-          ItemSeparatorComponent={() => <YStack height={12} />}
+          ItemSeparatorComponent={() => <YStack height={16} />}
           removeClippedSubviews
           initialNumToRender={8}
           maxToRenderPerBatch={5}
@@ -200,6 +206,6 @@ export default function SearchScreen() {
 
 const styles = StyleSheet.create({
   listContent: {
-    padding: 16,
+    padding: SCREEN_PADDING_H,
   },
 });

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Image, ScrollView, Spinner, Text, Theme, XStack, YStack } from "tamagui";
+import { ScrollView, Spinner, Text, Theme, XStack, YStack } from "tamagui";
 import {
   ArrowLeft,
   BookOpen,
@@ -11,6 +11,8 @@ import {
 import { Alert } from "react-native";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/Button";
+import { BookCover } from "@/components/ui/BookCover";
+import { RADIUS_MD, RADIUS_LG, SCREEN_PADDING_H, SHADOW_SUBTLE } from "@/components/ui/tokens";
 import { haptics } from "@/lib/haptics";
 import { analytics } from "@/lib/posthog";
 
@@ -143,7 +145,7 @@ export default function BookDetailScreen() {
       <XStack
         justifyContent="space-between"
         alignItems="center"
-        paddingHorizontal="$4"
+        paddingHorizontal={SCREEN_PADDING_H}
         paddingVertical="$3"
       >
         <Button
@@ -167,42 +169,32 @@ export default function BookDetailScreen() {
         backgroundColor="$background"
       >
         {/* Book Info */}
-        <YStack alignItems="center" padding="$4" gap="$3">
-          <YStack
-            borderRadius={12}
-            overflow="hidden"
-            shadowColor="$color1"
-            shadowOffset={{ width: 0, height: 4 }}
-            shadowOpacity={0.3}
-            shadowRadius={8}
-          >
-            <Image
-              src={
-                params.coverUrl ||
-                "https://placehold.co/140x210/1a1a2e/666666?text=No+Cover"
-              }
-              width={140}
-              height={210}
-              backgroundColor="$color2"
-            />
-          </YStack>
+        <YStack alignItems="center" padding={SCREEN_PADDING_H} gap="$3" marginTop={8}>
+          <BookCover uri={params.coverUrl || null} size="detail" />
 
           <Text
-            fontSize="$7"
+            fontSize="$8"
             fontWeight="700"
             color="$color12"
             textAlign="center"
             numberOfLines={3}
+            style={{ letterSpacing: -0.5 }}
+            marginTop="$2"
           >
             {params.title}
           </Text>
           {params.author ? (
-            <Text fontSize="$4" color="$color11" textAlign="center">
+            <Text fontSize="$5" fontWeight="500" color="$color11" textAlign="center">
               {params.author}
             </Text>
           ) : null}
           {params.year ? (
-            <Text fontSize="$3" color="$color10" textAlign="center">
+            <Text
+              fontSize="$3"
+              color="$color10"
+              textAlign="center"
+              fontFamily={"SpaceMono" as any}
+            >
               {params.year}
             </Text>
           ) : null}
@@ -210,22 +202,36 @@ export default function BookDetailScreen() {
 
         {/* Status Badge */}
         {statusLog && (
-          <YStack paddingHorizontal="$4" paddingBottom="$3" alignItems="center">
+          <YStack paddingHorizontal={SCREEN_PADDING_H} paddingBottom="$3" alignItems="center">
             <StatusBadge status={statusLog.status} />
           </YStack>
         )}
 
+        {/* Divider */}
+        <YStack
+          height={1}
+          backgroundColor="$color3"
+          marginHorizontal={SCREEN_PADDING_H}
+          marginVertical="$4"
+        />
+
         {/* Description */}
-        <YStack padding="$4" gap="$2">
-          <Text fontSize="$3" fontWeight="600" color="$color12">
-            ABOUT
+        <YStack paddingHorizontal={SCREEN_PADDING_H} gap="$2">
+          <Text
+            fontSize="$3"
+            fontWeight="600"
+            color="$color10"
+            textTransform="uppercase"
+            style={{ letterSpacing: 0.5 }}
+          >
+            About
           </Text>
           {descLoading ? (
             <YStack padding="$4" alignItems="center">
               <Spinner size="small" color="$accent10" />
             </YStack>
           ) : description ? (
-            <Text fontSize="$3" color="$color11" lineHeight={22}>
+            <Text fontSize="$4" color="$color11" lineHeight={24}>
               {description}
             </Text>
           ) : (
@@ -238,11 +244,13 @@ export default function BookDetailScreen() {
         <YStack flex={1} minHeight={24} />
 
         {/* CTA Buttons */}
-        <YStack padding="$4" paddingBottom={insets.bottom + 16} gap="$3">
+        <YStack paddingHorizontal={SCREEN_PADDING_H} paddingBottom={insets.bottom + 16} gap="$4">
           {activeReadingLog ? (
             <Button
               size="$5"
               theme="accent"
+              borderRadius={RADIUS_MD}
+              height={56}
               onPress={handleFinishReading}
               accessibilityLabel="Finish reading this book"
               accessibilityRole="button"
@@ -258,6 +266,8 @@ export default function BookDetailScreen() {
             <Button
               size="$5"
               theme="accent"
+              borderRadius={RADIUS_MD}
+              height={56}
               onPress={handleStartReading}
               disabled={createLog.isPending}
               opacity={createLog.isPending ? 0.6 : 1}
@@ -279,6 +289,9 @@ export default function BookDetailScreen() {
             <Button
               size="$5"
               variant="outlined"
+              borderWidth={2}
+              borderRadius={RADIUS_MD}
+              height={56}
               onPress={handleLogBook}
               accessibilityLabel="Log this book"
               accessibilityRole="button"
@@ -295,6 +308,9 @@ export default function BookDetailScreen() {
               <Button
                 size="$5"
                 variant="outlined"
+                borderWidth={2}
+                borderRadius={RADIUS_MD}
+                height={56}
                 onPress={handleLogBook}
                 accessibilityLabel="Log this book again"
                 accessibilityRole="button"
@@ -337,11 +353,12 @@ function StatusBadge({ status }: { status: string }) {
     <Theme name={config.theme}>
       <XStack
         backgroundColor="$color3"
-        paddingHorizontal="$4"
+        paddingHorizontal="$5"
         paddingVertical="$2"
-        borderRadius={20}
+        borderRadius={RADIUS_LG}
         gap="$2"
         alignItems="center"
+        style={SHADOW_SUBTLE}
       >
         <Icon size={16} color="$color11" />
         <Text fontSize="$3" fontWeight="600" color="$color11">

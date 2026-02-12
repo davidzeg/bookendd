@@ -1,5 +1,7 @@
-import { Image, Text, XStack, YStack, Theme, useTheme } from "tamagui";
+import { Text, XStack, YStack, Theme, useTheme } from "tamagui";
 import { Star } from "@tamagui/lucide-icons";
+import { BookCover } from "@/components/ui/BookCover";
+import { RADIUS_MD } from "@/components/ui/tokens";
 
 interface LastReadCardProps {
   book: {
@@ -11,9 +13,6 @@ interface LastReadCardProps {
   word: string | null;
 }
 
-const PLACEHOLDER_COVER =
-  "https://placehold.co/80x120/1a1a2e/666666?text=No+Cover";
-
 export function LastReadCard({
   book,
   status,
@@ -23,36 +22,28 @@ export function LastReadCard({
   const theme = useTheme();
   return (
     <YStack gap="$3">
-      <Text fontSize="$3" color="$color10" fontWeight="500">
+      <Text
+        fontSize="$3"
+        color="$color10"
+        fontWeight="600"
+        textTransform="uppercase"
+        style={{ letterSpacing: 0.8 }}
+      >
         Last logged
       </Text>
       <XStack
         backgroundColor="$color2"
-        borderRadius={12}
+        borderRadius={RADIUS_MD}
         padding="$4"
         gap="$4"
         alignItems="center"
       >
-        <YStack
-          borderRadius={6}
-          overflow="hidden"
-          shadowColor="$color1"
-          shadowOffset={{ width: 0, height: 4 }}
-          shadowOpacity={0.3}
-          shadowRadius={8}
-        >
-          <Image
-            src={book.coverUrl || PLACEHOLDER_COVER}
-            width={60}
-            height={90}
-            objectFit="cover"
-          />
-        </YStack>
+        <BookCover uri={book.coverUrl} size="card" />
 
         <YStack flex={1} gap="$2">
           <Text
             fontSize="$4"
-            fontWeight="600"
+            fontWeight="700"
             color="$color12"
             numberOfLines={2}
           >
@@ -62,7 +53,7 @@ export function LastReadCard({
           <XStack gap="$2" alignItems="center" flexWrap="wrap">
             {status === "FINISHED" && rating !== null && (
               <Theme name="star">
-                <XStack gap={2} alignItems="center">
+                <XStack gap={3} alignItems="center">
                   {Array.from({ length: rating }).map((_, i) => (
                     <Star
                       key={i}

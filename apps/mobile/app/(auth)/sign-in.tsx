@@ -13,6 +13,7 @@ import {
 } from "tamagui";
 import { KeyboardAvoidingView, Platform } from "react-native";
 import { Button } from "@/components/ui/Button";
+import { RADIUS_MD, RADIUS_SM } from "@/components/ui/tokens";
 
 type ClerkError = {
   errors?: Array<{
@@ -177,15 +178,27 @@ export default function SignInScreen() {
           gap="$4"
           backgroundColor="$background"
         >
-          <YStack width="100%" maxWidth={340} gap="$4">
-            <Text
-              fontSize="$8"
-              fontWeight="bold"
-              textAlign="center"
-              marginBottom="$4"
-            >
-              Welcome to Antilogos
-            </Text>
+          <YStack width="100%" maxWidth={380} gap="$4">
+            <YStack alignItems="center" marginBottom="$4" gap="$1">
+              <Text
+                fontSize="$9"
+                fontWeight="700"
+                textAlign="center"
+                color="$accent10"
+                fontFamily={"SpaceMono" as any}
+                style={{ letterSpacing: -1 }}
+              >
+                antilogos
+              </Text>
+              <Text
+                fontSize="$3"
+                color="$color10"
+                fontStyle="italic"
+                textAlign="center"
+              >
+                for readers with taste
+              </Text>
+            </YStack>
 
             {error && (
               <Theme name="error">
@@ -194,7 +207,7 @@ export default function SignInScreen() {
                   borderColor="$borderColor"
                   borderWidth={1}
                   padding="$3"
-                  borderRadius="$2"
+                  borderRadius={RADIUS_SM}
                 >
                   <Text color="$color">{error}</Text>
                 </YStack>
@@ -218,6 +231,8 @@ export default function SignInScreen() {
                   theme="accent"
                   size="$5"
                   width="100%"
+                  borderRadius={RADIUS_MD}
+                  height={52}
                   onPress={handleEmailSubmit}
                   disabled={!email || isLoading}
                   opacity={!email || isLoading ? 0.5 : 1}
@@ -227,7 +242,12 @@ export default function SignInScreen() {
 
                 <XStack alignItems="center" gap="$3" marginVertical="$1">
                   <YStack flex={1} height={1} backgroundColor="$borderColor" />
-                  <Text color="$color11" fontSize="$2">
+                  <Text
+                    color="$color11"
+                    fontSize="$2"
+                    textTransform="uppercase"
+                    style={{ letterSpacing: 2 }}
+                  >
                     or
                   </Text>
                   <YStack flex={1} height={1} backgroundColor="$borderColor" />
@@ -236,6 +256,9 @@ export default function SignInScreen() {
                 <Button
                   size="$5"
                   width="100%"
+                  borderRadius={RADIUS_MD}
+                  height={52}
+                  borderWidth={2}
                   onPress={() => handleOAuth("oauth_google")}
                   variant="outlined"
                 >
@@ -246,6 +269,8 @@ export default function SignInScreen() {
                   <Button
                     size="$5"
                     width="100%"
+                    borderRadius={RADIUS_MD}
+                    height={52}
                     onPress={() => handleOAuth("oauth_apple")}
                   >
                     Continue with Apple
@@ -267,14 +292,16 @@ export default function SignInScreen() {
                   maxLength={6}
                   size="$5"
                   width="100%"
-                  fontSize="$7"
-                  letterSpacing={8}
+                  fontSize="$8"
+                  letterSpacing={12}
                   fontWeight="600"
                 />
 
                 <Button
                   theme="accent"
                   size="$5"
+                  borderRadius={RADIUS_MD}
+                  height={52}
                   onPress={handleCodeSubmit}
                   disabled={code.length !== 6 || isLoading}
                   opacity={code.length !== 6 || isLoading ? 0.5 : 1}
@@ -285,6 +312,8 @@ export default function SignInScreen() {
                 <Button
                   size="$5"
                   variant="outlined"
+                  borderRadius={RADIUS_MD}
+                  height={52}
                   onPress={handleBack}
                   width="100%"
                 >

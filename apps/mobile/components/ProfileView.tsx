@@ -20,6 +20,7 @@ import { RecentActivity } from "@/components/RecentActivity";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { StatPill } from "@/components/ui/StatPill";
 import { Platform, RefreshControl } from "react-native";
+import { RADIUS_LG, RADIUS_SM, SCREEN_PADDING_H, SHADOW_CARD } from "@/components/ui/tokens";
 
 type ProfileData = {
   user: {
@@ -105,7 +106,7 @@ export function ProfileView({
         contentContainerStyle={{
           paddingBottom:
             Platform.OS === "ios" ? insets.bottom + 64 : insets.bottom,
-          paddingHorizontal: 16,
+          paddingHorizontal: SCREEN_PADDING_H,
         }}
         refreshControl={
           onRefresh ? (
@@ -134,44 +135,55 @@ export function ProfileView({
           )}
 
           <LinearGradient
-            colors={[theme.color2.get(), theme.background.get()]}
+            colors={[
+              theme.accent2.get(),
+              theme.color1.get(),
+              theme.background.get(),
+            ]}
             start={{ x: 0, y: 0 }}
             end={{ x: 0, y: 1 }}
-            style={{ borderRadius: 16, paddingVertical: 16 }}
+            style={{ borderRadius: RADIUS_LG, paddingVertical: 24 }}
           >
             <YStack gap="$4">
-              <XStack gap="$4" alignItems="center">
-                <Avatar
-                  circular
-                  size={96}
-                  borderWidth={3}
-                  borderColor="$accent6"
-                >
-                  {user.avatarUrl ? (
-                    <Avatar.Image src={user.avatarUrl} />
-                  ) : (
-                    <Avatar.Fallback
-                      backgroundColor="$accent5"
-                      alignItems="center"
-                      justifyContent="center"
-                    >
-                      <Text color="$accent12" fontSize="$8" fontWeight="700">
-                        {initial}
-                      </Text>
-                    </Avatar.Fallback>
-                  )}
-                </Avatar>
+              <XStack gap="$4" alignItems="center" paddingHorizontal={SCREEN_PADDING_H}>
+                <YStack style={SHADOW_CARD}>
+                  <Avatar
+                    circular
+                    size={104}
+                    borderWidth={3}
+                    borderColor="$accent8"
+                  >
+                    {user.avatarUrl ? (
+                      <Avatar.Image src={user.avatarUrl} />
+                    ) : (
+                      <Avatar.Fallback
+                        backgroundColor="$accent5"
+                        alignItems="center"
+                        justifyContent="center"
+                      >
+                        <Text color="$accent12" fontSize="$8" fontWeight="700">
+                          {initial}
+                        </Text>
+                      </Avatar.Fallback>
+                    )}
+                  </Avatar>
+                </YStack>
                 <YStack flex={1} gap="$1">
                   <Text
-                    fontSize="$8"
+                    fontSize="$9"
                     fontWeight="700"
                     color="$color12"
-                    style={{ letterSpacing: -0.5 }}
+                    style={{ letterSpacing: -0.8 }}
                   >
                     {displayName}
                   </Text>
                   {user.username && user.name && (
-                    <Text fontSize="$4" fontWeight="500" color="$color11">
+                    <Text
+                      fontSize="$3"
+                      fontWeight="500"
+                      color="$color10"
+                      fontFamily={"SpaceMono" as any}
+                    >
                       @{user.username}
                     </Text>
                   )}
@@ -182,18 +194,18 @@ export function ProfileView({
                 <Text
                   fontSize="$4"
                   color="$color11"
-                  lineHeight="$5"
-                  paddingHorizontal={16}
+                  lineHeight={22}
+                  paddingHorizontal={SCREEN_PADDING_H}
                 >
                   {user.bio}
                 </Text>
               )}
 
-              <XStack gap="$3" flexWrap="wrap">
+              <XStack gap="$3" flexWrap="wrap" paddingHorizontal={SCREEN_PADDING_H}>
                 <StatPill
                   value={stats.booksRead}
                   label="books"
-                  icon={<BookOpen size={14} color="$accent10" />}
+                  icon={<BookOpen size={16} color="$accent10" />}
                 />
                 {stats.avgRating !== null && (
                   <Theme name="star">
@@ -202,7 +214,7 @@ export function ProfileView({
                       label="avg"
                       icon={
                         <Star
-                          size={14}
+                          size={16}
                           color="$accent10"
                           fill={theme.accent10.get()}
                         />
@@ -213,11 +225,13 @@ export function ProfileView({
               </XStack>
 
               {isOwnProfile && (
-                <XStack gap="$3">
+                <XStack gap="$3" paddingHorizontal={SCREEN_PADDING_H}>
                   <Button
                     size="$3"
                     variant="outlined"
-                    borderColor="$color6"
+                    borderColor="$color5"
+                    borderRadius={RADIUS_SM}
+                    height={42}
                     flex={1}
                     onPress={() => router.push("/edit-profile")}
                   >

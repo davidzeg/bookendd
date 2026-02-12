@@ -1,9 +1,8 @@
-import { Avatar, Image, Text, XStack, YStack, Theme } from "tamagui";
+import { Avatar, Text, XStack, YStack } from "tamagui";
 import { useRouter } from "expo-router";
 import { StarDisplay } from "@/components/ui/StarDisplay";
-
-const PLACEHOLDER_COVER =
-  "https://placehold.co/48x72/1a1a2e/666666?text=No+Cover";
+import { BookCover } from "@/components/ui/BookCover";
+import { RADIUS_MD, SHADOW_SUBTLE } from "@/components/ui/tokens";
 
 type FeedItem = {
   id: string;
@@ -88,9 +87,12 @@ export function FeedCard({ item }: FeedCardProps) {
   return (
     <YStack
       backgroundColor="$color2"
-      borderRadius={12}
+      borderWidth={1}
+      borderColor="$color3"
+      borderRadius={RADIUS_MD}
       padding="$3"
       gap="$3"
+      style={SHADOW_SUBTLE}
     >
       {/* User row */}
       <XStack
@@ -133,22 +135,21 @@ export function FeedCard({ item }: FeedCardProps) {
         accessibilityLabel={`${item.book.title} by ${item.book.author ?? "unknown author"}`}
         accessibilityRole="button"
       >
-        <YStack borderRadius={6} overflow="hidden">
-          <Image
-            src={item.book.coverUrl ?? PLACEHOLDER_COVER}
-            width={48}
-            height={72}
-            backgroundColor="$color3"
-          />
-        </YStack>
+        <BookCover uri={item.book.coverUrl} size="feed" />
 
         <YStack flex={1} gap="$1">
-          <Text fontSize="$3" color="$color10">
+          <Text
+            fontSize="$2"
+            fontWeight="600"
+            color="$color10"
+            textTransform="uppercase"
+            style={{ letterSpacing: 0.8 }}
+          >
             {getStatusText(item.status)}
           </Text>
           <Text
             fontSize="$4"
-            fontWeight="600"
+            fontWeight="700"
             color="$color12"
             numberOfLines={2}
           >
@@ -161,7 +162,7 @@ export function FeedCard({ item }: FeedCardProps) {
           )}
           <XStack gap="$2" alignItems="center" marginTop="$1">
             {item.status === "FINISHED" && item.rating && (
-              <StarDisplay rating={item.rating} size={12} />
+              <StarDisplay rating={item.rating} />
             )}
             {item.word && (
               <Text fontSize="$2" color="$accent10" fontStyle="italic">

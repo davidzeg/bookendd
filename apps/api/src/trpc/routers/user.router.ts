@@ -323,7 +323,6 @@ export const userRouter = router({
   }),
 
   deleteMyAccount: protectedProcedure.mutation(async ({ ctx }) => {
-    // Prisma cascade deletes handle Log and UserTopBook records
     await ctx.prisma.user.delete({
       where: { id: ctx.user.id },
     });

@@ -1,6 +1,7 @@
 import { ScrollView, Text, YStack, Theme } from "tamagui";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { RefreshControl } from "react-native";
+import { BookOpen } from "@tamagui/lucide-icons";
 import { trpc } from "@/lib/trpc";
 import {
   GreetingHeader,
@@ -12,6 +13,7 @@ import { CurrentlyReading } from "@/components/CurrentlyReading";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Button } from "@/components/ui/Button";
+import { SCREEN_PADDING_H, RADIUS_MD } from "@/components/ui/tokens";
 
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
@@ -75,14 +77,14 @@ export default function HomeScreen() {
         flex={1}
         contentInsetAdjustmentBehavior="never"
         contentContainerStyle={{
-          paddingHorizontal: 16,
+          paddingHorizontal: SCREEN_PADDING_H,
           paddingBottom: insets.bottom + 16,
         }}
         refreshControl={
           <RefreshControl refreshing={isRefreshing} onRefresh={handleRefresh} />
         }
       >
-        <YStack gap="$6">
+        <YStack gap="$8">
           {/* A. Greeting Header */}
           <GreetingHeader name={user.name} />
 
@@ -107,7 +109,7 @@ export default function HomeScreen() {
                   <YStack
                     key={i}
                     backgroundColor="$color2"
-                    borderRadius={12}
+                    borderRadius={RADIUS_MD}
                     padding="$3"
                     height={120}
                     opacity={0.5}
@@ -119,7 +121,7 @@ export default function HomeScreen() {
             {feedQuery.isError && (
               <YStack
                 padding="$4"
-                borderRadius={12}
+                borderRadius={RADIUS_MD}
                 backgroundColor="$color2"
                 alignItems="center"
                 gap="$2"
@@ -141,6 +143,7 @@ export default function HomeScreen() {
               <EmptyState
                 title="No activity yet"
                 description="Be the first to log a book!"
+                icon={<BookOpen size={40} color="$color8" />}
                 minHeight={100}
               />
             )}

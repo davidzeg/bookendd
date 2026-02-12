@@ -1,19 +1,21 @@
 import { XStack, YStack } from "tamagui";
+import { COVER, RADIUS_MD, SHADOW_SUBTLE } from "./ui/tokens";
 
 export function BookCardSkeleton() {
   return (
     <XStack
       backgroundColor="$color2"
-      borderRadius="$4"
+      borderRadius={RADIUS_MD}
       padding="$3"
       gap="$3"
       borderWidth={1}
-      borderColor="$color4"
+      borderColor="$color3"
+      style={SHADOW_SUBTLE}
     >
       <YStack
-        width={60}
-        height={90}
-        borderRadius="$3"
+        width={COVER.card.w}
+        height={COVER.card.h}
+        borderRadius={RADIUS_MD}
         backgroundColor="$color3"
       />
       <YStack flex={1} justifyContent="center" gap="$2">

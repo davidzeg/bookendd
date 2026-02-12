@@ -19,7 +19,6 @@ async function bootstrap() {
     credentials: true,
   });
 
-  // Rate limit tRPC endpoints — NestJS ThrottlerGuard does not cover raw Express middleware
   const trpcLimiter = rateLimit({
     windowMs: 60 * 1000,
     limit: 100,

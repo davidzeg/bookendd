@@ -13,6 +13,7 @@ import { useEffect, useRef } from "react";
 import "react-native-reanimated";
 
 import { useColorScheme } from "react-native";
+import { AlertCircle } from "@tamagui/lucide-icons";
 import { Spinner, TamaguiProvider, YStack, Text } from "tamagui";
 import { tamaguiConfig } from "../tamagui.config";
 import { TRPCProvider } from "@/lib/trpc-provider";
@@ -191,12 +192,18 @@ function AuthGate() {
         justifyContent="center"
         alignItems="center"
         backgroundColor="$background"
-        gap="$3"
+        gap="$4"
       >
-        <Spinner size="large" color="$accent10" />
-        <Text color="$color11" textAlign="center">
-          Setting up your account...
+        <Text
+          fontFamily={"SpaceMono" as any}
+          fontSize="$7"
+          fontWeight="700"
+          color="$accent10"
+          style={{ letterSpacing: -0.5 }}
+        >
+          antilogos
         </Text>
+        <Spinner size="small" color="$accent10" />
       </YStack>
     );
   }
@@ -211,6 +218,7 @@ function AuthGate() {
         padding="$6"
         gap="$3"
       >
+        <AlertCircle size={48} color="$color8" />
         <Text fontSize="$5" color="$color12" textAlign="center">
           Something went wrong
         </Text>

@@ -1,10 +1,12 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Spinner, Text, YStack } from "tamagui";
-import { ArrowLeft } from "@tamagui/lucide-icons";
+import { Text, YStack } from "tamagui";
+import { AlertCircle, ArrowLeft, UserX } from "@tamagui/lucide-icons";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/Button";
 import { ProfileView } from "@/components/ProfileView";
+import { ProfileViewSkeleton } from "@/components/skeletons/ProfileViewSkeleton";
+import { SCREEN_PADDING_H } from "@/components/ui/tokens";
 
 export default function UserProfileScreen() {
   const { username } = useLocalSearchParams<{ username: string }>();
@@ -17,16 +19,7 @@ export default function UserProfileScreen() {
   );
 
   if (profileQuery.isLoading) {
-    return (
-      <YStack
-        flex={1}
-        justifyContent="center"
-        alignItems="center"
-        backgroundColor="$background"
-      >
-        <Spinner size="large" color="$accent10" />
-      </YStack>
-    );
+    return <ProfileViewSkeleton />;
   }
 
   if (profileQuery.isError) {
@@ -35,12 +28,13 @@ export default function UserProfileScreen() {
         flex={1}
         backgroundColor="$background"
         paddingTop={insets.top + 16}
-        paddingHorizontal="$4"
+        paddingHorizontal={SCREEN_PADDING_H}
       >
         <Button size="$3" circular chromeless onPress={() => router.back()}>
           <ArrowLeft size={24} color="$color12" />
         </Button>
         <YStack flex={1} justifyContent="center" alignItems="center" gap="$3">
+          <AlertCircle size={48} color="$color8" />
           <Text fontSize="$6" fontWeight="600" color="$color12">
             Something went wrong
           </Text>
@@ -66,12 +60,13 @@ export default function UserProfileScreen() {
         flex={1}
         backgroundColor="$background"
         paddingTop={insets.top + 16}
-        paddingHorizontal="$4"
+        paddingHorizontal={SCREEN_PADDING_H}
       >
         <Button size="$3" circular chromeless onPress={() => router.back()}>
           <ArrowLeft size={24} color="$color12" />
         </Button>
         <YStack flex={1} justifyContent="center" alignItems="center" gap="$3">
+          <UserX size={48} color="$color8" />
           <Text fontSize="$6" fontWeight="600" color="$color12">
             User not found
           </Text>

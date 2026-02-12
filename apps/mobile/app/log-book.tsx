@@ -2,7 +2,6 @@ import { useState } from "react";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
-  Image,
   Text,
   XStack,
   YStack,
@@ -13,6 +12,8 @@ import {
 import { Star, X } from "@tamagui/lucide-icons";
 import { Button } from "@/components/ui/Button";
 import { StatusButton } from "@/components/ui/StatusButton";
+import { BookCover } from "@/components/ui/BookCover";
+import { RADIUS_SM, RADIUS_MD, SCREEN_PADDING_H } from "@/components/ui/tokens";
 import { Alert, KeyboardAvoidingView, Platform } from "react-native";
 import { trpc } from "@/lib/trpc";
 import { analytics } from "@/lib/posthog";
@@ -143,7 +144,7 @@ export default function LogBookModal() {
         <XStack
           justifyContent="space-between"
           alignItems="center"
-          paddingHorizontal="$4"
+          paddingHorizontal={SCREEN_PADDING_H}
           paddingVertical="$3"
         >
           <Button
@@ -168,33 +169,16 @@ export default function LogBookModal() {
           backgroundColor="$background"
         >
           <XStack
-            padding="$4"
+            padding={SCREEN_PADDING_H}
             gap="$4"
             borderBottomWidth={1}
-            borderColor="$color4"
+            borderColor="$color3"
           >
-            <YStack
-              borderRadius="$3"
-              overflow="hidden"
-              shadowColor="$color1"
-              shadowOffset={{ width: 0, height: 4 }}
-              shadowOpacity={0.3}
-              shadowRadius={8}
-            >
-              <Image
-                src={
-                  params.coverUrl ||
-                  "https://placehold.co/80x120/1a1a2e/666666?text=No+Cover"
-                }
-                width={80}
-                height={120}
-                backgroundColor="$color2"
-              />
-            </YStack>
+            <BookCover uri={params.coverUrl || null} size="modal" />
             <YStack flex={1} justifyContent="center" gap="$1">
               <Text
-                fontSize="$5"
-                fontWeight="600"
+                fontSize="$6"
+                fontWeight="700"
                 color="$color12"
                 numberOfLines={2}
               >
@@ -206,16 +190,22 @@ export default function LogBookModal() {
                 </Text>
               )}
               {params.year && (
-                <Text fontSize="$2" color="$color10">
+                <Text fontSize="$2" color="$color10" fontFamily={"SpaceMono" as any}>
                   {params.year}
                 </Text>
               )}
             </YStack>
           </XStack>
 
-          <YStack padding="$4" gap="$3">
-            <Text fontSize="$3" fontWeight="600" color="$color12">
-              STATUS
+          <YStack padding={SCREEN_PADDING_H} gap="$3">
+            <Text
+              fontSize="$3"
+              fontWeight="600"
+              color="$color10"
+              textTransform="uppercase"
+              style={{ letterSpacing: 0.5 }}
+            >
+              Status
             </Text>
             <XStack gap="$3">
               <StatusButton
@@ -234,18 +224,30 @@ export default function LogBookModal() {
           </YStack>
 
           {status === "FINISHED" && (
-            <YStack padding="$4" gap="$3">
-              <Text fontSize="$3" fontWeight="600" color="$color12">
-                RATING
+            <YStack padding={SCREEN_PADDING_H} gap="$3">
+              <Text
+                fontSize="$3"
+                fontWeight="600"
+                color="$color10"
+                textTransform="uppercase"
+                style={{ letterSpacing: 0.5 }}
+              >
+                Rating
               </Text>
               <StarRating rating={rating} onRate={setRating} />
             </YStack>
           )}
 
           {(status === "FINISHED" || status === "DNF") && (
-            <YStack padding="$4" gap="$3">
-              <Text fontSize="$3" fontWeight="600" color="$color12">
-                DESCRIBE IN ONE WORD
+            <YStack padding={SCREEN_PADDING_H} gap="$3">
+              <Text
+                fontSize="$3"
+                fontWeight="600"
+                color="$color10"
+                textTransform="uppercase"
+                style={{ letterSpacing: 0.5 }}
+              >
+                Describe in one word
               </Text>
               <Input
                 value={word}
@@ -255,8 +257,9 @@ export default function LogBookModal() {
                 maxLength={30}
                 autoCapitalize="none"
                 backgroundColor="$color2"
-                borderColor="$color4"
+                borderColor="$color3"
                 borderWidth={1}
+                borderRadius={RADIUS_SM}
                 color="$color12"
                 placeholderTextColor="$color9"
                 accessibilityLabel="Describe this book in one word"
@@ -269,9 +272,15 @@ export default function LogBookModal() {
           )}
 
           {(status === "FINISHED" || status === "DNF") && (
-            <YStack padding="$4" gap="$3">
-              <Text fontSize="$3" fontWeight="600" color="$color12">
-                REVIEW
+            <YStack padding={SCREEN_PADDING_H} gap="$3">
+              <Text
+                fontSize="$3"
+                fontWeight="600"
+                color="$color10"
+                textTransform="uppercase"
+                style={{ letterSpacing: 0.5 }}
+              >
+                Review
               </Text>
               <Input
                 value={review}
@@ -283,8 +292,9 @@ export default function LogBookModal() {
                 numberOfLines={4}
                 textAlignVertical="top"
                 backgroundColor="$color2"
-                borderColor="$color4"
+                borderColor="$color3"
                 borderWidth={1}
+                borderRadius={RADIUS_SM}
                 color="$color12"
                 placeholderTextColor="$color9"
                 minHeight={100}
@@ -298,11 +308,13 @@ export default function LogBookModal() {
 
           <YStack flex={1} minHeight={24} />
 
-          <YStack padding="$4" paddingBottom={insets.bottom + 16}>
+          <YStack paddingHorizontal={SCREEN_PADDING_H} paddingBottom={insets.bottom + 16}>
             <Button
               size="$5"
               theme={canSave ? "accent" : undefined}
               variant={canSave ? undefined : "outlined"}
+              borderRadius={RADIUS_MD}
+              height={56}
               onPress={handleSave}
               disabled={!canSave || isSubmitting}
               opacity={!canSave || isSubmitting ? 0.6 : 1}

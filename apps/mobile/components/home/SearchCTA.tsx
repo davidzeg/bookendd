@@ -3,6 +3,7 @@ import { Search } from "@tamagui/lucide-icons";
 import { Pressable } from "react-native";
 import { useRouter } from "expo-router";
 import { haptics } from "@/lib/haptics";
+import { RADIUS_LG, RADIUS_MD, SHADOW_CARD } from "@/components/ui/tokens";
 
 export function SearchCTA() {
   const router = useRouter();
@@ -20,29 +21,30 @@ export function SearchCTA() {
     >
       {({ pressed }) => (
         <XStack
-          backgroundColor="$accent6"
-          borderRadius={16}
+          backgroundColor="$accent7"
+          borderRadius={RADIUS_LG}
           padding="$5"
           gap="$4"
           alignItems="center"
           justifyContent="center"
           opacity={pressed ? 0.9 : 1}
-          style={{
-            transform: [{ scale: pressed ? 0.98 : 1 }],
-          }}
+          style={[
+            { transform: [{ scale: pressed ? 0.98 : 1 }] },
+            SHADOW_CARD,
+          ]}
         >
           <YStack
-            backgroundColor="$accent8"
-            borderRadius={12}
+            backgroundColor="$accent9"
+            borderRadius={RADIUS_MD}
             padding="$3"
           >
             <Search size={24} color="$color12" />
           </YStack>
           <YStack flex={1} gap="$1">
-            <Text fontSize="$5" fontWeight="600" color="$color12">
+            <Text fontSize="$6" fontWeight="700" color="$color12">
               Log a book
             </Text>
-            <Text fontSize="$3" color="$accent11">
+            <Text fontSize="$3" color="$accent12" opacity={0.7}>
               Search and track what you've read
             </Text>
           </YStack>

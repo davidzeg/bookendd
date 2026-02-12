@@ -38,7 +38,6 @@ const lightPalette = [
   "hsla(260, 20%, 4%, 1)", // 12 - primary text
 ];
 
-// Your custom accent color theme
 const accentLight = {
   accent1: "hsla(262, 70%, 30%, 1)",
   accent2: "hsla(262, 72%, 35%, 1)",

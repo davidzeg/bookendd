@@ -14,10 +14,12 @@ import {
   XStack,
   YStack,
 } from "tamagui";
+import { Camera } from "@tamagui/lucide-icons";
 import { trpc } from "@/lib/trpc";
 import { TextButton } from "@/components/ui/TextButton";
 import { uploadAvatar } from "@/lib/cloudinary";
 import { analytics } from "@/lib/posthog";
+import { RADIUS_SM, SCREEN_PADDING_H, SHADOW_CARD } from "@/components/ui/tokens";
 
 export default function EditProfileScreen() {
   const router = useRouter();
@@ -189,7 +191,7 @@ export default function EditProfileScreen() {
           contentInsetAdjustmentBehavior="never"
           contentContainerStyle={{
             paddingBottom: insets.bottom + 24,
-            paddingHorizontal: 16,
+            paddingHorizontal: SCREEN_PADDING_H,
           }}
         >
           <YStack gap="$6">
@@ -212,29 +214,34 @@ export default function EditProfileScreen() {
           </XStack>
 
           <YStack alignItems="center" gap="$3">
-            <Avatar
-              circular
-              size={120}
-              borderWidth={3}
-              borderColor="$accent6"
-              onPress={pickImage}
-              pressStyle={{ opacity: 0.8 }}
-            >
-              {displayAvatar ? (
-                <Avatar.Image src={displayAvatar} />
-              ) : (
-                <Avatar.Fallback
-                  backgroundColor="$accent5"
-                  alignItems="center"
-                  justifyContent="center"
-                >
-                  <Text color="$accent12" fontSize="$9" fontWeight="700">
-                    {initial}
-                  </Text>
-                </Avatar.Fallback>
-              )}
-            </Avatar>
-            <TextButton label="Change Photo" onPress={pickImage} />
+            <YStack style={SHADOW_CARD}>
+              <Avatar
+                circular
+                size={128}
+                borderWidth={3}
+                borderColor="$accent8"
+                onPress={pickImage}
+                pressStyle={{ opacity: 0.8 }}
+              >
+                {displayAvatar ? (
+                  <Avatar.Image src={displayAvatar} />
+                ) : (
+                  <Avatar.Fallback
+                    backgroundColor="$accent5"
+                    alignItems="center"
+                    justifyContent="center"
+                  >
+                    <Text color="$accent12" fontSize="$9" fontWeight="700">
+                      {initial}
+                    </Text>
+                  </Avatar.Fallback>
+                )}
+              </Avatar>
+            </YStack>
+            <XStack gap="$2" alignItems="center">
+              <Camera size={16} color="$accent10" />
+              <TextButton label="Change Photo" onPress={pickImage} />
+            </XStack>
           </YStack>
 
           <YStack gap="$4">
@@ -248,7 +255,8 @@ export default function EditProfileScreen() {
                 placeholder="Your name"
                 maxLength={100}
                 backgroundColor="$color2"
-                borderColor="$color6"
+                borderColor="$color4"
+                borderRadius={RADIUS_SM}
               />
             </YStack>
 
@@ -263,7 +271,8 @@ export default function EditProfileScreen() {
                 maxLength={500}
                 numberOfLines={4}
                 backgroundColor="$color2"
-                borderColor="$color6"
+                borderColor="$color4"
+                borderRadius={RADIUS_SM}
               />
               <Text fontSize="$2" color="$color10" textAlign="right">
                 {bio.length}/500
@@ -276,7 +285,7 @@ export default function EditProfileScreen() {
             marginTop="$6"
             paddingTop="$6"
             borderTopWidth={1}
-            borderTopColor="$color4"
+            borderTopColor="$color3"
           >
             <Text fontSize="$3" fontWeight="600" color="$color11">
               Account

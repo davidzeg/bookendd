@@ -1,9 +1,9 @@
-import { Image, ScrollView, Text, YStack } from "tamagui";
+import { ScrollView, Text, YStack } from "tamagui";
 import { useRouter } from "expo-router";
+import { Heart } from "@tamagui/lucide-icons";
 import { EmptyState } from "./ui/EmptyState";
-
-const PLACEHOLDER_COVER =
-  "https://placehold.co/120x180/1a1a2e/666666?text=No+Cover";
+import { BookCover } from "./ui/BookCover";
+import { COVER } from "./ui/tokens";
 
 type FavoriteBook = {
   id: string;
@@ -39,28 +39,22 @@ function CoverTile({ book }: { book: FavoriteBook["book"] }) {
 
   return (
     <YStack
-      flex={1}
       alignItems="center"
       gap="$2"
-      onPress={handlePress}
-      pressStyle={{ opacity: 0.7, scale: 0.97 }}
-      accessibilityLabel={`${book.title} by ${book.author ?? "unknown author"}`}
-      accessibilityRole="button"
     >
-      <YStack borderRadius="$3" overflow="hidden">
-        <Image
-          src={book.coverUrl ?? PLACEHOLDER_COVER}
-          width={80}
-          height={120}
-          backgroundColor="$color3"
-        />
-      </YStack>
+      <BookCover
+        uri={book.coverUrl}
+        size="shelf"
+        onPress={handlePress}
+        accessibilityLabel={`${book.title} by ${book.author ?? "unknown author"}`}
+      />
       <Text
         fontSize="$2"
+        fontWeight="500"
         color="$color11"
         numberOfLines={1}
         textAlign="center"
-        width={80}
+        width={COVER.shelf.w}
       >
         {book.title}
       </Text>
@@ -74,6 +68,7 @@ export function FavoritesPreview({ favorites }: FavoritesPreviewProps) {
       <EmptyState
         title="No favorites yet"
         description="Rate books 5 or 6 stars and they'll appear here"
+        icon={<Heart size={40} color="$color8" />}
       />
     );
   }
@@ -83,7 +78,7 @@ export function FavoritesPreview({ favorites }: FavoritesPreviewProps) {
       horizontal
       showsHorizontalScrollIndicator={false}
       contentContainerStyle={{
-        gap: 12,
+        gap: 16,
         paddingHorizontal: 4,
       }}
     >
