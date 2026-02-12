@@ -12,7 +12,12 @@ import { Alert } from "react-native";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/Button";
 import { BookCover } from "@/components/ui/BookCover";
-import { RADIUS_MD, RADIUS_LG, SCREEN_PADDING_H, SHADOW_SUBTLE } from "@/components/ui/tokens";
+import {
+  RADIUS_MD,
+  RADIUS_LG,
+  SCREEN_PADDING_H,
+  SHADOW_SUBTLE,
+} from "@/components/ui/tokens";
 import { haptics } from "@/lib/haptics";
 import { analytics } from "@/lib/posthog";
 
@@ -69,25 +74,20 @@ export default function BookDetailScreen() {
     };
   }, [params.openLibraryId]);
 
-  // Check existing logs for this book (limited to 20 most recent)
-  const logsQuery = trpc.log.listMine.useQuery();
-  const existingLog =
-    logsQuery.data?.find(
-      (log) => log.book.openLibraryId === params.openLibraryId,
-    ) ?? null;
+  const bookStatusQuery = trpc.log.bookStatus.useQuery({
+    openLibraryId: params.openLibraryId,
+  });
+  const existingLog = bookStatusQuery.data ?? null;
   const activeReadingLog =
-    logsQuery.data?.find(
-      (log) =>
-        log.book.openLibraryId === params.openLibraryId &&
-        log.status === "READING",
-    ) ?? null;
-  const statusLog = activeReadingLog ?? existingLog;
+    existingLog?.status === "READING" ? existingLog : null;
+  const statusLog = existingLog;
 
   const createLog = trpc.log.create.useMutation({
     onSuccess: () => {
       haptics.success();
       analytics.bookStarted();
       utils.log.listMine.invalidate();
+      utils.log.bookStatus.invalidate({ openLibraryId: params.openLibraryId });
       utils.user.topBooksMine.invalidate();
       utils.user.myProfile.invalidate();
       router.back();
@@ -169,7 +169,12 @@ export default function BookDetailScreen() {
         backgroundColor="$background"
       >
         {/* Book Info */}
-        <YStack alignItems="center" padding={SCREEN_PADDING_H} gap="$3" marginTop={8}>
+        <YStack
+          alignItems="center"
+          padding={SCREEN_PADDING_H}
+          gap="$3"
+          marginTop={8}
+        >
           <BookCover uri={params.coverUrl || null} size="detail" />
 
           <Text
@@ -184,7 +189,12 @@ export default function BookDetailScreen() {
             {params.title}
           </Text>
           {params.author ? (
-            <Text fontSize="$5" fontWeight="500" color="$color11" textAlign="center">
+            <Text
+              fontSize="$5"
+              fontWeight="500"
+              color="$color11"
+              textAlign="center"
+            >
               {params.author}
             </Text>
           ) : null}
@@ -202,7 +212,11 @@ export default function BookDetailScreen() {
 
         {/* Status Badge */}
         {statusLog && (
-          <YStack paddingHorizontal={SCREEN_PADDING_H} paddingBottom="$3" alignItems="center">
+          <YStack
+            paddingHorizontal={SCREEN_PADDING_H}
+            paddingBottom="$3"
+            alignItems="center"
+          >
             <StatusBadge status={statusLog.status} />
           </YStack>
         )}
@@ -244,7 +258,11 @@ export default function BookDetailScreen() {
         <YStack flex={1} minHeight={24} />
 
         {/* CTA Buttons */}
-        <YStack paddingHorizontal={SCREEN_PADDING_H} paddingBottom={insets.bottom + 16} gap="$4">
+        <YStack
+          paddingHorizontal={SCREEN_PADDING_H}
+          paddingBottom={insets.bottom + 16}
+          gap="$4"
+        >
           {activeReadingLog ? (
             <Button
               size="$5"

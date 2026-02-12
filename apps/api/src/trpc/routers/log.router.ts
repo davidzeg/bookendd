@@ -381,6 +381,45 @@ export const logRouter = router({
 
       return result;
     }),
+
+  bookStatus: protectedProcedure
+    .input(
+      z.object({
+        openLibraryId: z
+          .string()
+          .min(1)
+          .refine((id) => id.startsWith('/works'), {
+            message: 'Must be an OpenLibrary work ID',
+          }),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const latestLog = await ctx.prisma.log.findFirst({
+        where: {
+          userId: ctx.user.id,
+          book: { openLibraryId: input.openLibraryId },
+        },
+        select: {
+          id: true,
+          status: true,
+          rating: true,
+          word: true,
+          createdAt: true,
+          startedAt: true,
+          book: {
+            select: {
+              id: true,
+              openLibraryId: true,
+              title: true,
+              author: true,
+              coverUrl: true,
+            },
+          },
+        },
+        orderBy: { createdAt: 'desc' },
+      });
+      return latestLog;
+    }),
 });
 
 export type CreateLogInput = z.infer<typeof createLogInputSchema>;
